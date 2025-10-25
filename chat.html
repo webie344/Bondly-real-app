@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Bondly</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    body {
+        font-family: 'Nunito', sans-serif;
+    }
+    .message.sending {
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.message.sending .message-time {
+    font-style: italic;
+    color: var(--text-light);
+}
+    
+    .voice-message-play-btn {
+    z-index: 10; /* Ensure it's above other elements */
+    pointer-events: auto; /* Make sure it's clickable */
+}
+.voice-note-indicator {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background-color: #f5f5f5;
+        border-radius: 25px;
+        margin: 10px 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .voice-note-timer {
+        font-size: 14px;
+        color: #333;
+        font-weight: bold;
+    }
+    
+    .voice-note-controls {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .voice-note-btn {
+        background: none;
+        border: none;
+        color: #ff4757;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 50%;
+        transition: all 0.3s;
+    }
+    
+    .voice-note-btn:hover {
+        background-color: rgba(255, 71, 87, 0.1);
+    }
+.voice-message-controls {
+    pointer-events: none; /* Let clicks pass through to children */
+}
+
+.voice-message-controls > * {
+    pointer-events: auto; /* But make children clickable */
+}
+
+
+
+/* Call Controls - Right Aligned Positioning */
+.call-controls {
+    position: fixed;
+    right: 15px;
+    margin-top:50px ;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 10px;
+    z-index:100 ;
+}
+
+.call-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    color: #333;
+}
+
+.call-btn:hover {
+    background: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.call-btn i {
+    font-size: 16px;
+}
+
+/* Voice call button specific */
+#voiceCallBtn {
+    background: rgba(76, 175, 80, 0.9); /* Green */
+    color: white;
+}
+
+#voiceCallBtn:hover {
+    background: #4CAF50;
+}
+
+/* Video call button specific */
+#videoCallBtn {
+    background: rgba(33, 150, 243, 0.9); /* Blue */
+    color: white;
+}
+
+#videoCallBtn:hover {
+    background: #2196F3;
+}
+
+
+@media (max-width: 480px) {
+    .call-controls {
+        right: 8px;
+        gap: 6px;
+    }
+    
+    .call-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .call-btn i {
+        font-size: 13px;
+    }
+    
+    .chat-partner-info {
+        max-width: calc(100% - 90px);
+    }
+}
+/* Chat messages container with wallpaper background */
+.chat-messages {
+    background-image: url('darkwallpaper.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    position: relative;
+}
+
+/* Add a semi-transparent overlay for better readability */
+.chat-messages::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4); /* Adjust opacity as needed */
+    z-index: 0;
+}
+
+/* Ensure messages appear above the overlay */
+.message {
+    position: relative;
+    z-index: ;
+}
+
+/* Optional: Adjust message backgrounds for better contrast with wallpaper */
+.message.sent {
+    background-color: rgba(86, 101, 242, 0.9); /* Discord blurple with transparency */
+    backdrop-filter: blur(5px);
+}
+
+.message.received {
+    background-color: rgba(47, 49, 54, 0.85); /* Discord darker with transparency */
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(64, 68, 75, 0.5);
+}
+
+/* Adjust message text for better readability on wallpaper */
+.message {
+    color: var(--discord-text);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Adjust timestamp text */
+.message-time {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+    
+    /* Message Reactions */
+    /* Reaction Picker - FIXED POSITIONING */
+    .message-reactions {
+        display: flex;
+        gap: 5px;
+        margin-top: 5px;
+        flex-wrap: wrap;
+    }
+    
+    .reaction {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        padding: 2px 6px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .reaction-count {
+        font-size: 10px;
+        color: #666;
+    }
+    
+    /* Reaction Picker - FIXED STYLES */
+    .reaction-picker {
+        position: fixed;
+        background: white;
+        border-radius: 24px;
+        padding: 10px 15px;
+        display: flex;
+        gap: 6px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        animation: slideUp 0.1s ease-out;
+        border: 1px solid #e0e0e0;
+        max-width: calc(100vw - 40px);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .reaction-emoji {
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 5px;
+        min-width: 30px;
+        text-align: center;
+    }
+    
+    .reaction-emoji:hover {
+        transform: scale(1.3);
+        background: #f0f0f0;
+        border-radius: 50%;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .reaction-picker {
+            padding: 8px 12px;
+            gap: 8px;
+            max-width: 90vw;
+            margin: 0 auto;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+        }
+        
+        .reaction-emoji {
+            font-size: 22px;
+            min-width: 28px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .reaction-emoji {
+            font-size: 20px;
+            padding: 4px;
+            min-width: 26px;
+        }
+    }
+    
+    /* Reply Preview */
+    .reply-preview {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background: #f5f5f5;
+        border-left: 3px solid #ff4757;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+    
+    .reply-preview-content {
+        flex: 1;
+        margin-left: 10px;
+        overflow: hidden;
+    }
+    
+    .reply-preview-text {
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #666;
+    }
+    
+    .reply-preview-name {
+        font-size: 12px;
+        font-weight: bold;
+        color: #ff4757;
+    }
+    
+    .reply-preview-cancel {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 5px;
+    }
+    
+    /* Message context menu */
+    .message-context-menu {
+        position: absolute;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        padding: 8px 0;
+        display: none;
+    }
+    
+    .context-menu-item {
+        padding: 10px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+    
+    .context-menu-item:hover {
+        background: #f5f5f5;
+    }
+    
+    /* Swipe for reply */
+
+    .reply-indicator {
+        font-size: 12px;
+        color: #ff4757;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .reply-indicator i {
+        font-size: 10px;
+    }
+    
+    .reply-message-preview {
+        background: rgba(0, 0, 0, 0.05);
+        border-left: 2px solid #ff4757;
+        padding: 4px 8px;
+        margin-bottom: 4px;
+        border-radius: 4px;
+        font-size: 12px;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    </style>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <button class="back-btn" id="backToMessages"><i class="fas fa-arrow-left"></i></button>
+            <div class="chat-partner-info">
+                <img src="images-default-profile.jpg" alt="Profile" id="chatPartnerImage">
+                <div>
+                    <h3 id="chatPartnerName">Loading..</h3>
+                    <p class="online-status" id="chatPartnerStatus"><i class="fas fa-circle"></i> Online</p>
+                </div>
+               <!-- Add these buttons to your chat.html -->
+<!-- Add this right after your chat header div -->
+<!-- Add this right after your chat header div -->
+<div id="callControls" class="call-controls">
+    <button id="voiceCallBtn" class="call-btn">
+        <i class="fas fa-phone"></i> 
+    </button>
+    <button id="videoCallBtn" class="call-btn">
+        <i class="fas fa-video"></i> 
+    </button>
+</div>
+
+        </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be loaded here -->
+        </div>
+        
+        <!-- Reaction Picker -->
+        <div id="reactionPicker" class="reaction-picker" style="display: none;">
+            <!-- Will be populated with emojis via JavaScript -->
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <span id="partnerNameTyping">Partner</span> is typing...
+            </div>
+            
+            <!-- Reply Preview -->
+            <div id="replyPreview" class="reply-preview" style="display: none;">
+                <div class="reply-preview-content">
+                    <div class="reply-preview-name"></div>
+                    <div class="reply-preview-text"></div>
+                </div>
+                <button id="cancelReply" class="reply-preview-cancel">✕</button>
+            </div>
+            
+            <!-- Voice note recording indicator -->
+            <div class="voice-note-indicator" id="voiceNoteIndicator">
+                <div class="voice-note-timer" id="voiceNoteTimer">0:00</div>
+                <div class="voice-note-controls">
+                    <button class="voice-note-btn" id="cancelVoiceNoteBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="voice-note-btn" id="sendVoiceNoteBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <button class="attachment-btn" id="attachmentBtn"><i class="fas fa-paperclip"></i></button>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                <button class="voice-note-btn-main" id="voiceNoteBtn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button class="send-btn" id="sendMessageBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    <script type="module" src="call.js"></script>
+
+     <script type="module" src="pic.js"></script>
+    
+     <script type="module" src="app.js"></script>
+    
+    <script type="module" src="additional.js"></script>
+     
+
+<script type="module" src="verification.js"></script>
+    
+    
+    <!-- Add this script for reaction picker positioning -->
+    <script>
+    // Function to position reaction picker properly
+    function positionReactionPicker(messageElement, pickerElement) {
+        const messageRect = messageElement.getBoundingClientRect();
+        const pickerRect = pickerElement.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        
+        // Default position - above the message
+        let top = messageRect.top - pickerRect.height - 10;
+        let left = messageRect.left + (messageRect.width / 2) - (pickerRect.width / 2);
+        
+        // Adjust if near viewport edges
+        if (left < 10) {
+            left = 10; // Minimum left margin
+        } else if (left + pickerRect.width > viewportWidth - 10) {
+            left = viewportWidth - pickerRect.width - 10; // Keep within right edge
+        }
+        
+        // If there's not enough space above, position below
+        if (top < 10) {
+            top = messageRect.bottom + 10;
+        }
+        
+        pickerElement.style.top = `${top}px`;
+        pickerElement.style.left = `${left}px`;
+        pickerElement.style.display = 'flex';
+    }
+    </script>
+</body>
+<!-- Add this at the bottom of your body, before closing </body> tag -->
+<div id="incomingCallModal" class="incoming-call-modal" style="display: none;">
+    <div class="incoming-call-content">
+        <h3>Incoming Call</h3>
+        <p id="incomingCallText">Someone is calling you</p>
+        <div class="incoming-call-buttons">
+            <button id="acceptCallBtn" class="call-response-btn accept-call">
+                <i class="fas fa-phone"></i> Accept
+            </button>
+            <button id="rejectCallBtn" class="call-response-btn reject-call">
+                <i class="fas fa-phone-slash"></i> Reject
+            </button>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Bondly</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">Bondly</a>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu">
+    <li class="nav-item">
+        <a href="mingle.html" class="nav-links">
+            <i class="fas fa-fire"></i>
+            <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="messages.html" class="nav-links">
+            <i class="fas fa-comments"></i>
+            <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
+            <span class="message-count">0</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="account.html" class="nav-links">
+            <i class="fas fa-user"></i>
+            <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" id="logoutBtn" class="nav-links">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="dashboard.html" class="nav-links">
+            <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </li>
+</ul>
+        </div>
+    </nav>
+
+    <div class="profile-view-container">
+        <div class="profile-gallery">
+            <div class="main-profile-image">
+                <img src="images-default-profile.jpg" alt="Profile" id="mainProfileImage">
+            </div>
+            <div class="thumbnail-container">
+    <img src="images-default-profile.jpg" alt="Thumbnail" class="thumbnail active" id="thumbnail1">
+    <img src="images-default-profile.jpg" alt="Thumbnail" class="thumbnail" id="thumbnail2">
+</div>
+        </div>
+        
+        <div class="profile-details">
+            <h1 id="viewProfileName">Loading..</h1>
+            <div class="profile-meta">
+                <span id="viewProfileAge">25</span>,
+                <span id="viewProfileLocation">New York</span>
+                <span class="online-status" id="onlineStatus"><i class="fas fa-circle"></i> Online</span>
+            </div>
+            
+            <div class="profile-bio">
+                <h3>About</h3>
+                <p id="viewProfileBio">Loading...</p>
+            </div>
+            
+            <div class="profile-interests">
+                <h3>Interests</h3>
+                <div class="interests-container" id="interestsContainer">
+                    <span class="interest-tag">Travel</span>
+                    <span class="interest-tag">Music</span>
+                    <span class="interest-tag">Sports</span>
+                </div>
+            </div>
+                        <!-- BANNER DISPLAYS HERE -->
+<div class="creative-profile-banner" id="profileBanner" style="display: none;"></div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <i class="fas fa-heart"></i>
+                    <span id="viewLikeCount">Loading</span> likes
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn-secondary" id="backToMingle"><i class="fas fa-arrow-left"></i> Back</button>
+                <button class="btn-primary" id="messageProfileBtn"><i class="fas fa-comment"></i> Message</button>
+                <button class="btn-like" id="likeProfileBtn"><i class="fas fa-heart"></i> Like</button>
+            </div>
+        </div>
+    </div>
+      <script type="module" src="call.js"></script>
+      <script type="module" src="message.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="additional.js"></script>
+    <script type="module" src="creative.js"></script>
+    
+</body>
+</html>

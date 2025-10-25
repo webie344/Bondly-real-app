@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Bondly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Discord-inspired color palette */
+      --discord-dark: #36393f;
+      --discord-darker: #2f3136;
+      --discord-darkest: #202225;
+      --discord-blurple: #5865f2;
+      --discord-blurple-light: #7983f5;
+      --discord-blurple-dark: #4752c4;
+      --discord-green: #57f287;
+      --discord-red: #ed4245;
+      --discord-text: #ffffff;
+      --discord-text-muted: #b9bbbe;
+      --discord-border: #40444b;
+      
+      /* Blue accent colors */
+      --primary-blue: #4a8cff;
+      --accent-blue: #5e9cff;
+      --dark-blue: #3a7be0;
+      
+      /* Theme variables */
+      --primary-color: var(--primary-blue);
+      --bg-color: var(--discord-dark);
+      --card-bg: var(--discord-darker);
+      --text-color: var(--discord-text);
+      --text-muted: var(--discord-text-muted);
+      --border-color: var(--discord-border);
+      --border-radius: 8px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(74, 140, 255, 0.03) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(94, 156, 255, 0.03) 0%, transparent 25%);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 450px;
+      margin: 0 auto;
+    }
+
+    .top-illustration {
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .top-illustration img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary-color);
+      box-shadow: 0 4px 20px rgba(74, 140, 255, 0.2);
+    }
+
+    .bubble {
+      position: absolute;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      font-weight: 600;
+      z-index: 10;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .bubble1 { 
+      top: -10px; 
+      left: 20px; 
+      animation-delay: 0s;
+    }
+    .bubble2 { 
+      top: -15px; 
+      right: 20px; 
+      animation-delay: 0.5s;
+    }
+    .bubble3 { 
+      bottom: -10px; 
+      left: 50%; 
+      transform: translateX(-50%);
+      animation-delay: 1s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .form-section {
+      background-color: var(--card-bg);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+    }
+
+    .form-section h2 {
+      font-size: 26px;
+      margin-bottom: 8px;
+      color: var(--text-color);
+      text-align: center;
+    }
+
+    .form-section p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    input {
+      padding: 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      background: var(--discord-dark);
+      font-size: 16px;
+      color: var(--text-color);
+      transition: var(--transition);
+      width: 100%;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(74, 140, 255, 0.2);
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      padding: 5px;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .toggle-password:hover {
+      color: var(--primary-color);
+      background-color: rgba(74, 140, 255, 0.1);
+    }
+
+    button {
+      padding: 14px;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      background: linear-gradient(to right, var(--primary-blue), var(--accent-blue));
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 10px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 140, 255, 0.3);
+    }
+
+    .forgot-link {
+      text-align: right;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
+
+    .forgot-link a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .forgot-link a:hover {
+      text-decoration: underline;
+    }
+
+    .auth-footer {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .auth-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .terms {
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .terms a {
+      color: var(--primary-color);
+      text-decoration: underline;
+      transition: var(--transition);
+    }
+
+    .terms a:hover {
+      color: var(--accent-blue);
+    }
+
+    @media screen and (max-width: 480px) {
+      body {
+        padding: 15px;
+      }
+      
+      .form-section {
+        padding: 20px;
+      }
+      
+      .bubble {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+      
+      .bubble1 { 
+        top: -5px; 
+        left: 10px; 
+      }
+      .bubble2 { 
+        top: -10px; 
+        right: 10px; 
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <!-- Top Illustration -->
+    <div class="top-illustration">
+      <img src="love.jpeg" alt="Love2meet">
+      <div class="bubble bubble1">We vibe</div>
+      <div class="bubble bubble2">we love</div>
+      <div class="bubble bubble3">we meet</div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="form-section">
+      <h2>Log In</h2>
+      <p>Welcome to Bondly — your cozy corner of connection!</p>
+      
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+
+        <div class="password-wrapper">
+          <input type="password" id="loginPassword" placeholder="Password" required>
+          <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)">👁️</button>
+        </div>
+
+        <div class="forgot-link">
+          <a href="#">Forgot Password?</a>
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="signup.html">Sign up</a>
+      </div>
+
+      <div class="terms">
+        By continuing, you agree to our <a href="policy.html">policy</a>, <a href="about.html">About us</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+  
+  
+
+  <script>
+    function togglePassword(id, el) {
+      const input = document.getElementById(id);
+      if (input.type === "password") {
+        input.type = "text";
+        el.textContent = "👁️";
+      } else {
+        input.type = "password";
+        el.textContent = "🙈";
+      }
+    }
+
+    // Form submission
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Add your login logic here
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bondly</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Pacifico&family=Great+Vibes&family=Satisfy&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-heart"></i> Bondly
+            </a>
+            <div class="nav-menu">
+                <ul class="nav-links">
+                    <li>
+                        <a href="mingle.html">
+                            <i class="fas fa-fire"></i>
+                            <span class="nav-text" style="font-family: 'Dancing Script', cursive;">Discover</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="messages.html">
+                            <i class="fas fa-comments"></i>
+                            <span class="nav-text" style="font-family: 'Pacifico', cursive;">Messages</span>
+                            <span class="message-count">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="account.html">
+                            <i class="fas fa-user"></i>
+                            <span class="nav-text" style="font-family: 'Great Vibes', cursive;">Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <button id="logoutBtn" class="btn btn-outline">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="nav-text" style="font-family: 'Satisfy', cursive;">Logout</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div id="mobile-menu" class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-home"></i> Welcome Back!</h1>
+            
+            <div class="points-balance">
+                <i class="fas fa-coins"></i>
+                <span>Your Chat Points:</span>
+                <span class="chat-points-display">0</span>
+            </div>
+        </div>
+
+        <div class="dashboard-actions">
+            <button id="mingleBtn" class="btn btn-primary">
+                <i class="fas fa-users"></i> Start Mingling
+            </button>
+            <button id="messagesBtn" class="btn btn-primary">
+                <i class="fas fa-envelope"></i> View Messages
+            </button>
+            <button id="profileBtn" class="btn btn-primary">
+                <i class="fas fa-user-circle"></i> My Profile
+            </button>
+            <button id="accountBtn" class="btn btn-primary">
+                <i class="fas fa-cog"></i> Account Settings
+            </button>
+            <button id="purchasePointsBtn" class="btn btn-accent">
+                <i class="fas fa-shopping-cart"></i> Buy More Chat Points
+            </button>
+        </div>
+
+        <div class="dashboard-tips">
+            <h2><i class="fas fa-lightbulb"></i> Tips for Success</h2>
+            <ul>
+                <li><i class="fas fa-check-circle"></i> Complete your profile to get more matches</li>
+                <li><i class="fas fa-check-circle"></i> Be genuine in your conversations</li>
+                <li><i class="fas fa-check-circle"></i> Respect other users' boundaries</li>
+                <li><i class="fas fa-check-circle"></i> Use your chat points wisely</li>
+            </ul>
+        </div>
+    </main>
+    
+    <script type="module" src="call.js"></script>
+    <script type="module" src="message.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="verification.js"></script>
+</body>
+</html>

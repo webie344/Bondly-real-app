@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<hea>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mingle - Bondly</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">Bondly</a>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu">
+    <li class="nav-item">
+        <a href="mingle.html" class="nav-links">
+            <i class="fas fa-fire"></i>
+            <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="messages.html" class="nav-links">
+            <i class="fas fa-comments"></i>
+            <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
+            <span class="message-count">0</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="account.html" class="nav-links">
+            <i class="fas fa-user"></i>
+            <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" id="logoutBtn" class="nav-links">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="dashboard.html" class="nav-links">
+            <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </li>
+</ul>
+        </div>
+    </nav>
+
+    <div class="mingle-container">
+        <div class="profile-card">
+            <div class="profile-image-container">
+                <img src="images-default-profile.jpg" alt="Profile" class="profile-image" id="currentProfileImage">
+                <!-- Online status indicator will be managed by app.js -->
+               
+                <div class="profile-overlay">
+                    <div class="profile-actions">
+                        <button class="action-btn dislike-btn" id="dislikeBtn"><i class="fas fa-times"></i></button>
+                        <button class="action-btn view-btn" id="viewProfileBtn"><i class="fas fa-user"></i></button>
+                        <button class="action-btn like-btn" id="likeBtn"><i class="fas fa-heart"></i></button>
+                        <button class="action-btn chat-btn" id="chatBtn"><i class="fas fa-comment"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="profile-info">
+                            <!-- BANNER DISPLAYS HERE -->
+    <div class="creative-profile-banner" id="mingleProfileBanner" style="display: none;"></div>
+            
+                 <div id="profileStatusIndicator"></div>
+                <h2 id="profileName">Loading...</h2>
+                <p id="profileAgeLocation">...</p>
+                <p id="profileBio">No bio available</p>
+                <div class="profile-stats">
+                    <span><i class="fas fa-heart"></i> <span id="likeCount">0</span> likes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="call.js"></script>
+     <script type="module" src="message.js"></script>
+    <script type="module" src="mingle-upgrades.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="additional.js"></script>
+    <script type="module" src="creative.js"></script>
+    
+    <script type="module" src="flip.js"></script>
+    <!-- Add this right before closing </body> tag -->
+
+<script type="module" src="verification.js"></script>
+    </body>
+</html>
