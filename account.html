@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="location.css">
     <link rel="stylesheet" href="chat.css">
     <style>
-        :root 
+        :root {
             /* Your existing CSS variables */
         }
 
@@ -832,6 +832,177 @@
             line-height: 1.4;
         }
 
+        /* Ambassador Program Styles */
+        .ambassador-program {
+            background: linear-gradient(135deg, var(--primary-blue), #667eea);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            color: black;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ambassador-program::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: float 20s linear infinite;
+            pointer-events: none;
+        }
+
+        .ambassador-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .ambassador-icon {
+            font-size: 32px;
+            background: rgba(255,255,255,0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ambassador-tiers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .ambassador-tier {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .tier-badge {
+            background: #ffd700;
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .tier-badge.silver {
+            background: #c0c0c0;
+            color: #000;
+        }
+
+        .tier-badge.gold {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #000;
+        }
+
+        .tier-reward {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            color:black;
+        }
+
+        .tier-requirement {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .tier-features {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .tier-features li {
+            padding: 5px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tier-features li i {
+            color: black;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4aff4a, #00ff00);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-20px) rotate(360deg); }
+        }
+
         /* Animation preview effects */
         .fire-glow-preview {
             background: linear-gradient(45deg, #ff6b35, #f7931e, #ff0000);
@@ -1098,6 +1269,14 @@
             .link-input-group {
                 flex-direction: column;
             }
+
+            .ambassador-tiers {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-stats {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1181,7 +1360,7 @@
                     <button class="menu-item" data-section="social">Social Links</button>
                     <button class="menu-item" data-section="posts">My Posts</button>
                     <button class="menu-item" data-section="display">Profile Display</button>
-                    <button class="menu-item" data-section="share">Share Profile</button>
+                    <button class="menu-item" data-section="share">Share Bondly</button>
                     <button class="menu-item" data-section="settings">Settings</button>
                     <button class="menu-item" data-section="privacy">Privacy</button>
                 </div>
@@ -1219,7 +1398,7 @@
                                     <select id="countryDropdown" class="country-dropdown">
                                         <option value="">Select Country</option>
                                     </select>
-                                    <select id="stateDropdown" class="state-dropdown" style="display: none;">
+                                    <select id="stateDropdown" class="stateDropdown" style="display: none;">
                                         <option value="">Select State</option>
                                     </select>
                                 </div>
@@ -1526,37 +1705,132 @@
                     </div>
                 </div>
 
-                <!-- SHARE PROFILE SECTION -->
+                <!-- SHARE BONDLY SECTION -->
                 <div class="account-section" id="shareSection" style="display: none;">
-                    <h2><i class="fas fa-share-alt"></i> Share Your Profile</h2>
-                    <p class="section-description">Share your Bondly profile with friends using your device's native sharing options</p>
+                    <h2><i class="fas fa-share-alt"></i> Share Bondly</h2>
+                    <p class="section-description">Invite friends to join Bondly and find meaningful connections. Earn rewards by sharing!</p>
                     
                     <div class="share-container">
                         <div class="share-link-section">
-                            <h3>Your Profile Link</h3>
+                            <h3>Share Bondly with Friends</h3>
                             <div class="link-input-group">
-                                <input type="text" id="profileLink" class="share-input" readonly>
-                                <button id="copyLinkBtn" class="btn-primary">
+                                <input type="text" id="bondlyLink" class="share-input" value="https://dating.lovestoblog.com" readonly>
+                                <button id="copyBondlyLinkBtn" class="btn-primary">
                                     <i class="fas fa-copy"></i> Copy Link
                                 </button>
                             </div>
-                            <div class="copy-feedback" id="copyFeedback"></div>
+                            <div class="copy-feedback" id="copyBondlyFeedback"></div>
                         </div>
 
                         <div class="share-options">
-                            <h3>Share Profile</h3>
+                            <h3>Share via</h3>
                             <div class="share-buttons-grid">
-                                <button class="share-button" id="shareButton">
+                                <button class="share-button" id="shareBondlyButton">
                                     <i class="fas fa-share-alt"></i>
-                                    <span>Share via System</span>
+                                    <span>Share Bondly</span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
+                    <!-- AMBASSADOR PROGRAM SECTION -->
+                    <div class="ambassador-program">
+                        <div class="ambassador-header">
+                            <div class="ambassador-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div>
+                                <h3 style="color: white; margin: 0;">Bondly Ambassador Program</h3>
+                                <p style="color: rgba(255,255,255,0.8); margin: 5px 0 0 0;">Earn rewards by sharing Bondly with your friends!</p>
+                            </div>
+                        </div>
+
+                        <div class="ambassador-tiers">
+                            <div class="ambassador-tier">
+                                <div class="tier-badge">Starter</div>
+                                <h4 style="color: white; margin: 10px 0;">Share with 10 Friends</h4>
+                                <div class="tier-reward">50 Chat Points</div>
+                                <div class="tier-requirement">Get 10 friends to join Bondly</div>
+                                <ul class="tier-features">
+                                    <li><i class="fas fa-check"></i> 50 Free Chat Points</li>
+                                    <li><i class="fas fa-check"></i> Ambassador Badge</li>
+                                    <li><i class="fas fa-check"></i> Early Access to Features</li>
+                                </ul>
+                            </div>
+
+                            <div class="ambassador-tier">
+                                <div class="tier-badge silver">Silver Ambassador</div>
+                                <h4 style="color: white; margin: 10px 0;">Share with 50 Friends</h4>
+                                <div class="tier-reward">Bondly Ambassador</div>
+                                <div class="tier-requirement">Get 50 friends to join Bondly</div>
+                                <ul class="tier-features">
+                                    <li><i class="fas fa-check"></i> Official Ambassador Status</li>
+                                    <li><i class="fas fa-check"></i> 500 Chat Points</li>
+                                    <li><i class="fas fa-check"></i> Featured Profile</li>
+                                    <li><i class="fas fa-check"></i> Priority Support</li>
+                                </ul>
+                            </div>
+
+                            <div class="ambassador-tier">
+                                <div class="tier-badge gold">Gold Ambassador</div>
+                                <h4 style="color: white; margin: 10px 0;">Share with 100 Friends</h4>
+                                <div class="tier-reward">$50 Monthly</div>
+                                <div class="tier-requirement">Get 100 friends to join Bondly</div>
+                                <ul class="tier-features">
+                                    <li><i class="fas fa-check"></i> $50 Monthly Stipend</li>
+                                    <li><i class="fas fa-check"></i> 1000 Chat Points</li>
+                                    <li><i class="fas fa-check"></i> VIP Profile Badge</li>
+                                    <li><i class="fas fa-check"></i> Exclusive Events Access</li>
+                                    <li><i class="fas fa-check"></i> Revenue Share Program</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <h4 style="color: white; margin: 0;">Your Sharing Progress</h4>
+                                <span style="color: #ffd700; font-weight: bold;">15/50 to Silver</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 30%"></div>
+                            </div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 14px;">
+                                Keep sharing to unlock ambassador rewards!
+                            </div>
+
+                            <div class="progress-stats">
+                                <div class="stat-card">
+                                    <div class="stat-number">15</div>
+                                    <div class="stat-label">Friends Joined</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">35</div>
+                                    <div class="stat-label">To Silver Tier</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">85</div>
+                                    <div class="stat-label">To Gold Tier</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">150</div>
+                                    <div class="stat-label">Chat Points Earned</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="btn-primary" style="background: white; color: var(--primary-blue); border: none; padding: 12px 30px;">
+                                <i class="fas fa-rocket"></i> Start Sharing Now
+                            </button>
+                            <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin-top: 10px;">
+                                Track your referrals automatically when friends sign up using your shared link
+                            </p>
+                        </div>
+                    </div>
+
                     <div class="share-info">
-                        <h4><i class="fas fa-info-circle"></i> How Sharing Works</h4>
-                        <p>Click "Share via System" to open your device's native share dialog. This will show all available apps like WhatsApp, Messages, Email, Social Media, and more that you can share your profile to.</p>
+                        <h4><i class="fas fa-info-circle"></i> How It Works</h4>
+                        <p>Share your unique Bondly link with friends. When they sign up using your link, they'll be counted toward your ambassador progress. Earn chat points, special badges, and even monthly cash rewards as you help grow the Bondly community!</p>
                     </div>
                 </div>
                 
@@ -1924,6 +2198,134 @@
                 }, 3000);
             }
         }
+    </script>
+
+    <!-- Share Bondly functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Copy Bondly link functionality
+            const copyBondlyLinkBtn = document.getElementById('copyBondlyLinkBtn');
+            const bondlyLink = document.getElementById('bondlyLink');
+            const copyBondlyFeedback = document.getElementById('copyBondlyFeedback');
+            
+            if (copyBondlyLinkBtn) {
+                copyBondlyLinkBtn.addEventListener('click', function() {
+                    bondlyLink.select();
+                    bondlyLink.setSelectionRange(0, 99999); // For mobile devices
+                    
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            copyBondlyFeedback.textContent = 'Link copied to clipboard!';
+                            copyBondlyFeedback.className = 'copy-feedback success';
+                            copyBondlyFeedback.style.display = 'block';
+                            
+                            setTimeout(() => {
+                                copyBondlyFeedback.style.display = 'none';
+                            }, 3000);
+                        } else {
+                            throw new Error('Copy command failed');
+                        }
+                    } catch (err) {
+                        // Fallback for browsers that don't support execCommand
+                        navigator.clipboard.writeText(bondlyLink.value).then(() => {
+                            copyBondlyFeedback.textContent = 'Link copied to clipboard!';
+                            copyBondlyFeedback.className = 'copy-feedback success';
+                            copyBondlyFeedback.style.display = 'block';
+                            
+                            setTimeout(() => {
+                                copyBondlyFeedback.style.display = 'none';
+                            }, 3000);
+                        }).catch(() => {
+                            copyBondlyFeedback.textContent = 'Failed to copy link';
+                            copyBondlyFeedback.className = 'copy-feedback error';
+                            copyBondlyFeedback.style.display = 'block';
+                        });
+                    }
+                });
+            }
+            
+            // Share Bondly via Web Share API
+            const shareBondlyButton = document.getElementById('shareBondlyButton');
+            
+            if (shareBondlyButton) {
+                shareBondlyButton.addEventListener('click', function() {
+                    const shareData = {
+                        title: 'Join Bondly - Where Love Meets Socialization',
+                        text: 'Chat with me on Bondly where love meets socialization! Join me and find meaningful connections.',
+                        url: 'https://Bondlydating.lovestoblog.com'
+                    };
+                    
+                    if (navigator.share) {
+                        navigator.share(shareData)
+                            .then(() => {
+                                showNotification('Successfully shared Bondly! Keep sharing to earn rewards!', 'success');
+                                // Here you would typically track the share event
+                                trackShareEvent();
+                            })
+                            .catch((error) => {
+                                console.log('Error sharing:', error);
+                                // Fallback to copy if share fails
+                                copyBondlyLinkBtn.click();
+                            });
+                    } else {
+                        // Fallback for browsers that don't support Web Share API
+                        copyBondlyLinkBtn.click();
+                        showNotification('Link copied to clipboard! Share it with your friends to earn rewards.', 'success');
+                        trackShareEvent();
+                    }
+                });
+            }
+
+            // Function to track share events (placeholder for analytics)
+            function trackShareEvent() {
+                // Here you would typically send an event to your analytics service
+                console.log('Share event tracked');
+                // Example: You could increment a counter in localStorage
+                const shareCount = parseInt(localStorage.getItem('bondlyShares') || '0') + 1;
+                localStorage.setItem('bondlyShares', shareCount.toString());
+                
+                // Update the progress display if needed
+                updateShareProgress(shareCount);
+            }
+
+            // Function to update share progress display
+            function updateShareProgress(shareCount) {
+                const progressFill = document.querySelector('.progress-fill');
+                const friendsJoined = document.querySelector('.stat-number');
+                const toSilver = document.querySelectorAll('.stat-number')[1];
+                const toGold = document.querySelectorAll('.stat-number')[2];
+                
+                if (progressFill && friendsJoined && toSilver && toGold) {
+                    // Update progress bar
+                    const progressPercent = Math.min((shareCount / 50) * 100, 100);
+                    progressFill.style.width = `${progressPercent}%`;
+                    
+                    // Update stats
+                    friendsJoined.textContent = shareCount;
+                    toSilver.textContent = Math.max(50 - shareCount, 0);
+                    toGold.textContent = Math.max(100 - shareCount, 0);
+                    
+                    // Update progress header
+                    const progressHeader = document.querySelector('.progress-header span');
+                    if (progressHeader) {
+                        if (shareCount >= 100) {
+                            progressHeader.textContent = 'Gold Ambassador Achieved!';
+                            progressHeader.style.color = '#ffd700';
+                        } else if (shareCount >= 50) {
+                            progressHeader.textContent = 'Silver Ambassador Achieved!';
+                            progressHeader.style.color = '#c0c0c0';
+                        } else {
+                            progressHeader.textContent = `${shareCount}/50 to Silver`;
+                        }
+                    }
+                }
+            }
+
+            // Initialize share progress from localStorage
+            const initialShareCount = parseInt(localStorage.getItem('bondlyShares') || '15');
+            updateShareProgress(initialShareCount);
+        });
     </script>
 </body>
 </html>
