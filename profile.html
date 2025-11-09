@@ -4,8 +4,363 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - Bondly</title>
+<script type="module" src="userdisplay.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+    .comments-section {
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0;
+        }
+
+        .add-comment {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            width:80px;
+        }
+
+        .comment-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .send-comment-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-comment-btn:hover {
+            background: var(--accent-dark);
+        }
+
+        .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .comment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-info {
+            flex: 1;
+        }
+
+        .comment-info strong {
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-left: 10px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: var(--text-dark);
+            line-height: 1.4;
+            margin-left: 40px;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .loading, .error, .no-posts {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+            font-size: 18px;
+        }
+
+        /* Social media styles */
+        .profile-social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .social-profile-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .social-profile-icon:hover {
+            transform: translateY(-3px);
+            border-color: currentColor;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .social-links-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .social-links-title {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .social-links-title i {
+            color: var(--accent-color);
+        }
+
+        /* Profile posts section */
+        .profile-posts-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .profile-posts-section h2 {
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .profile-posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .profile-post-item {
+            background: var(--bg-light);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .post-author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .post-author-info {
+            flex: 1;
+        }
+
+        .post-author-info h4 {
+            margin: 0;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        .post-time {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .post-content {
+            margin-bottom: 15px;
+        }
+
+        .post-caption {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .post-action:hover {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .post-action.liked {
+            color: #e74c3c;
+        }
+
+        .no-posts-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+            font-size: 16px;
+            font-style: italic;
+        }
+
+        /* Profile stats */
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 10px;
+        }
+
+        .stat-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .stat-item .stat-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent-color);
+            display: block;
+        }
+
+        .stat-item .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        /* Profile header */
+        .profile-header-social {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .profile-main-info {
+            flex: 1;
+        }
+
+        .btn-social {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-social:hover {
+            background: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        .btn-social.following {
+            background: var(--discord-green);
+        }
+
+        @media (max-width: 768px) {
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .social-profile-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            .profile-header-social {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .btn-social {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -17,38 +372,44 @@
                 <span class="bar"></span>
             </div>
             <ul class="nav-menu">
-    <li class="nav-item">
-        <a href="mingle.html" class="nav-links">
-            <i class="fas fa-fire"></i>
-            <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="messages.html" class="nav-links">
-            <i class="fas fa-comments"></i>
-            <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
-            <span class="message-count">0</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="account.html" class="nav-links">
-            <i class="fas fa-user"></i>
-            <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="#" id="logoutBtn" class="nav-links">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="dashboard.html" class="nav-links">
-            <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
-            <i class="fas fa-arrow-right"></i>
-        </a>
-    </li>
-</ul>
+                <li class="nav-item">
+                    <a href="mingle.html" class="nav-links">
+                        <i class="fas fa-fire"></i>
+                        <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="messages.html" class="nav-links">
+                        <i class="fas fa-comments"></i>
+                        <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
+                        <span class="message-count">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="posts.html" class="nav-links">
+                        <i class="fas fa-images"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.1rem;">Posts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="account.html" class="nav-links">
+                        <i class="fas fa-user"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" id="logoutBtn" class="nav-links">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-links">
+                        <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+            </ul>
         </div>
     </nav>
 
@@ -58,17 +419,42 @@
                 <img src="images-default-profile.jpg" alt="Profile" id="mainProfileImage">
             </div>
             <div class="thumbnail-container">
-    <img src="images-default-profile.jpg" alt="Thumbnail" class="thumbnail active" id="thumbnail1">
-    <img src="images-default-profile.jpg" alt="Thumbnail" class="thumbnail" id="thumbnail2">
-</div>
+                <img src="images-default-profile.jpg" alt="Thumbnail" class="thumbnail active" id="thumbnail1">
+                <img src="images-default-profile.jpg" alt="Thumbnail" class="thumbnail" id="thumbnail2">
+            </div>
         </div>
         
         <div class="profile-details">
-            <h1 id="viewProfileName">Loading..</h1>
-            <div class="profile-meta">
-                <span id="viewProfileAge">25</span>,
-                <span id="viewProfileLocation">New York</span>
-                <span class="online-status" id="onlineStatus"><i class="fas fa-circle"></i> Online</span>
+            <div class="profile-header-social">
+                <div class="profile-main-info">
+                    <h1 id="viewProfileName">Loading..</h1>
+                    <div class="profile-meta">
+                        <span id="viewProfileAge">25</span>,
+                        <span id="viewProfileLocation">New York</span>
+                        <span class="online-status" id="onlineStatus"><i class="fas fa-circle"></i> Online</span>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <!-- Social Media Links Section -->
+            <div class="social-links-section" id="socialLinksSection">
+                <div class="social-links-title">
+                    <i class="fas fa-share-alt"></i> Connect on Social Media
+                </div>
+                <div class="profile-social-links" id="profileSocialLinks">
+                    <!-- Social media icons will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Profile Stats -->
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <i class="fas fa-heart" style="color: #e74c3c;"></i>
+                    <span class="stat-number" id="viewLikeCount">0</span>
+                    <span class="stat-label">Likes</span>
+                </div>
+                
             </div>
             
             <div class="profile-bio">
@@ -84,27 +470,110 @@
                     <span class="interest-tag">Sports</span>
                 </div>
             </div>
-                        <!-- BANNER DISPLAYS HERE -->
-<div class="creative-profile-banner" id="profileBanner" style="display: none;"></div>
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <i class="fas fa-heart"></i>
-                    <span id="viewLikeCount">Loading</span> likes
-                </div>
+            
+            <!-- BANNER DISPLAYS HERE -->
+            <div class="creative-profile-banner" id="profileBanner" style="display: none;"></div>
+
+            <!-- Profile Actions -->
+            <div class="profile-actions">
+                <button class="btn-secondary" id="backToMingle">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button class="btn-primary" id="messageProfileBtn">
+                    <i class="fas fa-comment"></i> Message
+                </button>
+                <button class="btn-like" id="likeProfileBtn">
+                    <i class="fas fa-heart"></i> Like
+                </button>
             </div>
 
-            <div class="profile-actions">
-                <button class="btn-secondary" id="backToMingle"><i class="fas fa-arrow-left"></i> Back</button>
-                <button class="btn-primary" id="messageProfileBtn"><i class="fas fa-comment"></i> Message</button>
-                <button class="btn-like" id="likeProfileBtn"><i class="fas fa-heart"></i> Like</button>
+            <!-- ALL USER POSTS SECTION AT BOTTOM -->
+            <div class="profile-posts-section">
+                <h2><i class="fas fa-images"></i> Posts</h2>
+                <div class="profile-posts-container" id="profilePostsContainer">
+                    <div class="loading">Loading posts...</div>
+                </div>
             </div>
         </div>
     </div>
-      <script type="module" src="call.js"></script>
-      <script type="module" src="message.js"></script>
     <script type="module" src="app.js"></script>
+                      <script type="module" src="event.js"></script>
+    <script type="module" src="call.js"></script>
+    <script type="module" src="message.js"></script>
+
+       
+
     <script type="module" src="additional.js"></script>
     <script type="module" src="creative.js"></script>
     
+    <!-- ADD SOCIAL.JS -->
+    <script type="module" src="social.js"></script>
+
+<!-- UPDATED PROFILE DISPLAY INTEGRATION -->
+<script type="module">
+    import { userDisplayManager } from './userdisplay.js';
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        
+        // Get the profile user ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const profileUserId = urlParams.get('id');
+        
+        
+        const applyProfileDisplay = async () => {
+            if (window.userDisplayManager) {
+                
+                
+                try {
+                    if (profileUserId) {
+                        
+                        await window.userDisplayManager.applyDisplayToUserProfile(profileUserId);
+                    } else {
+                        
+                        window.userDisplayManager.applyDisplayToProfile();
+                    }
+                } catch (error) {
+                    console.error('❌ Error applying profile display:', error);
+                }
+            } else {
+                
+                setTimeout(applyProfileDisplay, 500);
+            }
+        };
+
+        // Start initialization
+        applyProfileDisplay();
+        
+        // Fallback attempts
+        setTimeout(applyProfileDisplay, 2000);
+        setTimeout(applyProfileDisplay, 4000);
+    });
+</script>
+
+<!-- ENHANCED DEBUG PANEL WITH MANUAL CONTROLS -->
+<script>
+// Add body class for wallpaper compatibility
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.pathname.includes('profile.html')) {
+        document.body.classList.add('profile-page');
+    } else if (window.location.pathname.includes('account.html')) {
+        document.body.classList.add('account-page');
+    } else if (window.location.pathname.includes('mingle.html')) {
+        document.body.classList.add('mingle-page');
+    }
+});
+</script>
+<script>
+// Add body class for wallpaper compatibility
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.pathname.includes('profile.html')) {
+        document.body.classList.add('profile-page');
+    } else if (window.location.pathname.includes('account.html')) {
+        document.body.classList.add('account-page');
+    } else if (window.location.pathname.includes('mingle.html')) {
+        document.body.classList.add('mingle-page');
+    }
+});
+</script>
 </body>
 </html>

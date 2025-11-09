@@ -85,12 +85,12 @@ class CreativeManager {
         const styles = `
             .creative-banner-section {
                 padding: 10px;
-                background: #2f3136;
+                background: #FFF5F9;
                 border-radius: 10px;
                 margin: 15px 0;
             }
             .creative-banner-section h3 {
-                color: white;
+                color: black;
                 margin-bottom: 15px;
                 font-size: 16px;
             }
@@ -100,7 +100,7 @@ class CreativeManager {
                 gap: 5px;
             }
             .creative-banner-item {
-                background: #40444b;
+                background: #FFB6C1;
                 padding: 15px;
                 border-radius: 8px;
                 text-align: center;
@@ -133,7 +133,7 @@ class CreativeManager {
             .creative-additional-photos {
                 margin: 20px 0;
                 padding: 20px;
-                background: #2f3136;
+                background: #FFF5F9;
                 border-radius: 10px;
             }
             .creative-photo-upload {

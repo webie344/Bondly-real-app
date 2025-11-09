@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat - Bondly</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="chat.css">
+    
+
     <style>
     body {
         font-family: 'Nunito', sans-serif;
@@ -81,7 +84,7 @@
 }
 
 .call-btn {
-    background: rgba(255, 255, 255, 0.9);
+    background:transparent ;
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -92,7 +95,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    color: #333;
+    color: black;
 }
 
 .call-btn:hover {
@@ -107,22 +110,22 @@
 
 /* Voice call button specific */
 #voiceCallBtn {
-    background: rgba(76, 175, 80, 0.9); /* Green */
-    color: white;
+    background:#FFFFFF ; /* Green */
+    color: black;
 }
 
 #voiceCallBtn:hover {
-    background: #4CAF50;
+    background: transparent;
 }
 
 /* Video call button specific */
 #videoCallBtn {
-    background: rgba(33, 150, 243, 0.9); /* Blue */
-    color: white;
+    background: transparent; /* Blue */
+    color: black;
 }
 
 #videoCallBtn:hover {
-    background: #2196F3;
+    background: var(--white);
 }
 
 
@@ -145,55 +148,7 @@
         max-width: calc(100% - 90px);
     }
 }
-/* Chat messages container with wallpaper background */
-.chat-messages {
-    background-image: url('darkwallpaper.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    position: relative;
-}
 
-/* Add a semi-transparent overlay for better readability */
-.chat-messages::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4); /* Adjust opacity as needed */
-    z-index: 0;
-}
-
-/* Ensure messages appear above the overlay */
-.message {
-    position: relative;
-    z-index: ;
-}
-
-/* Optional: Adjust message backgrounds for better contrast with wallpaper */
-.message.sent {
-    background-color: rgba(86, 101, 242, 0.9); /* Discord blurple with transparency */
-    backdrop-filter: blur(5px);
-}
-
-.message.received {
-    background-color: rgba(47, 49, 54, 0.85); /* Discord darker with transparency */
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(64, 68, 75, 0.5);
-}
-
-/* Adjust message text for better readability on wallpaper */
-.message {
-    color: var(--discord-text);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Adjust timestamp text */
-.message-time {
-    color: rgba(255, 255, 255, 0.8);
-}
 
     
     /* Message Reactions */
@@ -453,7 +408,32 @@
                 <button class="voice-note-btn-main" id="voiceNoteBtn">
                     <i class="fas fa-microphone"></i>
                 </button>
-                <input type="text" id="messageInput" placeholder="Type a message...">
+<!-- Add this button in your chat.html with your other action buttons -->
+<button id="gameInviteBtn" class="game-icon-btn" title="Play Games" onclick="openGameSelection()">
+    🎮
+</button>
+
+<script>
+// Add this function to your chat.html
+function openGameSelection() {
+    // Get chat partner info from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatPartnerId = urlParams.get('id');
+    
+    // Get partner name from the page
+    let chatPartnerName = 'Opponent';
+    const partnerNameElement = document.getElementById('chatPartnerName');
+    if (partnerNameElement) {
+        chatPartnerName = partnerNameElement.textContent || 'Opponent';
+    }
+    
+    if (chatPartnerId && window.gameManager) {
+        window.gameManager.showGameSelectionModal(chatPartnerId, chatPartnerName);
+    } else {
+        alert('Please start a chat with someone first or wait for game system to load');
+    }
+}
+</script>        <input type="text" id="messageInput" placeholder="Type a message...">
                 <button class="send-btn" id="sendMessageBtn"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
@@ -466,11 +446,16 @@
      <script type="module" src="pic.js"></script>
     
      <script type="module" src="app.js"></script>
-    
+    <script type="module" src="chat.js"></script>
+    <!-- Add ONLY this to your HTML files -->
+<script type="module" src="pagination.js"></script>
+    <!-- Add this in your chat.html head -->
+<script type="module" src="game.js"></script>
+
     <script type="module" src="additional.js"></script>
      
 
-<script type="module" src="verification.js"></script>
+
     
     
     <!-- Add this script for reaction picker positioning -->
@@ -502,20 +487,25 @@
         pickerElement.style.display = 'flex';
     }
     </script>
-</body>
-<!-- Add this at the bottom of your body, before closing </body> tag -->
-<div id="incomingCallModal" class="incoming-call-modal" style="display: none;">
-    <div class="incoming-call-content">
-        <h3>Incoming Call</h3>
-        <p id="incomingCallText">Someone is calling you</p>
-        <div class="incoming-call-buttons">
-            <button id="acceptCallBtn" class="call-response-btn accept-call">
-                <i class="fas fa-phone"></i> Accept
-            </button>
-            <button id="rejectCallBtn" class="call-response-btn reject-call">
-                <i class="fas fa-phone-slash"></i> Reject
-            </button>
-        </div>
-    </div>
-</div>
+
+
+
+<script>
+// Add this to your chat.html to initialize the game button
+document.addEventListener('DOMContentLoaded', function() {
+    const gameBtn = document.getElementById('gameInviteBtn');
+    if (gameBtn) {
+        gameBtn.addEventListener('click', function() {
+            // Get the chat partner ID from your chat implementation
+            const chatPartnerId = window.chatPartnerId; // You'll need to set this
+            const chatPartnerName = document.getElementById('chatPartnerName')?.textContent || 'Opponent';
+            
+            if (chatPartnerId && window.gameManager) {
+                window.gameManager.showGameSelectionModal(chatPartnerId, chatPartnerName);
+            }
+        });
+    }
+});
+</script>
+    </body>
 </html>

@@ -1,19 +1,21 @@
-/* Discord Dark Theme with Blue Inputs */
+/* White & Light Pink Theme with Blue Inputs */
 :root {
-    /* Discord-inspired color palette */
-    --discord-dark: #36393f;
-    --discord-darker: #2f3136;
-    --discord-darkest: #202225;
-    --discord-blurple: #5865f2;
-    --discord-blurple-light: #7983f5;
-    --discord-blurple-dark: #4752c4;
-    --discord-green: #57f287;
-    --discord-red: #ed4245;
-    --discord-yellow: #fee75c;
-    --discord-pink: #eb459e;
-    --discord-text: #ffffff;
-    --discord-text-muted: #b9bbbe;
-    --discord-border: #40444b;
+    /* Lovely light pink color palette */
+    --pink-primary: #FF6B9D;
+    --pink-light: #FFB6C1;
+    --pink-dark: #E0557E;
+    --pink-accent: #FF8FAB;
+    --pink-pastel: #FFF0F5;
+    
+    /* White and neutral colors */
+    --white: #FFFFFF;
+    --white-smoke: #FFF8FA;
+    --white-soft: #FFF5F9;
+    --gray-light: #F8E8EE;
+    --gray-medium: #6C757D;
+    --gray-dark: #495057;
+    --text-dark: #212529;
+    --text-muted: #6C757D;
     
     /* Blue accent colors for inputs and buttons */
     --primary-blue: #4a8cff;
@@ -21,17 +23,18 @@
     --dark-blue: #3a7be0;
     
     /* Theme variables */
-    --primary-color: var(--primary-blue);
-    --secondary-color: var(--discord-blurple);
-    --accent-color: var(--discord-green);
-    --light-color: var(--discord-darker);
-    --dark-color: var(--discord-darkest);
-    --text-color: var(--discord-text);
-    --text-light: var(--discord-text-muted);
-    --white: var(--discord-text);
+    --primary-color: var(--pink-primary);
+    --secondary-color: var(--pink-light);
+    --accent-color: var(--pink-dark);
+    --light-color: var(--white-soft);
+    --dark-color: var(--gray-dark);
+    --text-color: var(--text-dark);
+    --text-light: var(--text-muted);
+    --background-color: var(--white);
+    --border-color: var(--gray-light);
     --border-radius: 12px;
-    --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    --box-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
+    --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --box-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
     --transition: all 0.3s ease;
 }
 
@@ -43,13 +46,14 @@
 }
 
 body {
-    background-color: var(--discord-dark);
+    background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
     background-image: 
-        radial-gradient(circle at 15% 50%, rgba(74, 140, 255, 0.03) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(94, 156, 255, 0.03) 0%, transparent 25%);
-    background: url('discord1.jpg') no-repeat center center fixed;
+        radial-gradient(circle at 15% 50%, rgba(255, 107, 157, 0.03) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(255, 182, 193, 0.03) 0%, transparent 25%);
+    
+    
     background-size: cover;
 }
 
@@ -60,7 +64,7 @@ a {
 }
 
 .message-count {
-    background-color: #5865f2;
+    background-color: var(--primary-color);
     color: white;
     border-radius: 50%;
     width: 18px;
@@ -72,13 +76,45 @@ a {
 }
 
 a:hover {
-    color: var(--accent-blue);
+    color: var(--pink-dark);
 }
 
 img {
     max-width: 100%;
     height: auto;
-    border-radius: 4px;
+    border-radius: 8px;
+}
+
+/* Message images and videos with transparent backgrounds */
+.message-image,
+.message-video {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    display: block;
+    background-color: transparent !important;
+    border: none;
+}
+
+.message-video {
+    background: transparent !important;
+}
+
+.message-video video {
+    background: transparent !important;
+    border-radius: 6px;
+}
+
+.message-image img,
+.message-video video {
+    background: transparent !important;
+    border: none;
+}
+
+.message-media-container {
+    background: transparent !important;
+    border: none;
 }
 
 /* Typography */
@@ -122,8 +158,9 @@ p {
 }
 
 .btn-primary:hover {
-    background-color: var(--dark-blue);
+    background-color: var(--pink-dark);
     box-shadow: var(--box-shadow-hover);
+    transform: translateY(-2px);
 }
 
 .btn-accent {
@@ -132,8 +169,9 @@ p {
 }
 
 .btn-accent:hover {
-    background-color: var(--primary-color);
+    background-color: var(--dark-blue);
     box-shadow: var(--box-shadow-hover);
+    transform: translateY(-2px);
 }
 
 .btn-outline {
@@ -145,6 +183,7 @@ p {
 .btn-outline:hover {
     background-color: var(--primary-color);
     color: var(--white);
+    transform: translateY(-2px);
 }
 
 /* Forms */
@@ -162,17 +201,17 @@ p {
 .form-control {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 1rem;
     transition: var(--transition);
-    background-color: var(--discord-darker);
+    background-color: var(--white);
     color: var(--text-color);
 }
 
 .form-control:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--primary-blue);
     box-shadow: 0 0 0 3px rgba(74, 140, 255, 0.25);
 }
 
@@ -183,14 +222,14 @@ textarea.form-control {
 
 /* Navigation */
 .navbar {
-    background-color: rgba(47, 49, 54, 0.9);
+    background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     box-shadow: var(--box-shadow);
     padding: 1rem 0;
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid var(--discord-border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .nav-container {
@@ -242,7 +281,7 @@ textarea.form-control {
 
 .nav-links a:hover {
     color: var(--primary-color);
-    background-color: rgba(74, 140, 255, 0.1);
+    background-color: var(--pink-pastel);
 }
 
 .nav-links .btn-outline {
@@ -282,11 +321,11 @@ textarea.form-control {
     align-items: center;
     margin-bottom: 3rem;
     padding: 2.5rem;
-    background: rgba(47, 49, 54, 0.7);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     animation: fadeInUp 0.8s ease;
 }
 
@@ -296,7 +335,7 @@ textarea.form-control {
     gap: 1rem;
     font-size: 2.8rem;
     margin: 0;
-    color: var(--white);
+    color: var(--text-dark);
 }
 
 .dashboard-header h1 i {
@@ -305,7 +344,7 @@ textarea.form-control {
 }
 
 .points-balance {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-blue));
+    background: linear-gradient(135deg, var(--primary-color), var(--pink-light));
     color: var(--white);
     padding: 1rem 2rem;
     border-radius: 50px;
@@ -350,9 +389,9 @@ textarea.form-control {
     padding: 3rem 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    background: rgba(47, 49, 54, 0.7);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
@@ -365,7 +404,7 @@ textarea.form-control {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.1), transparent);
     transition: left 0.6s ease;
 }
 
@@ -388,23 +427,23 @@ textarea.form-control {
 
 .dashboard-actions .btn:hover i {
     transform: scale(1.2);
-    color: var(--accent-blue);
+    color: var(--pink-dark);
 }
 
 .dashboard-actions .btn span {
     font-size: 1.3rem;
     font-weight: 600;
-    color: var(--white);
+    color: var(--text-dark);
 }
 
 .dashboard-tips {
-    background: rgba(47, 49, 54, 0.7);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
     padding: 3rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     margin-top: 3rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     animation: fadeInUp 0.8s ease 0.2s both;
 }
 
@@ -414,7 +453,7 @@ textarea.form-control {
     justify-content: center;
     gap: 1rem;
     margin-top: 0;
-    color: var(--white);
+    color: var(--text-dark);
     text-align: center;
     margin-bottom: 2.5rem;
     font-size: 2.2rem;
@@ -434,10 +473,10 @@ textarea.form-control {
 }
 
 .dashboard-tips li {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.7);
     padding: 1.5rem;
     border-radius: var(--border-radius);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -453,12 +492,12 @@ textarea.form-control {
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(to bottom, var(--primary-color), var(--accent-blue));
+    background: linear-gradient(to bottom, var(--primary-color), var(--pink-light));
 }
 
 .dashboard-tips li:hover {
     transform: translateX(8px);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.9);
     border-color: var(--primary-color);
 }
 
@@ -498,7 +537,7 @@ textarea.form-control {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: black;
+    color: var(--text-dark);
 }
 
 .payment-header {
@@ -507,14 +546,14 @@ textarea.form-control {
     align-items: center;
     margin-bottom: 2rem;
     padding: 1.5rem;
-    background-color: var(--discord-darker);
+    background-color: var(--white);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 .current-points {
-    background-color: var(--discord-dark);
+    background-color: var(--pink-pastel);
     padding: 0.75rem 1.5rem;
     border-radius: 50px;
     font-weight: 600;
@@ -522,7 +561,7 @@ textarea.form-control {
     align-items: center;
     gap: 0.5rem;
     border: 1px solid var(--primary-color);
-    color: var(--text-color);
+    color: var(--text-dark);
 }
 
 .plans-container {
@@ -533,7 +572,7 @@ textarea.form-control {
 }
 
 .plan-card {
-    background-color: var(--discord-darker);
+    background-color: var(--white);
     border-radius: var(--border-radius);
     padding: 2rem;
     box-shadow: var(--box-shadow);
@@ -541,7 +580,7 @@ textarea.form-control {
     transition: var(--transition);
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 .plan-card.selected {
@@ -574,7 +613,7 @@ textarea.form-control {
 
 .plan-features li {
     padding: 0.75rem 0;
-    border-bottom: 1px solid var(--discord-border);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -597,12 +636,12 @@ textarea.form-control {
 }
 
 .payment-instructions {
-    background-color: var(--discord-darker);
+    background-color: var(--white);
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     margin: 3rem 0;
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 .payment-instructions h2 {
@@ -625,11 +664,11 @@ textarea.form-control {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: var(--discord-dark);
+    background-color: var(--white-smoke);
     padding: 1rem;
     border-radius: var(--border-radius);
     margin-top: 0.5rem;
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 .wallet-address code {
@@ -655,7 +694,8 @@ textarea.form-control {
 }
 
 .copy-btn:hover {
-    background-color: var(--dark-blue);
+    background-color: var(--pink-dark);
+    transform: translateY(-2px);
 }
 
 .note {
@@ -666,17 +706,17 @@ textarea.form-control {
 }
 
 .payment-form {
-    background-color: var(--discord-darker);
+    background-color: var(--white);
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     margin-top: 2rem;
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 /* Admin Panel Styles */
 .admin-body {
-    background-color: var(--discord-dark);
+    background-color: var(--background-color);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -690,14 +730,14 @@ textarea.form-control {
 }
 
 .admin-login-form {
-    background-color: var(--discord-darker);
+    background-color: var(--white);
     padding: 3rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 .admin-login-form h1 {
@@ -719,12 +759,12 @@ textarea.form-control {
 
 .admin-content {
     width: 100%;
-    background-color: var(--discord-darker);
+    background-color: var(--white);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     overflow: hidden;
     height: 100%;
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 .admin-header {
@@ -749,14 +789,14 @@ textarea.form-control {
     color: var(--primary-color);
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--discord-border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .payment-list {
-    background-color: var(--discord-dark);
+    background-color: var(--white-smoke);
     border-radius: var(--border-radius);
     overflow: hidden;
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 .payment-item {
@@ -764,12 +804,12 @@ textarea.form-control {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid var(--discord-border);
+    border-bottom: 1px solid var(--border-color);
     transition: var(--transition);
 }
 
 .payment-item:hover {
-    background-color: var(--discord-darker);
+    background-color: var(--white);
 }
 
 .payment-info p {
@@ -796,21 +836,23 @@ textarea.form-control {
 }
 
 .approve-btn {
-    background-color: var(--discord-green);
+    background-color: #28a745;
     color: var(--white);
 }
 
 .approve-btn:hover {
-    background-color: #43b581;
+    background-color: #218838;
+    transform: translateY(-2px);
 }
 
 .reject-btn {
-    background-color: var(--discord-red);
+    background-color: #dc3545;
     color: var(--white);
 }
 
 .reject-btn:hover {
-    background-color: #d8403f;
+    background-color: #c82333;
+    transform: translateY(-2px);
 }
 
 /* Responsive Design */
@@ -821,10 +863,10 @@ textarea.form-control {
         top: 100%;
         left: 0;
         right: 0;
-        background-color: var(--discord-darker);
+        background-color: var(--white);
         box-shadow: var(--box-shadow);
         padding: 1rem;
-        border-top: 1px solid var(--discord-border);
+        border-top: 1px solid var(--border-color);
         z-index: 999;
     }
 
@@ -882,8 +924,8 @@ textarea.form-control {
     padding: 14px;
     border: none;
     border-radius: 12px;
-    background: var(--discord-darker);
-    box-shadow: 0 0 0 1px var(--discord-border);
+    background: var(--white);
+    box-shadow: 0 0 0 1px var(--border-color);
     font-size: 16px;
     width: 100%;
     color: var(--text-color);
@@ -891,7 +933,7 @@ textarea.form-control {
 }
 
 .input:focus {
-    box-shadow: 0 0 0 2px var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-blue);
     outline: none;
 }
 
@@ -914,7 +956,7 @@ textarea.form-control {
     border: none;
     border-radius: 14px;
     font-size: 16px;
-    background: linear-gradient(to right, var(--primary-color), var(--accent-blue));
+    background: linear-gradient(to right, var(--primary-color), var(--pink-light));
     color: white;
     font-weight: 600;
     cursor: pointer;
@@ -936,10 +978,10 @@ textarea {
     padding: 12px 15px;
     margin: 8px 0;
     box-sizing: border-box;
-    border: 2px solid var(--discord-border);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 16px;
-    background-color: var(--discord-darker);
+    background-color: var(--white);
     transition: all 0.3s ease;
     outline: none;
     color: var(--text-color);
@@ -951,8 +993,8 @@ input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
 textarea:focus {
-    border-color: var(--primary-color);
-    background-color: var(--discord-dark);
+    border-color: var(--primary-blue);
+    background-color: var(--white);
     box-shadow: 0 0 8px rgba(74, 140, 255, 0.3);
 }
 
@@ -965,9 +1007,9 @@ textarea::placeholder {
 
 .plan-button.selected {
     border: 2px solid var(--primary-color);
-    background-color: rgba(74, 140, 255, 0.1);
+    background-color: var(--pink-pastel);
     transform: scale(1.02);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow);
 }
 
 .plan-button.selected .plan-price {
@@ -978,14 +1020,15 @@ textarea::placeholder {
 .plan-button {
     transition: all 0.3s ease;
     cursor: pointer;
-    background-color: var(--discord-dark);
+    background-color: var(--white);
     color: var(--text-color);
-    border: 1px solid var(--discord-border);
+    border: 1px solid var(--border-color);
 }
 
 .plan-button:hover {
     background-color: var(--primary-color);
     color: var(--white);
+    transform: translateY(-2px);
 }
 
 /* Scrollbar Styling */
@@ -994,22 +1037,22 @@ textarea::placeholder {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--discord-dark);
+    background: var(--white-smoke);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--discord-darker);
+    background: var(--border-color);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--discord-border);
+    background: var(--gray-medium);
 }
 
 /* Selection Color */
 ::selection {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--pink-pastel);
+    color: var(--text-dark);
 }
 
 /* Focus Styles */
@@ -1053,3 +1096,47 @@ textarea:focus {
 .p-3 { padding: 1.5rem; }
 .p-4 { padding: 2rem; }
 .p-5 { padding: 3rem; }
+
+/* Pink theme enhancements */
+.dashboard-actions .btn {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.dashboard-tips li {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.nav-links a:hover {
+    background-color: var(--pink-pastel);
+}
+
+.plan-card {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.payment-item:hover {
+    background-color: var(--pink-pastel);
+}
+
+/* Enhanced hover effects */
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+/* Pink gradient accents */
+.points-balance {
+    background: linear-gradient(135deg, var(--primary-color), var(--pink-light));
+}
+
+.dashboard-tips li::before {
+    background: linear-gradient(to bottom, var(--primary-color), var(--pink-light));
+}
+
+.button {
+    background: linear-gradient(to right, var(--primary-color), var(--pink-light));
+}

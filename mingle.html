@@ -1,12 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
-<hea>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mingle - Bondly</title>
 
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Add these new styles for social features */
+        .profile-social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .social-profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+            border: 2px solid transparent;
+        }
+
+        .social-profile-icon:hover {
+            transform: translateY(-3px);
+            border-color: currentColor;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .social-profile-icon.facebook { color: #1877F2; }
+        .social-profile-icon.instagram { color: #E4405F; }
+        .social-profile-icon.snapchat { color: #FFFC00; }
+        .social-profile-icon.tiktok { color: #000000; }
+
+        .posts-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--accent-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .posts-indicator:hover {
+            transform: scale(1.1);
+            background: var(--accent-dark);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .nav-posts-indicator {
+            position: relative;
+        }
+
+        .posts-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .social-links-header {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .social-links-header i {
+            margin-right: 5px;
+            color: var(--accent-color);
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -18,40 +118,52 @@
                 <span class="bar"></span>
             </div>
             <ul class="nav-menu">
-    <li class="nav-item">
-        <a href="mingle.html" class="nav-links">
-            <i class="fas fa-fire"></i>
-            <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="messages.html" class="nav-links">
-            <i class="fas fa-comments"></i>
-            <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
-            <span class="message-count">0</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="account.html" class="nav-links">
-            <i class="fas fa-user"></i>
-            <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="#" id="logoutBtn" class="nav-links">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="dashboard.html" class="nav-links">
-            <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
-            <i class="fas fa-arrow-right"></i>
-        </a>
-    </li>
-</ul>
+                <li class="nav-item">
+                    <a href="mingle.html" class="nav-links">
+                        <i class="fas fa-fire"></i>
+                        <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="messages.html" class="nav-links">
+                        <i class="fas fa-comments"></i>
+                        <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
+                        <span class="message-count">0</span>
+                    </a>
+                </li>
+                <li class="nav-item nav-posts-indicator">
+                    <a href="posts.html" class="nav-links">
+                        <i class="fas fa-images"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.1rem;">Posts</span>
+                        <span class="posts-badge" id="navPostsBadge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="account.html" class="nav-links">
+                        <i class="fas fa-user"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" id="logoutBtn" class="nav-links">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-links">
+                        <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+            </ul>
         </div>
     </nav>
+
+    <!-- New Posts Indicator -->
+    <div class="posts-indicator" id="floatingPostsIndicator" style="display: none;" onclick="window.location.href='posts.html'">
+        <i class="fas fa-images"></i>
+    </div>
 
     <div class="mingle-container">
         <div class="profile-card">
@@ -71,29 +183,41 @@
             
 
             <div class="profile-info">
-                            <!-- BANNER DISPLAYS HERE -->
-    <div class="creative-profile-banner" id="mingleProfileBanner" style="display: none;"></div>
-            
-                 <div id="profileStatusIndicator"></div>
+                <!-- BANNER DISPLAYS HERE -->
+                <div class="creative-profile-banner" id="mingleProfileBanner" style="display: none;"></div>
+                
+                <div id="profileStatusIndicator"></div>
                 <h2 id="profileName">Loading...</h2>
                 <p id="profileAgeLocation">...</p>
+                
+                <!-- Social Links Header -->
+                <div class="social-links-header" id="socialLinksHeader" style="display: none;">
+                    <i class="fas fa-share-alt"></i> Connect on social media
+                </div>
+                
+                <!-- Social Media Icons will be inserted here by social.js -->
+                <div id="profileSocialIcons"></div>
+                
                 <p id="profileBio">No bio available</p>
                 <div class="profile-stats">
                     <span><i class="fas fa-heart"></i> <span id="likeCount">0</span> likes</span>
+                    
                 </div>
             </div>
         </div>
     </div>
+
     <script type="module" src="call.js"></script>
-     <script type="module" src="message.js"></script>
+    <script type="module" src="message.js"></script>
     <script type="module" src="mingle-upgrades.js"></script>
     <script type="module" src="app.js"></script>
     <script type="module" src="additional.js"></script>
     <script type="module" src="creative.js"></script>
-    
     <script type="module" src="flip.js"></script>
-    <!-- Add this right before closing </body> tag -->
+    
+    <!-- ADD THIS LINE - Import the social.js file -->
+    <script type="module" src="social.js"></script>
 
-<script type="module" src="verification.js"></script>
-    </body>
+
+</body>
 </html>

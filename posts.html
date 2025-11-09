@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts - Bondly</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .posts-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .posts-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .posts-header h1 {
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .posts-header p {
+            color: var(--text-light);
+        }
+
+        .create-post-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--accent-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .create-post-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .posts-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .post-card {
+            background: var(--bg-light);
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 20px 20px 0 20px;
+        }
+
+        .post-author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+
+        .post-author-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .post-author-info h4 {
+            margin: 0;
+            color: var(--text-dark);
+            font-size: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .post-time {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .post-user-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .btn-chat, .btn-view-profile {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .btn-chat:hover, .btn-view-profile:hover {
+            background: var(--accent-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-view-profile {
+            background: var(--secondary-color);
+        }
+
+        .btn-view-profile:hover {
+            background: var(--accent-dark);
+        }
+
+        /* IMAGE AT THE TOP */
+        .post-image-container {
+            width: 100%;
+            margin: 0;
+            text-align: center;
+            background: #f8f9fa;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 300px;
+            height: auto;
+            object-fit: cover;
+            display: block;
+            margin: 0;
+        }
+
+        /* CAPTION AND CONTENT BELOW IMAGE */
+        .post-content {
+            padding: 15px 20px 0 20px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .post-caption {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin: 0;
+            word-wrap: break-word;
+            font-size: 15px;
+        }
+
+        /* ACTIONS AT THE BOTTOM */
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            border-top: 1px solid var(--border-color);
+            padding: 15px 20px;
+            margin-top: 10px;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .post-action:hover {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .post-action.liked {
+            color: #e74c3c;
+        }
+
+        .post-action.liked i {
+            font-weight: 900;
+        }
+
+        /* COMMENTS SECTION */
+        .comments-section {
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0;
+        }
+
+        .add-comment {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .comment-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .send-comment-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-comment-btn:hover {
+            background: var(--accent-dark);
+        }
+
+        .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .comment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-info {
+            flex: 1;
+        }
+
+        .comment-info strong {
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-left: 10px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: var(--text-dark);
+            line-height: 1.4;
+            margin-left: 40px;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .loading, .error, .no-posts {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+            font-size: 18px;
+        }
+
+        .loading i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .no-posts {
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .user-posts-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-posts-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+
+        .user-posts-info h2 {
+            margin: 0;
+            color: var(--text-dark);
+            font-size: 18px;
+        }
+
+        .user-posts-info p {
+            margin: 5px 0 0 0;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .posts-container {
+                padding: 15px;
+            }
+
+            .post-header {
+                gap: 10px;
+                padding: 15px 15px 0 15px;
+            }
+
+            .post-author-avatar {
+                width: 40px;
+                height: 40px;
+            }
+
+            .post-user-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .btn-chat, .btn-view-profile {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .post-content {
+                padding: 10px 15px 0 15px;
+            }
+
+            .post-actions {
+                gap: 10px;
+                padding: 10px 15px;
+            }
+
+            .post-action {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+
+            .comments-section {
+                padding: 0 15px 15px 15px;
+            }
+
+            .user-posts-header {
+                padding: 12px;
+            }
+
+            .user-posts-avatar {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .post-header {
+                flex-wrap: wrap;
+            }
+
+            .post-user-actions {
+                width: 100%;
+                flex-direction: row;
+                justify-content: flex-start;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">Bondly</a>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="mingle.html" class="nav-links">
+                        <i class="fas fa-fire"></i>
+                        <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="messages.html" class="nav-links">
+                        <i class="fas fa-comments"></i>
+                        <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
+                        <span class="message-count">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="posts.html" class="nav-links active">
+                        <i class="fas fa-images"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.1rem;">Posts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="account.html" class="nav-links">
+                        <i class="fas fa-user"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" id="logoutBtn" class="nav-links">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-links">
+                        <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="posts-container">
+            <div class="posts-header">
+                <h1><i class="fas fa-images"></i> Community Posts</h1>
+                <p>See what's happening in your dating community</p>
+                <a href="create.html" class="create-post-btn">
+                    <i class="fas fa-plus"></i> Create Post
+                </a>
+            </div>
+
+            <div id="userPostsHeader" class="user-posts-header" style="display: none;">
+                <img src="images/default-profile.jpg" alt="User" class="user-posts-avatar" id="userPostsAvatar">
+                <div class="user-posts-info">
+                    <h2 id="userPostsName">User's Posts</h2>
+                    <p id="userPostsBio">Viewing all posts by this user</p>
+                </div>
+            </div>
+
+            <div id="postsContainer" class="posts-feed">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i><br>
+                    Loading posts...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="social.js"></script>
+    <script type="module" src="app.js"></script>
+    
+    <script>
+        // Debug script to check what's happening
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== POSTS PAGE DEBUG ===');
+            
+            // Check if socialManager is loaded
+            if (window.socialManager) {
+                console.log('✅ socialManager is loaded');
+            } else {
+                console.error('❌ socialManager is not loaded');
+            }
+        });
+    </script>
+</body>
+</html>

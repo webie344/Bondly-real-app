@@ -7,32 +7,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Discord-inspired color palette */
-      --discord-dark: #36393f;
-      --discord-darker: #2f3136;
-      --discord-darkest: #202225;
-      --discord-blurple: #5865f2;
-      --discord-blurple-light: #7983f5;
-      --discord-blurple-dark: #4752c4;
-      --discord-green: #57f287;
-      --discord-red: #ed4245;
-      --discord-text: #ffffff;
-      --discord-text-muted: #b9bbbe;
-      --discord-border: #40444b;
+      /* Lovely light pink color palette */
+      --pink-primary: #FF6B9D;
+      --pink-light: #FFB6C1;
+      --pink-dark: #E0557E;
+      --pink-accent: #FF8FAB;
+      --pink-pastel: #FFF0F5;
+      --pink-soft: #FFF5F9;
       
-      /* Blue accent colors */
+      /* White and neutral colors */
+      --white: #FFFFFF;
+      --white-smoke: #FFF8FA;
+      --white-soft: #FFF5F9;
+      --gray-light: #F8E8EE;
+      --gray-medium: #6C757D;
+      --gray-dark: #495057;
+      --text-dark: #212529;
+      --text-muted: #6C757D;
+      
+      /* Blue accent colors for inputs */
       --primary-blue: #4a8cff;
       --accent-blue: #5e9cff;
       --dark-blue: #3a7be0;
       
       /* Theme variables */
-      --primary-color: var(--primary-blue);
-      --bg-color: var(--discord-dark);
-      --card-bg: var(--discord-darker);
-      --text-color: var(--discord-text);
-      --text-muted: var(--discord-text-muted);
-      --border-color: var(--discord-border);
-      --border-radius: 8px;
+      --primary-color: var(--pink-primary);
+      --bg-color: var(--white);
+      --card-bg: var(--white);
+      --text-color: var(--text-dark);
+      --text-muted: var(--text-muted);
+      --border-color: var(--gray-light);
+      --border-radius: 12px;
       --transition: all 0.3s ease;
     }
 
@@ -53,8 +58,8 @@
       justify-content: center;
       align-items: center;
       background-image: 
-        radial-gradient(circle at 15% 50%, rgba(74, 140, 255, 0.03) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(94, 156, 255, 0.03) 0%, transparent 25%);
+        radial-gradient(circle at 15% 50%, rgba(255, 107, 157, 0.03) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(255, 182, 193, 0.03) 0%, transparent 25%);
     }
 
     .login-container {
@@ -75,17 +80,17 @@
       border-radius: 50%;
       object-fit: cover;
       border: 3px solid var(--primary-color);
-      box-shadow: 0 4px 20px rgba(74, 140, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(255, 107, 157, 0.2);
     }
 
     .bubble {
       position: absolute;
-      background-color: var(--primary-color);
+      background: linear-gradient(135deg, var(--pink-primary), var(--pink-light));
       color: white;
       font-size: 14px;
       padding: 8px 14px;
       border-radius: 18px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
       font-weight: 600;
       z-index: 10;
       animation: float 3s ease-in-out infinite;
@@ -117,14 +122,14 @@
       background-color: var(--card-bg);
       padding: 30px;
       border-radius: var(--border-radius);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 32px rgba(255, 107, 157, 0.08);
       border: 1px solid var(--border-color);
     }
 
     .form-section h2 {
       font-size: 26px;
       margin-bottom: 8px;
-      color: var(--text-color);
+      color: var(--primary-color);
       text-align: center;
     }
 
@@ -145,7 +150,7 @@
       padding: 14px;
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      background: var(--discord-dark);
+      background: var(--white);
       font-size: 16px;
       color: var(--text-color);
       transition: var(--transition);
@@ -154,7 +159,7 @@
 
     input:focus {
       outline: none;
-      border-color: var(--primary-color);
+      border-color: var(--primary-blue);
       box-shadow: 0 0 0 2px rgba(74, 140, 255, 0.2);
     }
 
@@ -183,7 +188,7 @@
 
     .toggle-password:hover {
       color: var(--primary-color);
-      background-color: rgba(74, 140, 255, 0.1);
+      background-color: var(--pink-pastel);
     }
 
     button {
@@ -191,7 +196,7 @@
       border: none;
       border-radius: var(--border-radius);
       font-size: 16px;
-      background: linear-gradient(to right, var(--primary-blue), var(--accent-blue));
+      background: linear-gradient(to right, var(--pink-primary), var(--pink-light));
       color: white;
       font-weight: 600;
       cursor: pointer;
@@ -202,7 +207,7 @@
     button:hover {
       opacity: 0.9;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(74, 140, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
     }
 
     .forgot-link {
@@ -256,7 +261,7 @@
     }
 
     .terms a:hover {
-      color: var(--accent-blue);
+      color: var(--pink-dark);
     }
 
     @media screen and (max-width: 480px) {
