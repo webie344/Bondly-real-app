@@ -1439,31 +1439,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Prevent copy-paste on all pages
-    document.addEventListener('copy', (e) => {
-        if (!e.target.classList.contains('allow-copy')) {
-            e.preventDefault();
-            showNotification('Copying is disabled on this page', 'warning', 2000);
-        }
-    });
+// Prevent copy-paste on all pages EXCEPT share section inputs
+document.addEventListener('copy', (e) => {
+    // Allow copying from share section inputs and elements with allow-copy class
+    if (!e.target.classList.contains('allow-copy') && 
+        !e.target.closest('.share-container') &&
+        e.target.id !== 'bondlyLink' &&
+        e.target.id !== 'profileLink') {
+        e.preventDefault();
+        showNotification('Copying is disabled on this page', 'warning', 2000);
+    }
+});
 
-    document.addEventListener('paste', (e) => {
-        if (!e.target.classList.contains('allow-paste')) {
-            e.preventDefault();
-            showNotification('Pasting is disabled on this page', 'warning', 2000);
-        }
-    });
+document.addEventListener('paste', (e) => {
+    if (!e.target.classList.contains('allow-paste') && 
+        !e.target.closest('.share-container')) {
+        e.preventDefault();
+        showNotification('Pasting is disabled on this page', 'warning', 2000);
+    }
+});
 
-    document.addEventListener('cut', (e) => {
-        if (!e.target.classList.contains('allow-copy')) {
-            e.preventDefault();
-            showNotification('Cutting is disabled on this page', 'warning', 2000);
-        }
-    });
+document.addEventListener('cut', (e) => {
+    if (!e.target.classList.contains('allow-copy') && 
+        !e.target.closest('.share-container')) {
+        e.preventDefault();
+        showNotification('Cutting is disabled on this page', 'warning', 2000);
+    }
+});
 
-    // Add copy-paste prevention class to body
-    document.body.classList.add('prevent-copy');
-
+// Add copy-paste prevention class to body but allow it in share section
+document.body.classList.add('prevent-copy');
     // Check auth state first before initializing page
     onAuthStateChanged(auth, (user) => {
         if (user) {
