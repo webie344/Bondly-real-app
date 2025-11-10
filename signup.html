@@ -7,23 +7,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Lovely light pink color palette */
-      --pink-primary: #FF6B9D;
-      --pink-light: #FFB6C1;
-      --pink-dark: #E0557E;
-      --pink-accent: #FF8FAB;
-      --pink-pastel: #FFF0F5;
-      --pink-soft: #FFF5F9;
+      /* Beautiful blue color palette */
+      --blue-primary: #4a8cff;
+      --blue-light: #87CEEB;
+      --blue-dark: #3a7be0;
+      --blue-accent: #5e9cff;
+      --blue-pastel: #E8F2FF;
+      --blue-soft: #F0F8FF;
       
       /* White and neutral colors */
       --white: #FFFFFF;
-      --white-smoke: #FFF8FA;
-      --white-soft: #FFF5F9;
-      --gray-light: #F8E8EE;
+      --white-smoke: #F7FBFF;
+      --white-soft: #F0F8FF;
+      --gray-light: #E6F0FF;
       --gray-medium: #6C757D;
       --gray-dark: #495057;
-      --text-dark: #212529;
-      --text-muted: #6C757D;
+      --text-dark: #2C3E50;
+      --text-muted: #7F8C8D;
       
       /* Blue accent colors for inputs */
       --primary-blue: #4a8cff;
@@ -31,7 +31,7 @@
       --dark-blue: #3a7be0;
       
       /* Theme variables */
-      --primary-color: var(--pink-primary);
+      --primary-color: var(--blue-primary);
       --bg-color: var(--white);
       --card-bg: var(--white);
       --text-color: var(--text-dark);
@@ -58,8 +58,8 @@
       justify-content: center;
       align-items: center;
       background-image: 
-        radial-gradient(circle at 15% 50%, rgba(255, 107, 157, 0.03) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(255, 182, 193, 0.03) 0%, transparent 25%);
+        radial-gradient(circle at 15% 50%, rgba(74, 140, 255, 0.03) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(135, 206, 235, 0.03) 0%, transparent 25%);
       background-size: auto, auto;
       background-position: 0 0, 0 0;
       background-repeat: no-repeat, no-repeat;
@@ -83,17 +83,17 @@
       border-radius: 50%;
       object-fit: cover;
       border: 3px solid var(--primary-color);
-      box-shadow: 0 4px 20px rgba(255, 107, 157, 0.2);
+      box-shadow: 0 4px 20px rgba(74, 140, 255, 0.2);
     }
 
     .bubble {
       position: absolute;
-      background: linear-gradient(135deg, var(--pink-primary), var(--pink-light));
+      background: linear-gradient(135deg, var(--blue-primary), var(--blue-light));
       color: white;
       font-size: 14px;
       padding: 8px 14px;
       border-radius: 18px;
-      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+      box-shadow: 0 4px 12px rgba(74, 140, 255, 0.3);
       font-weight: 600;
       z-index: 10;
       animation: float 3s ease-in-out infinite;
@@ -125,7 +125,7 @@
       background-color: var(--card-bg);
       padding: 30px;
       border-radius: var(--border-radius);
-      box-shadow: 0 8px 32px rgba(255, 107, 157, 0.08);
+      box-shadow: 0 8px 32px rgba(74, 140, 255, 0.08);
       border: 1px solid var(--border-color);
     }
 
@@ -191,7 +191,7 @@
 
     .toggle-password:hover {
       color: var(--primary-color);
-      background-color: var(--pink-pastel);
+      background-color: var(--blue-pastel);
     }
 
     /* Checkbox styling */
@@ -227,7 +227,7 @@
       border: none;
       border-radius: var(--border-radius);
       font-size: 16px;
-      background: linear-gradient(to right, var(--pink-primary), var(--pink-light));
+      background: linear-gradient(to right, var(--blue-primary), var(--blue-light));
       color: white;
       font-weight: 600;
       cursor: pointer;
@@ -238,7 +238,7 @@
     button:hover {
       opacity: 0.9;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+      box-shadow: 0 4px 12px rgba(74, 140, 255, 0.3);
     }
 
     .auth-footer {
@@ -273,7 +273,7 @@
     }
 
     .terms a:hover {
-      color: var(--pink-dark);
+      color: var(--blue-dark);
     }
 
     @media screen and (max-width: 480px) {
@@ -306,7 +306,7 @@
   <div class="signup-container">
     <!-- Top Illustration -->
     <div class="top-illustration">
-      <img src="love.jpeg" alt="Bondly">
+      <img src="bondly.jpg" alt="Bondly">
       <div class="bubble bubble1">We chat</div>
       <div class="bubble bubble2">we love</div>
       <div class="bubble bubble3">we meet</div>

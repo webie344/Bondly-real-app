@@ -98,23 +98,51 @@ class ChatThemeManager {
         return this.currentTheme;
     }
 
-    // Get all available themes
+    // Get all available themes with updated semi-transparent previews
     getAvailableThemes() {
         return [
-            { id: 'default', name: 'Pink & White', preview: 'linear-gradient(135deg, #FF6B9D 0%, #FFB6C1 100%)' },
-            { id: 'light-blue', name: 'Light Blue', preview: 'linear-gradient(135deg, #4A90E2 0%, #87CEEB 100%)' },
-            { id: 'mint', name: 'Mint & White', preview: 'linear-gradient(135deg, #48C9B0 0%, #76D7C4 100%)' },
-            { id: 'lavender', name: 'Lavender', preview: 'linear-gradient(135deg, #9B59B6 0%, #BB8FCE 100%)' },
-            { id: 'sunset', name: 'Sunset', preview: 'linear-gradient(135deg, #FF7E5F 0%, #FFB88C 100%)' }
+            { 
+                id: 'default', 
+                name: 'Soft Lavender', 
+                preview: 'linear-gradient(135deg, rgba(168, 155, 255, 0.9) 0%, rgba(195, 187, 255, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(168, 155, 255, 0.9) 0%, rgba(140, 122, 255, 0.8) 100%)'
+            },
+            { 
+                id: 'light-blue', 
+                name: 'Sky Blue', 
+                preview: 'linear-gradient(135deg, rgba(125, 211, 252, 0.9) 0%, rgba(186, 230, 253, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(125, 211, 252, 0.9) 0%, rgba(56, 189, 248, 0.8) 100%)'
+            },
+            { 
+                id: 'mint', 
+                name: 'Mint Green', 
+                preview: 'linear-gradient(135deg, rgba(110, 231, 183, 0.9) 0%, rgba(167, 243, 208, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(110, 231, 183, 0.9) 0%, rgba(52, 211, 153, 0.8) 100%)'
+            },
+            { 
+                id: 'peach', 
+                name: 'Warm Peach', 
+                preview: 'linear-gradient(135deg, rgba(251, 191, 135, 0.9) 0%, rgba(254, 215, 170, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(251, 191, 135, 0.9) 0%, rgba(249, 168, 77, 0.8) 100%)'
+            },
+            { 
+                id: 'rose', 
+                name: 'Gentle Rose', 
+                preview: 'linear-gradient(135deg, rgba(251, 182, 206, 0.9) 0%, rgba(252, 213, 206, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(251, 182, 206, 0.9) 0%, rgba(244, 114, 182, 0.8) 100%)'
+            },
+            { 
+                id: 'lilac', 
+                name: 'Soft Lilac', 
+                preview: 'linear-gradient(135deg, rgba(196, 181, 253, 0.9) 0%, rgba(221, 214, 254, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(196, 181, 253, 0.9) 0%, rgba(167, 139, 250, 0.8) 100%)'
+            }
         ];
     }
 }
 
 // Initialize theme manager
 const themeManager = new ChatThemeManager();
-
-// Export for use in other files
-window.ChatThemeManager = themeManager;
 
 // Theme selector UI for account page
 class ThemeSelectorUI {
@@ -128,6 +156,7 @@ class ThemeSelectorUI {
         if (this.isAccountPage()) {
             this.setupThemeSelector();
             this.loadCurrentThemeSelection();
+            this.setupChatPreview();
         }
     }
 
@@ -145,7 +174,8 @@ class ThemeSelectorUI {
             <div class="theme-item" data-theme="${theme.id}">
                 <div class="theme-preview" style="background: ${theme.preview}">
                     <div class="theme-preview-content">
-                        ${theme.name}
+                        <div class="theme-message-preview" style="background: ${theme.messagePreview}"></div>
+                        <div class="theme-message-preview received" style="background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(226, 232, 240, 0.6);"></div>
                     </div>
                 </div>
                 <div class="theme-label">${theme.name}</div>
@@ -160,6 +190,44 @@ class ThemeSelectorUI {
                 this.selectTheme(themeId);
             }
         });
+    }
+
+    setupChatPreview() {
+        const chatPreview = document.getElementById('chatPreview');
+        if (!chatPreview) return;
+
+        // Create a more realistic chat preview
+        chatPreview.innerHTML = `
+            <div class="chat-preview-container">
+                <div class="chat-preview-header">
+                    <div class="preview-partner-info">
+                        <div class="preview-avatar"></div>
+                        <div class="preview-details">
+                            <div class="preview-name"></div>
+                            <div class="preview-status"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-preview-messages">
+                    <div class="preview-message received">
+                        <div class="preview-message-content">Hey there! How's your day going?</div>
+                        <div class="preview-message-time">10:30 AM</div>
+                    </div>
+                    <div class="preview-message sent">
+                        <div class="preview-message-content">It's going great! Just finished work 😊</div>
+                        <div class="preview-message-time">10:31 AM</div>
+                    </div>
+                    <div class="preview-message received">
+                        <div class="preview-message-content">That's awesome! Want to grab coffee later?</div>
+                        <div class="preview-message-time">10:32 AM</div>
+                    </div>
+                </div>
+                <div class="chat-preview-input">
+                    <div class="preview-input-field"></div>
+                    <div class="preview-send-btn"></div>
+                </div>
+            </div>
+        `;
     }
 
     async selectTheme(themeId) {
@@ -197,6 +265,16 @@ class ThemeSelectorUI {
         const chatPreview = document.getElementById('chatPreview');
         if (chatPreview) {
             chatPreview.setAttribute('data-theme', themeId);
+            
+            // Update the preview messages with the new theme colors
+            const sentMessages = chatPreview.querySelectorAll('.preview-message.sent');
+            const theme = this.themeManager.getAvailableThemes().find(t => t.id === themeId);
+            
+            if (theme && sentMessages.length > 0) {
+                sentMessages.forEach(message => {
+                    message.style.background = theme.messagePreview;
+                });
+            }
         }
     }
 
@@ -218,12 +296,16 @@ class ThemeSelectorUI {
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                background: ${type === 'success' ? 'rgba(40, 167, 69, 0.95)' : 'rgba(220, 53, 69, 0.95)'};
                 color: white;
                 padding: 15px 20px;
-                border-radius: 5px;
+                border-radius: 8px;
                 z-index: 10000;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                font-weight: 500;
             `;
             notification.textContent = message;
             document.body.appendChild(notification);
@@ -237,8 +319,201 @@ class ThemeSelectorUI {
     }
 }
 
+// Add CSS for theme selector
+const addThemeSelectorStyles = () => {
+    const styles = `
+        .theme-item {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .theme-preview.selected {
+            border-color: rgba(74, 85, 104, 0.8);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .theme-preview-content {
+            padding: 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .theme-message-preview {
+            height: 24px;
+            border-radius: 12px;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .theme-message-preview.received {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            margin-left: 20px;
+        }
+
+        .theme-label {
+            text-align: center;
+            font-weight: 600;
+            color: rgba(45, 55, 72, 0.9);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .chat-preview-container {
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: var(--chat-background);
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-preview-header {
+            padding: 12px;
+            background: var(--background-color);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .preview-partner-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            opacity: 0.7;
+        }
+
+        .preview-details {
+            flex: 1;
+        }
+
+        .preview-name {
+            height: 12px;
+            background: var(--text-color);
+            border-radius: 6px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .preview-status {
+            height: 8px;
+            background: var(--text-light);
+            border-radius: 4px;
+            opacity: 0.6;
+            width: 60%;
+        }
+
+        .chat-preview-messages {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .preview-message {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .preview-message.received {
+            align-self: flex-start;
+            background: var(--message-received-bg);
+            color: var(--message-received-text);
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-message.sent {
+            align-self: flex-end;
+            background: var(--message-sent-bg);
+            color: var(--message-sent-text);
+        }
+
+        .preview-message-content {
+            margin-bottom: 2px;
+        }
+
+        .preview-message-time {
+            font-size: 9px;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        .preview-message.received .preview-message-time {
+            text-align: left;
+        }
+
+        .chat-preview-input {
+            padding: 12px;
+            background: var(--input-background);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .preview-input-field {
+            flex: 1;
+            height: 32px;
+            background: var(--input-background);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .preview-send-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+    `;
+
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+};
+
 // Initialize theme selector UI
 const themeSelectorUI = new ThemeSelectorUI();
+
+// Add styles when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addThemeSelectorStyles);
+} else {
+    addThemeSelectorStyles();
+}
 
 // Auto-apply theme on chat pages
 if (window.location.pathname.includes('chat.html')) {
@@ -248,6 +523,3 @@ if (window.location.pathname.includes('chat.html')) {
 // Export for global access
 window.themeManager = themeManager;
 window.themeSelectorUI = themeSelectorUI;
-
-
-

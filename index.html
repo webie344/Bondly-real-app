@@ -4,142 +4,285 @@
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bondly - Find Your Match</title>
-   
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #fef7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                              url('https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 1rem;
+            color: white;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-primary, .btn-secondary {
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+            border: 2px solid #ff6b6b;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .terms {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Love Stories Section */
+        .love-stories {
+            padding: 4rem 2rem;
+            background-color: #fff;
+            text-align: center;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+            font-weight: 700;
+        }
+        
+        .stories-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .story-card {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 300px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .story-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .story-image {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+        }
+        
+        .story-content {
+            padding: 1.5rem;
+        }
+        
+        .story-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .story-text {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .footer-link {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: #ff6b6b;
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="index.html" class="logo">Bondly</a>
-            <div class="nav-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-            <ul class="nav-menu">
-                <li class="nav-item"><a href="login.html" class="nav-links">Login</a></li>
-                <li class="nav-item"><a href="signup.html" class="nav-links">Sign Up</a></li>
-                <li class="nav-item"><a href="#" class="nav-links">About</a></li>
-            </ul>
-        </div>
-    </nav>
-
     <div class="hero">
         <div class="hero-content">
-            <h1>Find Your Perfect Match</h1>
-            <p>Join thousands of singles looking for love</p>
+            <h1>Real Love Stories</h1>
+            <p>For the Love of Love</p>
             <div class="hero-buttons">
-                <a href="signup.html" class="btn-primary">Get Started</a>
-                <a href="login.html" class="btn-secondary">Login</a>
-                
-                <!-- Download Button with Dropdown -->
-                <div class="download-container">
-                    <button class="btn-download">
-                        Download App <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="download-dropdown">
-                        <a href="https://median.co/share/eebjlde#apk" class="dropdown-item android-download">
-                            <i class="fab fa-android"></i>
-                            Android Download
-                        </a>
-                        <a href="#" class="dropdown-item ios-download" id="ios-download-btn">
-                            <i class="fab fa-apple"></i>
-                            iOS Download
-                        </a>
-                    </div>
-                </div>
+                <a href="signup.html" class="btn-primary">Create an account</a>
+                <a href="login.html" class="btn-secondary">I have an account</a>
             </div>
+            <p class="terms">
+                By signing up, you agree to our Terms. See how we use your data in our Privacy Policy
+            </p>
         </div>
     </div>
 
-    <!-- iOS Download Modal -->
-    <div class="modal" id="ios-modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>iOS App Coming Soon</h2>
-            <p>Our iOS app will be available very soon on the App Store. In the meantime, you can add our website to your home screen for the best experience.</p>
-            
-            <div class="pwa-instructions">
-                <h3>How to Add to Home Screen:</h3>
-                <div class="instruction-step">
-                    <h4><i class="fas fa-safari"></i> For Safari (iPhone/iPad):</h4>
-                    <ol>
-                        <li>Tap the Share button <i class="fas fa-share-square"></i> at the bottom of the screen</li>
-                        <li>Scroll down and tap "Add to Home Screen"</li>
-                        <li>Tap "Add" in the top right corner</li>
-                        <li>The Bondly app will appear on your home screen</li>
-                    </ol>
-                </div>
-                
-                <div class="instruction-step">
-                    <h4><i class="fab fa-chrome"></i> For Chrome (Android/iPhone):</h4>
-                    <ol>
-                        <li>Tap the three dots menu <i class="fas fa-ellipsis-v"></i> in the top right</li>
-                        <li>Tap "Add to Home Screen" or "Install App"</li>
-                        <li>Confirm by tapping "Add" or "Install"</li>
-                        <li>The Bondly app will be installed on your home screen</li>
-                    </ol>
+    <section class="love-stories">
+        <h2 class="section-title">Real Love Stories</h2>
+        <div class="stories-container">
+            <div class="story-card">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80" alt="Couple 1" class="story-image">
+                <div class="story-content">
+                    <h3 class="story-title">Sarah & Michael</h3>
+                    <p class="story-text">"We matched during the pandemic and had our first date over video call. Two years later, we're engaged!"</p>
                 </div>
             </div>
             
-            <button class="btn-primary modal-close">Got It!</button>
+            <div class="story-card">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Couple 2" class="story-image">
+                <div class="story-content">
+                    <h3 class="story-title">James & Emma</h3>
+                    <p class="story-text">"We both swiped right on our morning commute. Our first date was at the coffee shop near our office."</p>
+                </div>
+            </div>
+            
+            <div class="story-card">
+                <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Couple 3" class="story-image">
+                <div class="story-content">
+                    <h3 class="story-title">Alex & Taylor</h3>
+                    <p class="story-text">"We connected over our love for hiking. Our first date was a sunrise hike, and we've been exploring together ever since."</p>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+            <a href="policy.html" class="footer-links">Privacy Policy</a>
+            <a href="contact.html">Contact Support</a>
+            <a href="about.html">About Us</a>
+            </div>
+            <p class="copyright">© 2023 Bondly. All rights reserved.</p>
+        </div>
+    </footer>
 
     <script>
-        // Download dropdown functionality
+        // Simple script for mobile menu toggle (if needed in the future)
         document.addEventListener('DOMContentLoaded', function() {
-            const downloadBtn = document.querySelector('.btn-download');
-            const dropdown = document.querySelector('.download-dropdown');
-            const iosDownloadBtn = document.getElementById('ios-download-btn');
-            const iosModal = document.getElementById('ios-modal');
-            const closeModal = document.querySelector('.close-modal');
-            const modalCloseBtn = document.querySelector('.modal-close');
-            
-            // Toggle dropdown
-            downloadBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdown.classList.toggle('show');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function() {
-                dropdown.classList.remove('show');
-            });
-            
-            // Prevent dropdown from closing when clicking inside it
-            dropdown.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-            
-            // iOS download button click
-            iosDownloadBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                dropdown.classList.remove('show');
-                iosModal.style.display = 'flex';
-            });
-            
-            // Close modal events
-            closeModal.addEventListener('click', function() {
-                iosModal.style.display = 'none';
-            });
-            
-            modalCloseBtn.addEventListener('click', function() {
-                iosModal.style.display = 'none';
-            });
-            
-            // Close modal when clicking outside
-            iosModal.addEventListener('click', function(e) {
-                if (e.target === iosModal) {
-                    iosModal.style.display = 'none';
-                }
-            });
+            console.log('Bondly homepage loaded successfully');
         });
     </script>
-    
-    <script type="module" src="app.js"></script>
-    <script src="hack.js"></script>
-    <script type="module" src="verification.js"></script>
 </body>
 </html>

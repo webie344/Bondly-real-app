@@ -1,20 +1,20 @@
-/* White & Light Pink Theme with Blue Inputs */
+/* Blue & White Theme */
 :root {
-    /* Lovely light pink color palette */
-    --pink-primary: #FF6B9D;
-    --pink-light: #FFB6C1;
-    --pink-dark: #E0557E;
-    --pink-accent: #FF8FAB;
-    --pink-pastel: #FFF0F5;
+    /* Lovely blue color palette */
+    --blue-primary: #4a8cff;
+    --blue-light: #87CEEB;
+    --blue-dark: #3a7be0;
+    --blue-accent: #5e9cff;
+    --blue-pastel: #F0F8FF;
     
     /* White and neutral colors */
     --white: #FFFFFF;
-    --white-smoke: #FFF8FA;
-    --white-soft: #FFF5F9;
-    --gray-light: #F8E8EE;
+    --white-smoke: #F8FBFE;
+    --white-soft: #F0F8FF;
+    --gray-light: #E1F5FE;
     --gray-medium: #6C757D;
     --gray-dark: #495057;
-    --text-dark: #212529;
+    --text-dark: #2C3E50;
     --text-muted: #6C757D;
     
     /* Blue accent colors for inputs and buttons */
@@ -23,9 +23,9 @@
     --dark-blue: #3a7be0;
     
     /* Theme variables */
-    --primary-color: var(--pink-primary);
-    --secondary-color: var(--pink-light);
-    --accent-color: var(--pink-dark);
+    --primary-color: var(--blue-primary);
+    --secondary-color: var(--blue-light);
+    --accent-color: var(--blue-dark);
     --light-color: var(--white-soft);
     --dark-color: var(--gray-dark);
     --text-color: var(--text-dark);
@@ -33,8 +33,8 @@
     --background-color: var(--white);
     --border-color: var(--gray-light);
     --border-radius: 12px;
-    --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --box-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
+    --box-shadow: 0 8px 32px rgba(74, 144, 226, 0.08);
+    --box-shadow-hover: 0 12px 40px rgba(74, 144, 226, 0.12);
     --transition: all 0.3s ease;
 }
 
@@ -50,10 +50,8 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     background-image: 
-        radial-gradient(circle at 15% 50%, rgba(255, 107, 157, 0.03) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(255, 182, 193, 0.03) 0%, transparent 25%);
-    
-    
+        radial-gradient(circle at 15% 50%, rgba(74, 140, 255, 0.03) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(135, 206, 235, 0.03) 0%, transparent 25%);
     background-size: cover;
 }
 
@@ -76,7 +74,7 @@ a {
 }
 
 a:hover {
-    color: var(--pink-dark);
+    color: var(--blue-dark);
 }
 
 img {
@@ -158,7 +156,7 @@ p {
 }
 
 .btn-primary:hover {
-    background-color: var(--pink-dark);
+    background-color: var(--blue-dark);
     box-shadow: var(--box-shadow-hover);
     transform: translateY(-2px);
 }
@@ -281,7 +279,7 @@ textarea.form-control {
 
 .nav-links a:hover {
     color: var(--primary-color);
-    background-color: var(--pink-pastel);
+    background-color: var(--blue-pastel);
 }
 
 .nav-links .btn-outline {
@@ -344,7 +342,7 @@ textarea.form-control {
 }
 
 .points-balance {
-    background: linear-gradient(135deg, var(--primary-color), var(--pink-light));
+    background: linear-gradient(135deg, var(--primary-color), var(--blue-light));
     color: var(--white);
     padding: 1rem 2rem;
     border-radius: 50px;
@@ -404,7 +402,7 @@ textarea.form-control {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(74, 140, 255, 0.1), transparent);
     transition: left 0.6s ease;
 }
 
@@ -427,7 +425,7 @@ textarea.form-control {
 
 .dashboard-actions .btn:hover i {
     transform: scale(1.2);
-    color: var(--pink-dark);
+    color: var(--blue-dark);
 }
 
 .dashboard-actions .btn span {
@@ -492,7 +490,7 @@ textarea.form-control {
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(to bottom, var(--primary-color), var(--pink-light));
+    background: linear-gradient(to bottom, var(--primary-color), var(--blue-light));
 }
 
 .dashboard-tips li:hover {
@@ -553,7 +551,7 @@ textarea.form-control {
 }
 
 .current-points {
-    background-color: var(--pink-pastel);
+    background-color: var(--blue-pastel);
     padding: 0.75rem 1.5rem;
     border-radius: 50px;
     font-weight: 600;
@@ -694,7 +692,7 @@ textarea.form-control {
 }
 
 .copy-btn:hover {
-    background-color: var(--pink-dark);
+    background-color: var(--blue-dark);
     transform: translateY(-2px);
 }
 
@@ -956,7 +954,7 @@ textarea.form-control {
     border: none;
     border-radius: 14px;
     font-size: 16px;
-    background: linear-gradient(to right, var(--primary-color), var(--pink-light));
+    background: linear-gradient(to right, var(--primary-color), var(--blue-light));
     color: white;
     font-weight: 600;
     cursor: pointer;
@@ -1007,7 +1005,7 @@ textarea::placeholder {
 
 .plan-button.selected {
     border: 2px solid var(--primary-color);
-    background-color: var(--pink-pastel);
+    background-color: var(--blue-pastel);
     transform: scale(1.02);
     box-shadow: var(--box-shadow);
 }
@@ -1051,7 +1049,7 @@ textarea::placeholder {
 
 /* Selection Color */
 ::selection {
-    background-color: var(--pink-pastel);
+    background-color: var(--blue-pastel);
     color: var(--text-dark);
 }
 
@@ -1097,7 +1095,7 @@ textarea:focus {
 .p-4 { padding: 2rem; }
 .p-5 { padding: 3rem; }
 
-/* Pink theme enhancements */
+/* Blue theme enhancements */
 .dashboard-actions .btn {
     background: rgba(255, 255, 255, 0.95);
 }
@@ -1107,7 +1105,7 @@ textarea:focus {
 }
 
 .nav-links a:hover {
-    background-color: var(--pink-pastel);
+    background-color: var(--blue-pastel);
 }
 
 .plan-card {
@@ -1115,7 +1113,7 @@ textarea:focus {
 }
 
 .payment-item:hover {
-    background-color: var(--pink-pastel);
+    background-color: var(--blue-pastel);
 }
 
 /* Enhanced hover effects */
@@ -1128,15 +1126,38 @@ textarea:focus {
     box-shadow: var(--box-shadow-hover);
 }
 
-/* Pink gradient accents */
+/* Blue gradient accents */
 .points-balance {
-    background: linear-gradient(135deg, var(--primary-color), var(--pink-light));
+    background: linear-gradient(135deg, var(--primary-color), var(--blue-light));
 }
 
 .dashboard-tips li::before {
-    background: linear-gradient(to bottom, var(--primary-color), var(--pink-light));
+    background: linear-gradient(to bottom, var(--primary-color), var(--blue-light));
 }
 
 .button {
-    background: linear-gradient(to right, var(--primary-color), var(--pink-light));
+    background: linear-gradient(to right, var(--primary-color), var(--blue-light));
+}
+
+/* Additional blue theme improvements */
+body {
+    background-color: var(--background-color);
+}
+
+.navbar {
+    background-color: rgba(255, 255, 255, 0.98);
+}
+
+.dashboard-header,
+.dashboard-tips,
+.plan-card,
+.payment-instructions {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+}
+
+/* Enhanced blue shadows */
+:root {
+    --box-shadow: 0 8px 32px rgba(74, 144, 226, 0.12);
+    --box-shadow-hover: 0 12px 40px rgba(74, 144, 226, 0.18);
 }
