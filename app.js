@@ -187,11 +187,12 @@ let typingTimeout = null;
 let userChatPoints = 0;
 let globalMessageListener = null;
 
-// Voice recording variables
+// Voice recording variables - UPDATED: Added preloaded stream
 let mediaRecorder = null;
 let audioChunks = [];
 let recordingStartTime = null;
 let recordingTimer = null;
+let preloadedAudioStream = null; // NEW: Pre-loaded stream for faster recording
 
 // Video recording variables
 let videoRecorder = null;
@@ -204,6 +205,34 @@ let currentPage = window.location.pathname.split('/').pop().split('.')[0];
 const navToggle = document.getElementById('mobile-menu');
 const navMenu = document.querySelector('.nav-menu');
 const messageCountElements = document.querySelectorAll('.message-count');
+
+// NEW: Pre-load microphone permissions for faster voice recording
+async function preloadMicrophonePermission() {
+    try {
+        // Check permission state without prompting user
+        if (navigator.permissions && navigator.permissions.query) {
+            const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+            
+            // If permission is already granted, pre-load the media stream
+            if (permissionStatus.state === 'granted') {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    preloadedAudioStream = stream;
+                    console.log('Microphone pre-loaded for faster recording');
+                } catch (error) {
+                    console.log('Could not pre-load microphone:', error);
+                }
+            }
+        }
+    } catch (error) {
+        console.log('Microphone pre-load not supported:', error);
+    }
+}
+
+// Call pre-load on page load for chat page
+if (currentPage === 'chat') {
+    setTimeout(preloadMicrophonePermission, 2000);
+}
 
 // File validation functions
 function validateVideoFile(file) {
@@ -466,6 +495,8 @@ function showMicrophonePermissionPopup() {
             const hasPermission = await requestMicrophonePermission();
             if (hasPermission) {
                 showNotification('Microphone access enabled successfully!', 'success');
+                // Pre-load the stream after permission is granted
+                preloadMicrophonePermission();
             } else {
                 showNotification('Could not enable microphone access. You can enable it later in your browser settings.', 'warning');
             }
@@ -598,6 +629,12 @@ function cleanupAllListeners() {
     if (videoRecordingTimer) clearInterval(videoRecordingTimer);
     if (longPressTimer) clearTimeout(longPressTimer);
     
+    // Clear preloaded audio stream
+    if (preloadedAudioStream) {
+        preloadedAudioStream.getTracks().forEach(track => track.stop());
+        preloadedAudioStream = null;
+    }
+    
     // Clear all event listeners
     eventManager.clearAll();
 }
@@ -700,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
             font-style: italic;
         }
         
-        /* Voice note styles - UPDATED */
+        /* Voice note styles - UPDATED for faster response */
         .voice-note-indicator {
             display: none;
             align-items: center;
@@ -709,10 +746,12 @@ document.addEventListener('DOMContentLoaded', () => {
             background-color: var(--bg-light);
             border-radius: 20px;
             margin: 10px 0;
+            animation: slideUp 0.2s ease-out;
         }
         .voice-note-timer {
             font-size: 14px;
             color: var(--text-dark);
+            font-weight: bold;
         }
         .voice-note-controls {
             display: flex;
@@ -781,6 +820,11 @@ document.addEventListener('DOMContentLoaded', () => {
             0%, 100% { height: 5px; }
             50% { height: 15px; }
         }
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
         /* FIXED: Video message styles for better appearance */
         .video-message {
             max-width: 300px;
@@ -1084,12 +1128,43 @@ document.addEventListener('DOMContentLoaded', () => {
             50% { height: 15px; }
         }
 
-        /* Message image improvements */
+        /* Message image improvements - UPDATED for sending state */
         .message-image {
             max-width: 300px;
             max-height: 400px;
             border-radius: 12px;
             object-fit: cover;
+            transition: opacity 0.3s ease;
+        }
+
+        .message-image.sending {
+            opacity: 0.7;
+            filter: grayscale(0.3);
+        }
+
+        .sending-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 2;
+        }
+
+        .sending-indicator i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Responsive video styles */
@@ -2270,23 +2345,35 @@ function setupMessageSwipe() {
     });
 }
 
-// Voice Note Functions
+// UPDATED: Voice Note Functions - Optimized for faster response
 async function startRecording() {
     try {
-        const hasPermission = await requestMicrophonePermission();
-        if (!hasPermission) {
-            showNotification('Microphone access is required to send voice notes. Please enable microphone permissions in your browser settings.', 'warning');
-            return;
-        }
-
-        // Request microphone access
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-        
-        // Show recording UI
+        // Show recording UI immediately for faster response
         document.getElementById('voiceNoteIndicator').style.display = 'flex';
         document.getElementById('messageInput').style.display = 'none';
+        
+        let stream;
+        
+        // Use preloaded stream if available for instant start
+        if (preloadedAudioStream) {
+            stream = preloadedAudioStream;
+            console.log('Using pre-loaded microphone stream');
+        } else {
+            // Otherwise request new permission (this might cause delay)
+            const hasPermission = await requestMicrophonePermission();
+            if (!hasPermission) {
+                showNotification('Microphone access is required to send voice notes. Please enable microphone permissions in your browser settings.', 'warning');
+                // Hide the recording UI if permission denied
+                document.getElementById('voiceNoteIndicator').style.display = 'none';
+                document.getElementById('messageInput').style.display = 'block';
+                return;
+            }
+            
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        }
+        
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
         
         // Start timer
         recordingStartTime = Date.now();
@@ -2311,6 +2398,10 @@ async function startRecording() {
     } catch (error) {
         logError(error, 'starting voice recording');
         showNotification('Could not access microphone. Please ensure you have granted microphone permissions.', 'error');
+        
+        // Hide recording UI on error
+        document.getElementById('voiceNoteIndicator').style.display = 'none';
+        document.getElementById('messageInput').style.display = 'block';
     }
 }
 
@@ -2326,8 +2417,11 @@ async function stopRecording() {
     clearInterval(recordingTimer);
     mediaRecorder.stop();
     
-    // Stop all tracks in the stream
-    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    // Don't stop the preloaded stream - we want to keep it for future recordings
+    if (!preloadedAudioStream) {
+        // Only stop the stream if it's not our preloaded one
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
     
     // Wait for the recording to finish
     await new Promise(resolve => {
@@ -2345,8 +2439,10 @@ async function cancelRecording() {
     clearInterval(recordingTimer);
     mediaRecorder.stop();
     
-    // Stop all tracks in the stream
-    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    // Don't stop the preloaded stream
+    if (!preloadedAudioStream) {
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
     
     // Hide recording UI
     document.getElementById('voiceNoteIndicator').style.display = 'none';
@@ -2697,6 +2793,58 @@ async function uploadImageToCloudinary(file) {
     return uploadFileToCloudinary(file);
 }
 
+// UPDATED: Image sending with immediate display and sending state
+async function sendImageMessage(file) {
+    try {
+        // Check if user has chat points
+        const hasPoints = await deductChatPoint();
+        if (!hasPoints) {
+            return;
+        }
+
+        // Generate temporary ID for optimistic update
+        const tempMessageId = 'temp_image_' + Date.now();
+        
+        // Create temporary message data for immediate display
+        const tempMessage = {
+            id: tempMessageId,
+            senderId: currentUser.uid,
+            imageUrl: URL.createObjectURL(file), // Use blob URL for immediate display
+            timestamp: new Date().toISOString(),
+            status: 'sending'
+        };
+
+        // Display the image immediately with "sending" state
+        displayMessage(tempMessage, currentUser.uid);
+        
+        // Scroll to bottom to show the new message
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // Upload to Cloudinary
+        const imageUrl = await uploadImageToCloudinary(file);
+        
+        // Revoke the blob URL to free memory
+        URL.revokeObjectURL(tempMessage.imageUrl);
+
+        // Add the real message to Firestore
+        await addMessage(null, imageUrl);
+        
+        // The real message will replace the temporary one via the listener
+        // The temporary message will be automatically removed when the real one arrives
+
+    } catch (error) {
+        logError(error, 'sending image message');
+        showNotification('Failed to send image. Please try again.', 'error');
+        
+        // Remove the temporary message if there was an error
+        const tempMessageElement = document.querySelector(`[data-message-id="temp_image_"]`);
+        if (tempMessageElement) {
+            tempMessageElement.remove();
+        }
+    }
+}
+
 // FIXED: Updated voice note player with proper event handling
 function createAudioPlayer(audioUrl, duration) {
     const audio = new Audio(audioUrl);
@@ -2794,6 +2942,131 @@ function createVideoPlayer(videoUrl, duration) {
     return container;
 }
 
+// UPDATED: Display message function to handle image sending state
+function displayMessage(message, currentUserId) {
+    const messagesContainer = document.getElementById('chatMessages');
+    
+    // Remove "no messages" placeholder if it exists
+    const noMessagesDiv = messagesContainer.querySelector('.no-messages');
+    if (noMessagesDiv) {
+        noMessagesDiv.remove();
+    }
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
+    messageDiv.dataset.messageId = message.id;
+    
+    // Handle sending state for images and temporary messages
+    if (message.id && (message.id.startsWith('temp_') || message.status === 'sending')) {
+        messageDiv.style.opacity = '0.7';
+        messageDiv.classList.add('sending');
+    }
+    
+    let messageContent = '';
+    
+    // Add reply indicator if this is a reply
+    if (message.replyTo) {
+        const repliedMessage = getRepliedMessage(message.replyTo);
+        if (repliedMessage) {
+            const senderName = repliedMessage.senderId === currentUserId ? 'You' : document.getElementById('chatPartnerName').textContent;
+            let previewText = '';
+            
+            if (repliedMessage.text) {
+                previewText = repliedMessage.text;
+            } else if (repliedMessage.imageUrl) {
+                previewText = '📷 Photo';
+            } else if (repliedMessage.audioUrl) {
+                previewText = '🎤 Voice message';
+            } else if (repliedMessage.videoUrl) {
+                previewText = '🎥 Video message';
+            }
+            
+            messageContent += `
+                <div class="reply-indicator">
+                    <i class="fas fa-reply"></i> Replying to ${senderName}
+                </div>
+                <div class="reply-message-preview">${previewText}</div>
+            `;
+        }
+    }
+    
+    if (message.imageUrl) {
+        // Create image container with sending indicator if needed
+        const imageContainer = document.createElement('div');
+        imageContainer.style.position = 'relative';
+        imageContainer.style.display = 'inline-block';
+        
+        const img = document.createElement('img');
+        img.src = message.imageUrl;
+        img.alt = "Message image";
+        img.className = 'message-image';
+        
+        // Add sending class if this is a temporary image
+        if (message.id && message.id.startsWith('temp_') || message.status === 'sending') {
+            img.classList.add('sending');
+            
+            // Add sending indicator
+            const sendingIndicator = document.createElement('div');
+            sendingIndicator.className = 'sending-indicator';
+            sendingIndicator.innerHTML = '<i class="fas fa-spinner"></i> Sending...';
+            imageContainer.appendChild(sendingIndicator);
+        }
+        
+        imageContainer.appendChild(img);
+        messageContent += imageContainer.outerHTML;
+    } else if (message.text) {
+        messageContent += `<p>${message.text}</p>`;
+    }
+    
+    // Add reactions if any
+    if (message.reactions && Object.keys(message.reactions).length > 0) {
+        messageContent += `<div class="message-reactions">`;
+        for (const [emoji, users] of Object.entries(message.reactions)) {
+            messageContent += `<span class="reaction">${emoji} <span class="reaction-count">${users.length}</span></span>`;
+        }
+        messageContent += `</div>`;
+    }
+    
+    // Add timestamp - Handle different states
+    let timestampText = '';
+    if (message.id && message.id.startsWith('temp_') || message.status === 'sending') {
+        timestampText = 'Sending...';
+    } else {
+        timestampText = formatTime(message.timestamp);
+        if (message.senderId === currentUserId && message.read) {
+            timestampText += ' ✓✓';
+        }
+    }
+    
+    messageContent += `<span class="message-time">${timestampText}</span>`;
+    
+    messageDiv.innerHTML = messageContent;
+    
+    // Handle voice messages
+    if (message.audioUrl) {
+        const voiceMessageDiv = document.createElement('div');
+        voiceMessageDiv.className = `voice-message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
+        
+        const audioPlayer = createAudioPlayer(message.audioUrl, message.duration || 0);
+        voiceMessageDiv.appendChild(audioPlayer);
+        
+        // Add timestamp for voice message
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-time';
+        timeSpan.textContent = timestampText;
+        
+        messageDiv.appendChild(voiceMessageDiv);
+    }
+    
+    // Handle video messages
+    if (message.videoUrl) {
+        const videoPlayer = createVideoPlayer(message.videoUrl, message.duration || 0);
+        messageDiv.appendChild(videoPlayer);
+    }
+    
+    messagesContainer.appendChild(messageDiv);
+}
+
 // Loading message functions
 function showFastLoadingMessage() {
     // Remove any existing loading messages
@@ -2874,7 +3147,10 @@ function cleanupChatPage() {
     // Stop any ongoing recording
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        // Don't stop preloaded stream
+        if (!preloadedAudioStream) {
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
     }
     
     // Stop any ongoing video recording
@@ -3057,112 +3333,6 @@ function updateMessagesDisplay(newMessages, currentUserId) {
     }
 }
 
-// FIXED: Updated displayMessage function to handle temporary and real messages properly
-function displayMessage(message, currentUserId) {
-    const messagesContainer = document.getElementById('chatMessages');
-    
-    // Remove "no messages" placeholder if it exists
-    const noMessagesDiv = messagesContainer.querySelector('.no-messages');
-    if (noMessagesDiv) {
-        noMessagesDiv.remove();
-    }
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
-    messageDiv.dataset.messageId = message.id;
-    
-    // FIXED: Add temporary styling for optimistic messages only
-    if (message.id && message.id.startsWith('temp_')) {
-        messageDiv.style.opacity = '0.7';
-        messageDiv.classList.add('sending');
-    }
-    
-    let messageContent = '';
-    
-    // Add reply indicator if this is a reply
-    if (message.replyTo) {
-        const repliedMessage = getRepliedMessage(message.replyTo);
-        if (repliedMessage) {
-            const senderName = repliedMessage.senderId === currentUserId ? 'You' : document.getElementById('chatPartnerName').textContent;
-            let previewText = '';
-            
-            if (repliedMessage.text) {
-                previewText = repliedMessage.text;
-            } else if (repliedMessage.imageUrl) {
-                previewText = '📷 Photo';
-            } else if (repliedMessage.audioUrl) {
-                previewText = '🎤 Voice message';
-            } else if (repliedMessage.videoUrl) {
-                previewText = '🎥 Video message';
-            }
-            
-            messageContent += `
-                <div class="reply-indicator">
-                    <i class="fas fa-reply"></i> Replying to ${senderName}
-                </div>
-                <div class="reply-message-preview">${previewText}</div>
-            `;
-        }
-    }
-    
-    if (message.imageUrl) {
-        messageContent += `
-            <img src="${message.imageUrl}" alt="Message image" class="message-image">
-        `;
-    } else if (message.text) {
-        messageContent += `<p>${message.text}</p>`;
-    }
-    
-    // Add reactions if any
-    if (message.reactions && Object.keys(message.reactions).length > 0) {
-        messageContent += `<div class="message-reactions">`;
-        for (const [emoji, users] of Object.entries(message.reactions)) {
-            messageContent += `<span class="reaction">${emoji} <span class="reaction-count">${users.length}</span></span>`;
-        }
-        messageContent += `</div>`;
-    }
-    
-    // Add timestamp - FIXED: Handle temporary messages with "Sending..." status
-    const timestamp = message.id && message.id.startsWith('temp_') ? 'Sending...' : formatTime(message.timestamp);
-    messageContent += `<span class="message-time">${timestamp} 
-        ${message.senderId === currentUserId && message.read ? '✓✓' : ''}
-    </span>`;
-    
-    messageDiv.innerHTML = messageContent;
-    
-    // Handle voice messages
-    if (message.audioUrl) {
-        const voiceMessageDiv = document.createElement('div');
-        voiceMessageDiv.className = `voice-message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
-        
-        const audioPlayer = createAudioPlayer(message.audioUrl, message.duration || 0);
-        voiceMessageDiv.appendChild(audioPlayer);
-        
-        // Add timestamp for voice message
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'message-time';
-        timeSpan.textContent = timestamp;
-        if (message.senderId === currentUserId && message.read) {
-            timeSpan.textContent += ' ✓✓';
-        }
-        
-        messageDiv.appendChild(voiceMessageDiv);
-    }
-    
-    // Handle video messages
-    if (message.videoUrl) {
-        const videoPlayer = createVideoPlayer(message.videoUrl, message.duration || 0);
-        messageDiv.appendChild(videoPlayer);
-    }
-    
-    messagesContainer.appendChild(messageDiv);
-}
-
-function getRepliedMessage(messageId) {
-    const cachedMessages = cache.get(`messages_${currentUser.uid}_${chatPartnerId}`) || [];
-    return cachedMessages.find(m => m.id === messageId);
-}
-
 // FIXED: Updated addMessage function to prevent duplicate messages
 async function addMessage(text = null, imageUrl = null, audioUrl = null, audioDuration = null, videoUrl = null, videoDuration = null) {
     if (!text && !imageUrl && !audioUrl && !videoUrl) return;
@@ -3263,6 +3433,18 @@ function updateExistingMessage(existingElement, message, currentUserId) {
             timeElement.textContent = formatTime(message.timestamp);
             existingElement.style.opacity = '1';
             existingElement.classList.remove('sending');
+            
+            // Remove sending indicator for images
+            const sendingIndicator = existingElement.querySelector('.sending-indicator');
+            if (sendingIndicator) {
+                sendingIndicator.remove();
+            }
+            
+            // Remove sending class from image
+            const image = existingElement.querySelector('.message-image.sending');
+            if (image) {
+                image.classList.remove('sending');
+            }
         }
     }
 }
@@ -3339,6 +3521,11 @@ function displayCachedMessages(messages) {
     setTimeout(() => {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }, 100);
+}
+
+function getRepliedMessage(messageId) {
+    const cachedMessages = cache.get(`messages_${currentUser.uid}_${chatPartnerId}`) || [];
+    return cachedMessages.find(m => m.id === messageId);
 }
 
 // Page Initialization Functions
@@ -4260,7 +4447,7 @@ function initAccountPage() {
     }
 }
 
-// FIXED: Updated chat page initialization with proper loading state
+// UPDATED: Chat page initialization with optimized voice recording and image sending
 function initChatPage() {
     const backToMessages = document.getElementById('backToMessages');
     const messageInput = document.getElementById('messageInput');
@@ -4382,7 +4569,7 @@ function initChatPage() {
         });
     }
 
-    // File attachment
+    // File attachment - UPDATED to use new image sending function
     if (attachmentBtn) {
         eventManager.addListener(attachmentBtn, 'click', () => {
             // Create a file input for images and videos
@@ -4397,15 +4584,15 @@ function initChatPage() {
                     try {
                         // Show loading state
                         const originalText = attachmentBtn.innerHTML;
-                        attachmentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading';
+                        attachmentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                         attachmentBtn.disabled = true;
                         
-                        // Upload to Cloudinary
-                        const fileUrl = await uploadFileToCloudinary(file);
-                        
                         if (file.type.startsWith('image/')) {
-                            await addMessage(null, fileUrl);
+                            // Use the new image sending function with immediate display
+                            await sendImageMessage(file);
                         } else if (file.type.startsWith('video/')) {
+                            // Upload to Cloudinary for videos
+                            const fileUrl = await uploadFileToCloudinary(file);
                             await addMessage(null, null, null, null, fileUrl, 0);
                         }
                         
@@ -4430,14 +4617,20 @@ function initChatPage() {
         });
     }
 
-    // Voice note functionality
+    // UPDATED: Voice note functionality with faster response
     if (voiceNoteBtn) {
         eventManager.addListener(voiceNoteBtn, 'mousedown', async () => {
-            const hasPermission = await requestMicrophonePermission();
-            if (hasPermission) {
-                startRecording();
-            } else {
-                showNotification('Microphone access is required to send voice notes. Please enable microphone permissions in your browser settings.', 'warning');
+            // Show recording UI immediately for faster response
+            document.getElementById('voiceNoteIndicator').style.display = 'flex';
+            document.getElementById('messageInput').style.display = 'none';
+            
+            try {
+                await startRecording();
+            } catch (error) {
+                // Hide recording UI if there's an error
+                document.getElementById('voiceNoteIndicator').style.display = 'none';
+                document.getElementById('messageInput').style.display = 'block';
+                showNotification('Could not start recording. Please try again.', 'error');
             }
         });
     }
