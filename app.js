@@ -1167,6 +1167,28 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { transform: rotate(360deg); }
         }
 
+        /* Voice and video sending states */
+        .voice-message.sending, .video-message.sending {
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .sending-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            gap: 5px;
+        }
+
         /* Responsive video styles */
         @media (max-width: 768px) {
             .video-message {
@@ -2453,6 +2475,7 @@ async function cancelRecording() {
     audioChunks = [];
 }
 
+// UPDATED: Voice note sending with immediate display and sending state
 async function sendVoiceNote() {
     if (audioChunks.length === 0) {
         showNotification('No recording to send', 'warning');
@@ -2465,22 +2488,40 @@ async function sendVoiceNote() {
         if (!hasPoints) {
             return;
         }
+
+        // Generate temporary ID for optimistic update
+        const tempMessageId = 'temp_voice_' + Date.now();
+        const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
         
-        // Create a single blob from the audio chunks
-        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+        // Create temporary message data for immediate display
+        const tempMessage = {
+            id: tempMessageId,
+            senderId: currentUser.uid,
+            audioUrl: '', // Will be empty for now
+            duration: duration,
+            timestamp: new Date().toISOString(),
+            status: 'sending'
+        };
+
+        // Display the voice message immediately with "sending" state
+        displayMessage(tempMessage, currentUser.uid);
         
+        // Scroll to bottom to show the new message
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
         // Show uploading state
         document.getElementById('sendVoiceNoteBtn').innerHTML = 
             '<i class="fas fa-spinner fa-spin"></i> Uploading';
         document.getElementById('sendVoiceNoteBtn').disabled = true;
         
+        // Create a single blob from the audio chunks
+        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+        
         // Upload to Cloudinary
         const audioUrl = await uploadAudioToCloudinary(audioBlob);
         
-        // Calculate duration
-        const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
-        
-        // Add voice message to chat
+        // Add voice message to Firestore
         await addMessage(null, null, audioUrl, duration);
         
         // Reset recording state
@@ -2492,6 +2533,12 @@ async function sendVoiceNote() {
     } catch (error) {
         logError(error, 'sending voice note');
         showNotification('Failed to send voice note. Please try again.', 'error');
+        
+        // Remove the temporary message if there was an error
+        const tempMessageElement = document.querySelector(`[data-message-id="temp_voice_"]`);
+        if (tempMessageElement) {
+            tempMessageElement.remove();
+        }
         
         // Reset button state
         document.getElementById('sendVoiceNoteBtn').innerHTML = 
@@ -2638,6 +2685,7 @@ function showVideoPreview() {
     });
 }
 
+// UPDATED: Video message sending with immediate display and sending state
 async function sendVideoMessage(videoBlob) {
     try {
         // Check if user has chat points
@@ -2645,7 +2693,28 @@ async function sendVideoMessage(videoBlob) {
         if (!hasPoints) {
             return;
         }
+
+        // Generate temporary ID for optimistic update
+        const tempMessageId = 'temp_video_' + Date.now();
+        const duration = Math.floor((Date.now() - videoRecordingStartTime) / 1000);
         
+        // Create temporary message data for immediate display
+        const tempMessage = {
+            id: tempMessageId,
+            senderId: currentUser.uid,
+            videoUrl: '', // Will be empty for now
+            duration: duration,
+            timestamp: new Date().toISOString(),
+            status: 'sending'
+        };
+
+        // Display the video message immediately with "sending" state
+        displayMessage(tempMessage, currentUser.uid);
+        
+        // Scroll to bottom to show the new message
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
         // Show uploading state
         const sendBtn = document.getElementById('sendVideoPreview');
         if (sendBtn) {
@@ -2656,10 +2725,7 @@ async function sendVideoMessage(videoBlob) {
         // Upload to Cloudinary
         const videoUrl = await uploadVideoToCloudinary(videoBlob);
         
-        // Calculate duration
-        const duration = Math.floor((Date.now() - videoRecordingStartTime) / 1000);
-        
-        // Add video message to chat
+        // Add video message to Firestore
         await addMessage(null, null, null, null, videoUrl, duration);
         
         // Reset recording state
@@ -2668,6 +2734,12 @@ async function sendVideoMessage(videoBlob) {
     } catch (error) {
         logError(error, 'sending video message');
         showNotification('Failed to send video message. Please try again.', 'error');
+        
+        // Remove the temporary message if there was an error
+        const tempMessageElement = document.querySelector(`[data-message-id="temp_video_"]`);
+        if (tempMessageElement) {
+            tempMessageElement.remove();
+        }
     }
 }
 
@@ -2942,7 +3014,7 @@ function createVideoPlayer(videoUrl, duration) {
     return container;
 }
 
-// UPDATED: Display message function to handle image sending state
+// UPDATED: Display message function to handle image, voice, and video sending states
 function displayMessage(message, currentUserId) {
     const messagesContainer = document.getElementById('chatMessages');
     
@@ -2956,7 +3028,7 @@ function displayMessage(message, currentUserId) {
     messageDiv.className = `message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
     messageDiv.dataset.messageId = message.id;
     
-    // Handle sending state for images and temporary messages
+    // Handle sending state for images, voice, video and temporary messages
     if (message.id && (message.id.startsWith('temp_') || message.status === 'sending')) {
         messageDiv.style.opacity = '0.7';
         messageDiv.classList.add('sending');
@@ -3043,11 +3115,20 @@ function displayMessage(message, currentUserId) {
     messageDiv.innerHTML = messageContent;
     
     // Handle voice messages
-    if (message.audioUrl) {
+    if (message.audioUrl || (message.id && message.id.startsWith('temp_voice'))) {
         const voiceMessageDiv = document.createElement('div');
         voiceMessageDiv.className = `voice-message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
         
-        const audioPlayer = createAudioPlayer(message.audioUrl, message.duration || 0);
+        // Add sending overlay if temporary
+        if (message.id && message.id.startsWith('temp_voice') || message.status === 'sending') {
+            voiceMessageDiv.classList.add('sending');
+            const sendingOverlay = document.createElement('div');
+            sendingOverlay.className = 'sending-overlay';
+            sendingOverlay.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            voiceMessageDiv.appendChild(sendingOverlay);
+        }
+        
+        const audioPlayer = createAudioPlayer(message.audioUrl || '', message.duration || 0);
         voiceMessageDiv.appendChild(audioPlayer);
         
         // Add timestamp for voice message
@@ -3059,8 +3140,18 @@ function displayMessage(message, currentUserId) {
     }
     
     // Handle video messages
-    if (message.videoUrl) {
-        const videoPlayer = createVideoPlayer(message.videoUrl, message.duration || 0);
+    if (message.videoUrl || (message.id && message.id.startsWith('temp_video'))) {
+        const videoPlayer = createVideoPlayer(message.videoUrl || '', message.duration || 0);
+        
+        // Add sending overlay if temporary
+        if (message.id && message.id.startsWith('temp_video') || message.status === 'sending') {
+            videoPlayer.classList.add('sending');
+            const sendingOverlay = document.createElement('div');
+            sendingOverlay.className = 'sending-overlay';
+            sendingOverlay.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            videoPlayer.appendChild(sendingOverlay);
+        }
+        
         messageDiv.appendChild(videoPlayer);
     }
     
@@ -3444,6 +3535,23 @@ function updateExistingMessage(existingElement, message, currentUserId) {
             const image = existingElement.querySelector('.message-image.sending');
             if (image) {
                 image.classList.remove('sending');
+            }
+            
+            // Remove sending overlay for voice and video messages
+            const sendingOverlay = existingElement.querySelector('.sending-overlay');
+            if (sendingOverlay) {
+                sendingOverlay.remove();
+            }
+            
+            // Remove sending class from voice and video messages
+            const voiceMessage = existingElement.querySelector('.voice-message.sending');
+            if (voiceMessage) {
+                voiceMessage.classList.remove('sending');
+            }
+            
+            const videoMessage = existingElement.querySelector('.video-message.sending');
+            if (videoMessage) {
+                videoMessage.classList.remove('sending');
             }
         }
     }
