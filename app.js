@@ -51,6 +51,123 @@ const cloudinaryConfig = {
 // Emoji reactions
 const EMOJI_REACTIONS = ['👍', '❤️', '🔥', '😘', '👎', '🤘', '💯'];
 
+// NEW: IndexedDB for offline storage
+class IndexedDBCache {
+    constructor() {
+        this.dbName = 'DatingAppDB';
+        this.dbVersion = 3;
+        this.db = null;
+    }
+
+    async init() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.dbVersion);
+            
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                this.db = request.result;
+                resolve(this.db);
+            };
+            
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                
+                // Create object stores for different data types
+                if (!db.objectStoreNames.contains('profiles')) {
+                    db.createObjectStore('profiles', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('messages')) {
+                    const messageStore = db.createObjectStore('messages', { keyPath: 'id' });
+                    messageStore.createIndex('threadId', 'threadId', { unique: false });
+                    messageStore.createIndex('timestamp', 'timestamp', { unique: false });
+                }
+                if (!db.objectStoreNames.contains('conversations')) {
+                    db.createObjectStore('conversations', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('userData')) {
+                    db.createObjectStore('userData', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('pendingMessages')) {
+                    const pendingStore = db.createObjectStore('pendingMessages', { keyPath: 'id', autoIncrement: true });
+                    pendingStore.createIndex('status', 'status', { unique: false });
+                }
+            };
+        });
+    }
+
+    async set(storeName, data) {
+        if (!this.db) await this.init();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.put(data);
+            
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+        });
+    }
+
+    async get(storeName, key) {
+        if (!this.db) await this.init();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.get(key);
+            
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+        });
+    }
+
+    async getAll(storeName, indexName = null, queryValue = null) {
+        if (!this.db) await this.init();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            let request;
+            
+            if (indexName && queryValue) {
+                const index = store.index(indexName);
+                request = index.getAll(queryValue);
+            } else {
+                request = store.getAll();
+            }
+            
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result || []);
+        });
+    }
+
+    async delete(storeName, key) {
+        if (!this.db) await this.init();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.delete(key);
+            
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve();
+        });
+    }
+
+    async clear(storeName) {
+        if (!this.db) await this.init();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.clear();
+            
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve();
+        });
+    }
+}
+
 // Event listener management system
 class EventManager {
     constructor() {
@@ -103,7 +220,7 @@ class EventManager {
 
 const eventManager = new EventManager();
 
-// Cache configuration
+// NEW: Enhanced Cache with IndexedDB support
 class LocalCache {
     constructor() {
         this.cachePrefix = 'datingApp_';
@@ -112,6 +229,15 @@ class LocalCache {
             medium: 5 * 60 * 1000, // 5 minutes
             long: 30 * 60 * 1000 // 30 minutes
         };
+        this.indexedDB = new IndexedDBCache();
+        this.indexedDBInitialized = false;
+    }
+
+    async init() {
+        if (!this.indexedDBInitialized) {
+            await this.indexedDB.init();
+            this.indexedDBInitialized = true;
+        }
     }
 
     set(key, data, expiryType = 'medium') {
@@ -162,9 +288,133 @@ class LocalCache {
             console.error('Cache clear error:', error);
         }
     }
+
+    // NEW: IndexedDB methods for structured data
+    async setProfiles(profiles) {
+        await this.init();
+        for (const profile of profiles) {
+            await this.indexedDB.set('profiles', profile);
+        }
+    }
+
+    async getProfiles() {
+        await this.init();
+        return await this.indexedDB.getAll('profiles');
+    }
+
+    async setMessages(threadId, messages) {
+        await this.init();
+        for (const message of messages) {
+            await this.indexedDB.set('messages', {
+                ...message,
+                threadId: threadId,
+                storedAt: Date.now()
+            });
+        }
+    }
+
+    async getMessages(threadId) {
+        await this.init();
+        return await this.indexedDB.getAll('messages', 'threadId', threadId);
+    }
+
+    async setConversations(conversations) {
+        await this.init();
+        for (const conversation of conversations) {
+            await this.indexedDB.set('conversations', conversation);
+        }
+    }
+
+    async getConversations() {
+        await this.init();
+        return await this.indexedDB.getAll('conversations');
+    }
+
+    // NEW: Pending messages for offline support
+    async addPendingMessage(message) {
+        await this.init();
+        return await this.indexedDB.set('pendingMessages', {
+            ...message,
+            status: 'pending',
+            createdAt: Date.now()
+        });
+    }
+
+    async getPendingMessages() {
+        await this.init();
+        return await this.indexedDB.getAll('pendingMessages');
+    }
+
+    async removePendingMessage(id) {
+        await this.init();
+        return await this.indexedDB.delete('pendingMessages', id);
+    }
+
+    async updatePendingMessageStatus(id, status) {
+        await this.init();
+        const message = await this.indexedDB.get('pendingMessages', id);
+        if (message) {
+            message.status = status;
+            await this.indexedDB.set('pendingMessages', message);
+        }
+    }
 }
 
 const cache = new LocalCache();
+
+// NEW: Service Worker Registration for offline functionality with proper error handling
+async function registerServiceWorker() {
+    // Only register in production environment (not local file protocol)
+    if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('Service Worker registered successfully');
+            
+            // Set up background sync
+            if ('sync' in registration) {
+                try {
+                    await registration.sync.register('send-pending-messages');
+                    console.log('Background sync registered');
+                } catch (syncError) {
+                    console.log('Background sync not supported:', syncError);
+                }
+            }
+            
+            return registration;
+        } catch (error) {
+            console.log('Service Worker registration failed:', error);
+            // Don't show error to user - app will work without Service Worker
+            return null;
+        }
+    } else {
+        console.log('Service Worker not supported or running locally');
+        return null;
+    }
+}
+
+// NEW: Enhanced offline support without Service Worker dependency
+function setupOfflineSupport() {
+    // Use localStorage and IndexedDB for offline support
+    console.log('Setting up offline support with local storage');
+    
+    // Process pending messages when coming online
+    window.addEventListener('online', async () => {
+        await processPendingMessages();
+    });
+}
+
+// NEW: Background Sync for offline messages
+async function setupBackgroundSync() {
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            await registration.sync.register('send-pending-messages');
+            console.log('Background sync registered');
+        } catch (error) {
+            console.log('Background sync registration failed:', error);
+        }
+    }
+}
 
 // State variables for reactions and replies
 let selectedMessageForReaction = null;
@@ -187,12 +437,12 @@ let typingTimeout = null;
 let userChatPoints = 0;
 let globalMessageListener = null;
 
-// Voice recording variables - UPDATED: Added preloaded stream
+// Voice recording variables
 let mediaRecorder = null;
 let audioChunks = [];
 let recordingStartTime = null;
 let recordingTimer = null;
-let preloadedAudioStream = null; // NEW: Pre-loaded stream for faster recording
+let preloadedAudioStream = null;
 
 // Video recording variables
 let videoRecorder = null;
@@ -206,14 +456,172 @@ const navToggle = document.getElementById('mobile-menu');
 const navMenu = document.querySelector('.nav-menu');
 const messageCountElements = document.querySelectorAll('.message-count');
 
-// NEW: Pre-load microphone permissions for faster voice recording
+// NEW: Pre-load data for current page
+async function preloadPageData() {
+    if (!currentUser) return;
+
+    const page = window.location.pathname.split('/').pop().split('.')[0];
+    
+    switch(page) {
+        case 'mingle':
+            await preloadMingleData();
+            break;
+        case 'messages':
+            await preloadMessagesData();
+            break;
+        case 'chat':
+            await preloadChatData();
+            break;
+        case 'dashboard':
+            await preloadDashboardData();
+            break;
+    }
+}
+
+async function preloadMingleData() {
+    // Try to load profiles from cache first
+    const cachedProfiles = await cache.getProfiles();
+    if (cachedProfiles && cachedProfiles.length > 0) {
+        profiles = cachedProfiles;
+        if (profiles.length > 0) {
+            showProfile(0);
+        }
+    }
+}
+
+async function preloadMessagesData() {
+    // Try to load conversations from cache first
+    const cachedConversations = await cache.getConversations();
+    if (cachedConversations && cachedConversations.length > 0) {
+        renderMessageThreads(cachedConversations);
+    }
+}
+
+async function preloadChatData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const partnerId = urlParams.get('id');
+    
+    if (partnerId) {
+        // Try to load messages from cache first
+        const threadId = [currentUser.uid, partnerId].sort().join('_');
+        const cachedMessages = await cache.getMessages(threadId);
+        if (cachedMessages && cachedMessages.length > 0) {
+            // Sort by timestamp and display
+            cachedMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            updateMessagesDisplay(cachedMessages, currentUser.uid);
+        }
+        
+        // Try to load partner data from cache
+        const cachedPartner = cache.get(`partner_${partnerId}`);
+        if (cachedPartner) {
+            displayChatPartnerData(cachedPartner);
+        }
+    }
+}
+
+async function preloadDashboardData() {
+    // Load user data from cache if available
+    const cachedUserData = cache.get(`user_${currentUser.uid}`);
+    if (cachedUserData) {
+        userChatPoints = cachedUserData.chatPoints || 0;
+        updateChatPointsDisplay();
+    }
+}
+
+// NEW: Process pending messages when coming online
+async function processPendingMessages() {
+    if (!isOnline || !currentUser) return;
+
+    try {
+        const pendingMessages = await cache.getPendingMessages();
+        for (const pendingMsg of pendingMessages) {
+            if (pendingMsg.status === 'pending') {
+                try {
+                    // Retry sending the message based on type
+                    if (pendingMsg.type === 'text') {
+                        await addMessage(pendingMsg.data.text);
+                    } else if (pendingMsg.type === 'image') {
+                        await sendImageMessage(pendingMsg.blob);
+                    } else if (pendingMsg.type === 'voice') {
+                        await sendVoiceNoteFromPending(pendingMsg);
+                    } else if (pendingMsg.type === 'video') {
+                        await sendVideoMessageFromPending(pendingMsg);
+                    }
+                    
+                    await cache.removePendingMessage(pendingMsg.id);
+                } catch (error) {
+                    console.error('Failed to send pending message:', error);
+                    // Keep it in pending for next retry
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error processing pending messages:', error);
+    }
+}
+
+async function sendVoiceNoteFromPending(pendingMsg) {
+    try {
+        const audioUrl = await uploadAudioToCloudinary(pendingMsg.blob);
+        await addMessage(null, null, audioUrl, pendingMsg.duration);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function sendVideoMessageFromPending(pendingMsg) {
+    try {
+        const videoUrl = await uploadVideoToCloudinary(pendingMsg.blob);
+        await addMessage(null, null, null, null, videoUrl, pendingMsg.duration);
+    } catch (error) {
+        throw error;
+    }
+}
+
+// NEW: Optimistic UI updates with rollback support
+class OptimisticUpdates {
+    constructor() {
+        this.pendingUpdates = new Map();
+    }
+
+    addUpdate(id, updateData, rollbackFn) {
+        this.pendingUpdates.set(id, {
+            data: updateData,
+            rollback: rollbackFn,
+            timestamp: Date.now()
+        });
+    }
+
+    removeUpdate(id) {
+        this.pendingUpdates.delete(id);
+    }
+
+    rollbackUpdate(id) {
+        const update = this.pendingUpdates.get(id);
+        if (update && update.rollback) {
+            update.rollback();
+            this.pendingUpdates.delete(id);
+        }
+    }
+
+    cleanupOldUpdates(maxAge = 300000) { // 5 minutes
+        const now = Date.now();
+        for (const [id, update] of this.pendingUpdates.entries()) {
+            if (now - update.timestamp > maxAge) {
+                this.rollbackUpdate(id);
+            }
+        }
+    }
+}
+
+const optimisticUpdates = new OptimisticUpdates();
+
+// UPDATED: Microphone pre-loading for faster voice recording
 async function preloadMicrophonePermission() {
     try {
-        // Check permission state without prompting user
         if (navigator.permissions && navigator.permissions.query) {
             const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
             
-            // If permission is already granted, pre-load the media stream
             if (permissionStatus.state === 'granted') {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -231,7 +639,7 @@ async function preloadMicrophonePermission() {
 
 // Call pre-load on page load for chat page
 if (currentPage === 'chat') {
-    setTimeout(preloadMicrophonePermission, 2000);
+    setTimeout(preloadMicrophonePermission, 1000);
 }
 
 // File validation functions
@@ -263,7 +671,7 @@ function validateImageFile(file) {
     return true;
 }
 
-// Notification system
+// UPDATED: Notification system with offline support
 function showNotification(message, type = 'info', duration = 3000) {
     // Remove any existing notifications first
     const existingNotifications = document.querySelectorAll('.custom-notification');
@@ -309,6 +717,10 @@ function showNotification(message, type = 'info', duration = 3000) {
             }
             .custom-notification.warning {
                 border-left-color: var(--warning-color, #ffc107);
+            }
+            .custom-notification.offline {
+                border-left-color: var(--warning-color, #ffc107);
+                background: #fff3cd;
             }
             .notification-content {
                 display: flex;
@@ -363,14 +775,35 @@ function getNotificationIcon(type) {
         case 'success': return 'fas fa-check-circle';
         case 'error': return 'fas fa-exclamation-circle';
         case 'warning': return 'fas fa-exclamation-triangle';
+        case 'offline': return 'fas fa-wifi';
         default: return 'fas fa-info-circle';
     }
 }
 
-// Network connectivity monitoring
+// UPDATED: Enhanced network connectivity monitoring
 function setupNetworkMonitoring() {
     window.addEventListener('online', handleNetworkOnline);
     window.addEventListener('offline', handleNetworkOffline);
+    
+    // Create offline indicator
+    const offlineIndicator = document.createElement('div');
+    offlineIndicator.id = 'offlineIndicator';
+    offlineIndicator.className = 'offline-indicator';
+    offlineIndicator.innerHTML = '<i class="fas fa-wifi"></i> You are currently offline. Some features may be limited.';
+    offlineIndicator.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #ff6b6b;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        z-index: 10001;
+        font-size: 14px;
+        display: none;
+    `;
+    document.body.appendChild(offlineIndicator);
     
     // Initial check
     if (!isOnline) {
@@ -378,10 +811,23 @@ function setupNetworkMonitoring() {
     }
 }
 
-function handleNetworkOnline() {
+async function handleNetworkOnline() {
     isOnline = true;
     networkRetryAttempts = 0;
+    
+    // Hide offline indicator
+    const offlineIndicator = document.getElementById('offlineIndicator');
+    if (offlineIndicator) {
+        offlineIndicator.style.display = 'none';
+    }
+    
     showNotification('Connection restored', 'success', 2000);
+    
+    // Process any pending messages
+    await processPendingMessages();
+    
+    // Sync all data
+    await syncAllData();
     
     // Reload current page data
     reloadCurrentPageData();
@@ -389,7 +835,34 @@ function handleNetworkOnline() {
 
 function handleNetworkOffline() {
     isOnline = false;
-    showNotification('No internet connection', 'warning', 5000);
+    
+    // Show offline indicator
+    const offlineIndicator = document.getElementById('offlineIndicator');
+    if (offlineIndicator) {
+        offlineIndicator.style.display = 'block';
+    }
+    
+    showNotification('No internet connection - working offline', 'offline', 5000);
+}
+
+async function syncAllData() {
+    if (!currentUser) return;
+    
+    try {
+        // Sync profiles
+        await loadProfiles(true);
+        
+        // Sync messages
+        if (currentPage === 'messages' || currentPage === 'chat') {
+            await loadMessageThreads(true);
+        }
+        
+        // Sync user data
+        await loadUserChatPoints();
+        
+    } catch (error) {
+        console.error('Error syncing data:', error);
+    }
 }
 
 function reloadCurrentPageData() {
@@ -415,12 +888,10 @@ function reloadCurrentPageData() {
 
 // Microphone Permission Popup Function
 function showMicrophonePermissionPopup() {
-    // Check if we've already shown the popup to this user
     if (localStorage.getItem('microphonePermissionShown')) {
         return;
     }
     
-    // Create popup element
     const popup = document.createElement('div');
     popup.className = 'microphone-permission-popup';
     popup.innerHTML = `
@@ -434,7 +905,6 @@ function showMicrophonePermissionPopup() {
         </div>
     `;
     
-    // Add styles for the popup
     const styles = document.createElement('style');
     styles.textContent = `
         .microphone-permission-popup {
@@ -489,13 +959,11 @@ function showMicrophonePermissionPopup() {
     document.head.appendChild(styles);
     document.body.appendChild(popup);
     
-    // Add event listeners to buttons
     document.getElementById('permissionAllow').addEventListener('click', async () => {
         try {
             const hasPermission = await requestMicrophonePermission();
             if (hasPermission) {
                 showNotification('Microphone access enabled successfully!', 'success');
-                // Pre-load the stream after permission is granted
                 preloadMicrophonePermission();
             } else {
                 showNotification('Could not enable microphone access. You can enable it later in your browser settings.', 'warning');
@@ -504,14 +972,12 @@ function showMicrophonePermissionPopup() {
             console.error('Error enabling microphone:', error);
             showNotification('Error enabling microphone access. Please try again later.', 'error');
         }
-        // Mark as shown and remove popup
         localStorage.setItem('microphonePermissionShown', 'true');
         document.body.removeChild(popup);
         document.head.removeChild(styles);
     });
     
     document.getElementById('permissionDeny').addEventListener('click', () => {
-        // Mark as shown and remove popup
         localStorage.setItem('microphonePermissionShown', 'true');
         document.body.removeChild(popup);
         document.head.removeChild(styles);
@@ -521,7 +987,6 @@ function showMicrophonePermissionPopup() {
 // Microphone Permission Handling
 async function requestMicrophonePermission() {
     try {
-        // Check if we already have permission
         if (navigator.permissions && navigator.permissions.query) {
             const currentPermission = await navigator.permissions.query({ name: 'microphone' });
             if (currentPermission.state === 'granted') {
@@ -529,12 +994,8 @@ async function requestMicrophonePermission() {
             }
         }
         
-        // Request permission by trying to access the microphone
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        
-        // Immediately stop using the stream
         stream.getTracks().forEach(track => track.stop());
-        
         return true;
     } catch (error) {
         console.error('Microphone permission denied:', error);
@@ -545,7 +1006,6 @@ async function requestMicrophonePermission() {
 // Camera Permission Handling
 async function requestCameraPermission() {
     try {
-        // Check if we already have permission
         if (navigator.permissions && navigator.permissions.query) {
             const currentPermission = await navigator.permissions.query({ name: 'camera' });
             if (currentPermission.state === 'granted') {
@@ -553,12 +1013,8 @@ async function requestCameraPermission() {
             }
         }
         
-        // Request permission by trying to access the camera
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        
-        // Immediately stop using the stream
         stream.getTracks().forEach(track => track.stop());
-        
         return true;
     } catch (error) {
         console.error('Camera permission denied:', error);
@@ -585,9 +1041,8 @@ function logError(error, context = '') {
     console.error(`[${new Date().toISOString()}] Error${context ? ` in ${context}` : ''}:`, error);
 }
 
-// SIMPLIFIED: Removed all verification handling - users can use the app immediately
+// SIMPLIFIED: Removed all verification handling
 async function handleUserVerification(user) {
-    // No verification required - users can use the app immediately
     console.log('User authenticated:', user.email);
 }
 
@@ -606,43 +1061,37 @@ async function enhancedLogin(email, password) {
     }
 }
 
-// Function to clean up all listeners
+// UPDATED: Cleanup function with IndexedDB support
 function cleanupAllListeners() {
-    // Clean up messages page listener
     if (unsubscribeMessages) {
         unsubscribeMessages();
         unsubscribeMessages = null;
     }
     
-    // Clean up chat page
     cleanupChatPage();
     
-    // Clean up global message listener
     if (globalMessageListener) {
         globalMessageListener();
         globalMessageListener = null;
     }
     
-    // Clear any remaining timers
     if (typingTimeout) clearTimeout(typingTimeout);
     if (recordingTimer) clearInterval(recordingTimer);
     if (videoRecordingTimer) clearInterval(videoRecordingTimer);
     if (longPressTimer) clearTimeout(longPressTimer);
     
-    // Clear preloaded audio stream
     if (preloadedAudioStream) {
         preloadedAudioStream.getTracks().forEach(track => track.stop());
         preloadedAudioStream = null;
     }
     
-    // Clear all event listeners
     eventManager.clearAll();
+    optimisticUpdates.cleanupOldUpdates();
 }
 
 // Enhanced logout function
 async function handleLogout() {
     try {
-        // Set offline status before signing out
         if (currentUser && currentUser.uid) {
             const userStatusRef = doc(db, 'status', currentUser.uid);
             await setDoc(userStatusRef, {
@@ -653,13 +1102,9 @@ async function handleLogout() {
             }, { merge: true });
         }
         
-        // Clear all listeners and timeouts
         cleanupAllListeners();
-        
-        // Sign out from Firebase Auth
         await signOut(auth);
         
-        // Clear local state
         currentUser = null;
         cache.clear();
         
@@ -674,8 +1119,14 @@ async function handleLogout() {
     }
 }
 
-// Initialize page based on current page
-document.addEventListener('DOMContentLoaded', () => {
+// UPDATED: DOM Content Loaded with Service Worker and preloading
+document.addEventListener('DOMContentLoaded', async () => {
+    // Try to register Service Worker (will fail gracefully if not supported)
+    await registerServiceWorker();
+    
+    // Always set up offline support even without Service Worker
+    setupOfflineSupport();
+    
     // Add loader styles immediately
     const style = document.createElement('style');
     style.textContent = `
@@ -728,7 +1179,6 @@ document.addEventListener('DOMContentLoaded', () => {
             50% { transform: scale(1.2); opacity: 1; }
         }
         
-        /* Loading message styles */
         .loading-message {
             display: flex;
             justify-content: center;
@@ -737,7 +1187,39 @@ document.addEventListener('DOMContentLoaded', () => {
             font-style: italic;
         }
         
-        /* Voice note styles - UPDATED for faster response */
+        .instant-loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ff6b6b;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            z-index: 10001;
+            font-size: 14px;
+            display: none;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+        
         .voice-note-indicator {
             display: none;
             align-items: center;
@@ -825,7 +1307,6 @@ document.addEventListener('DOMContentLoaded', () => {
             to { transform: translateY(0); opacity: 1; }
         }
         
-        /* FIXED: Video message styles for better appearance */
         .video-message {
             max-width: 300px;
             border-radius: 12px;
@@ -872,7 +1353,6 @@ document.addEventListener('DOMContentLoaded', () => {
             margin-left: 5px;
         }
 
-        /* FIXED: Reply preview styles for better readability */
         .reply-preview {
             display: flex;
             align-items: center;
@@ -921,7 +1401,6 @@ document.addEventListener('DOMContentLoaded', () => {
             background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Enhanced message reply indicator in chat */
         .reply-indicator {
             font-size: 12px;
             color:white;
@@ -950,7 +1429,6 @@ document.addEventListener('DOMContentLoaded', () => {
             color: #ccc;
         }
 
-        /* Improved video recording preview */
         .video-preview {
             position: fixed;
             top: 0;
@@ -1001,7 +1479,6 @@ document.addEventListener('DOMContentLoaded', () => {
             background: rgba(255, 255, 255, 0.3);
         }
 
-        /* Better video recording indicator */
         .video-recording-indicator {
             display: none;
             align-items: center;
@@ -1044,7 +1521,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        /* Improved voice message styles */
         .voice-message {
             max-width: 280px;
             padding: 12px 15px;
@@ -1128,7 +1604,6 @@ document.addEventListener('DOMContentLoaded', () => {
             50% { height: 15px; }
         }
 
-        /* Message image improvements - UPDATED for sending state */
         .message-image {
             max-width: 300px;
             max-height: 400px;
@@ -1167,7 +1642,6 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { transform: rotate(360deg); }
         }
 
-        /* Voice and video sending states */
         .voice-message.sending, .video-message.sending {
             opacity: 0.7;
             position: relative;
@@ -1189,7 +1663,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gap: 5px;
         }
 
-        /* Responsive video styles */
         @media (max-width: 768px) {
             .video-message {
                 max-width: 300px;
@@ -1219,7 +1692,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 max-height: 250px;
             }
         }
-        /* Video message styles */
+
         .video-message {
             max-width: auto;
             border-radius: 12px;
@@ -1253,7 +1726,6 @@ document.addEventListener('DOMContentLoaded', () => {
             margin-left: 5px;
         }
         
-        /* Video recording indicator */
         .video-recording-indicator {
             display: none;
             align-items: center;
@@ -1279,9 +1751,7 @@ document.addEventListener('DOMContentLoaded', () => {
             animation: pulse 1.5s infinite;
         }
         
-        /* Online status indicator */
         .online-status {
-            
             bottom: 10px;
             right: 10px;
             width: 9px;
@@ -1299,7 +1769,6 @@ document.addEventListener('DOMContentLoaded', () => {
             position: relative;
         }
         
-        /* Message Reactions */
         .message-reactions {
             display: flex;
             gap: 5px;
@@ -1321,7 +1790,6 @@ document.addEventListener('DOMContentLoaded', () => {
             color: #666;
         }
         
-        /* Reaction Picker */
         .reaction-picker {
             position: fixed;
             background: white;
@@ -1345,7 +1813,6 @@ document.addEventListener('DOMContentLoaded', () => {
             background-color: #f0f0f0;
         }
         
-        /* Reply Preview */
         .reply-preview {
             display: flex;
             align-items: center;
@@ -1381,7 +1848,6 @@ document.addEventListener('DOMContentLoaded', () => {
             padding: 5px;
         }
         
-        /* Message context menu */
         .message-context-menu {
             position: absolute;
             background:black;
@@ -1403,7 +1869,6 @@ document.addEventListener('DOMContentLoaded', () => {
             background: #f5f5f5;
         }
         
-        /* Swipe for reply - FIXED TO PREVENT ACCIDENTAL ACTIVATION */
         .message {
             transition: transform 0.3s ease;
             will-change: transform;
@@ -1456,7 +1921,6 @@ document.addEventListener('DOMContentLoaded', () => {
             white-space: nowrap;
         }
         
-        /* Copy-paste prevention */
         .prevent-copy {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -1466,7 +1930,6 @@ document.addEventListener('DOMContentLoaded', () => {
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* Fast loading message */
         .fast-loading-message {
             text-align: center;
             padding: 10px;
@@ -1478,7 +1941,6 @@ document.addEventListener('DOMContentLoaded', () => {
             animation: pulse 2s infinite;
         }
         
-        /* Upload button styles */
         .upload-button {
             background: var(--accent-color);
             color: white;
@@ -1511,6 +1973,16 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(style);
 
+    // Create instant loading overlay
+    const instantLoading = document.createElement('div');
+    instantLoading.className = 'instant-loading';
+    instantLoading.id = 'instantLoading';
+    instantLoading.innerHTML = `
+        <div class="dot-pulse"></div>
+        <p>Loading latest data...</p>
+    `;
+    document.body.appendChild(instantLoading);
+
     // Create reaction picker element
     const reactionPicker = document.createElement('div');
     reactionPicker.id = 'reactionPicker';
@@ -1536,38 +2008,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-// Prevent copy-paste on all pages EXCEPT share section inputs
-document.addEventListener('copy', (e) => {
-    // Allow copying from share section inputs and elements with allow-copy class
-    if (!e.target.classList.contains('allow-copy') && 
-        !e.target.closest('.share-container') &&
-        e.target.id !== 'bondlyLink' &&
-        e.target.id !== 'profileLink') {
-        e.preventDefault();
-        showNotification('Copying is disabled on this page', 'warning', 2000);
-    }
-});
+    // Prevent copy-paste on all pages EXCEPT share section inputs
+    document.addEventListener('copy', (e) => {
+        if (!e.target.classList.contains('allow-copy') && 
+            !e.target.closest('.share-container') &&
+            e.target.id !== 'bondlyLink' &&
+            e.target.id !== 'profileLink') {
+            e.preventDefault();
+            showNotification('Copying is disabled on this page', 'warning', 2000);
+        }
+    });
 
-document.addEventListener('paste', (e) => {
-    if (!e.target.classList.contains('allow-paste') && 
-        !e.target.closest('.share-container')) {
-        e.preventDefault();
-        showNotification('Pasting is disabled on this page', 'warning', 2000);
-    }
-});
+    document.addEventListener('paste', (e) => {
+        if (!e.target.classList.contains('allow-paste') && 
+            !e.target.closest('.share-container')) {
+            e.preventDefault();
+            showNotification('Pasting is disabled on this page', 'warning', 2000);
+        }
+    });
 
-document.addEventListener('cut', (e) => {
-    if (!e.target.classList.contains('allow-copy') && 
-        !e.target.closest('.share-container')) {
-        e.preventDefault();
-        showNotification('Cutting is disabled on this page', 'warning', 2000);
-    }
-});
+    document.addEventListener('cut', (e) => {
+        if (!e.target.classList.contains('allow-copy') && 
+            !e.target.closest('.share-container')) {
+            e.preventDefault();
+            showNotification('Cutting is disabled on this page', 'warning', 2000);
+        }
+    });
 
-// Add copy-paste prevention class to body but allow it in share section
-document.body.classList.add('prevent-copy');
+    // Add copy-paste prevention class to body but allow it in share section
+    document.body.classList.add('prevent-copy');
+
+    // NEW: Preload page data immediately
+    await preloadPageData();
+
     // Check auth state first before initializing page
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
             
@@ -1577,8 +2052,6 @@ document.body.classList.add('prevent-copy');
             
             // Ensure user document exists
             ensureUserDocument(user).then(() => {
-                // SIMPLIFIED: No verification handling needed
-                
                 // Load user's chat points
                 loadUserChatPoints();
                 
@@ -1592,7 +2065,6 @@ document.body.classList.add('prevent-copy');
                 
                 // Show microphone permission popup for new users
                 if (!localStorage.getItem('microphonePermissionShown')) {
-                    // Wait a bit for the page to load before showing the popup
                     setTimeout(() => {
                         showMicrophonePermissionPopup();
                     }, 2000);
@@ -1669,16 +2141,23 @@ document.body.classList.add('prevent-copy');
     });
 });
 
-// Listen for page visibility changes to handle cache refresh
+// NEW: Listen for page visibility changes to handle cache refresh and background sync
 document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && currentPage === 'chat' && chatPartnerId && currentUser) {
-        // Page became visible again, refresh messages
-        setTimeout(() => {
-            if (unsubscribeChat) {
-                unsubscribeChat();
-            }
-            loadChatMessages(currentUser.uid, chatPartnerId);
-        }, 500);
+    if (document.visibilityState === 'visible' && currentUser) {
+        // Page became visible again, refresh data if needed
+        if (currentPage === 'chat' && chatPartnerId) {
+            setTimeout(() => {
+                if (unsubscribeChat) {
+                    unsubscribeChat();
+                }
+                loadChatMessages(currentUser.uid, chatPartnerId);
+            }, 500);
+        }
+        
+        // Process any pending messages when coming back to the app
+        if (isOnline) {
+            processPendingMessages();
+        }
     }
 });
 
@@ -1717,6 +2196,9 @@ async function loadUserChatPoints() {
         if (userSnap.exists()) {
             userChatPoints = userSnap.data().chatPoints || 0;
             updateChatPointsDisplay();
+            
+            // Cache user data
+            cache.set(`user_${currentUser.uid}`, userSnap.data(), 'medium');
         }
     } catch (error) {
         logError(error, 'loading chat points');
@@ -1731,7 +2213,7 @@ function updateChatPointsDisplay() {
     });
 }
 
-// Deduct chat points when sending a message
+// UPDATED: Deduct chat points with offline support
 async function deductChatPoint() {
     if (!currentUser) return false;
     
@@ -1800,7 +2282,6 @@ function setupUserOnlineStatus() {
         // Set up disconnect handling
         const handleDisconnect = async () => {
             try {
-                // Check if user still exists before setting offline status
                 if (currentUser && currentUser.uid) {
                     await setDoc(userStatusRef, {
                         state: 'offline',
@@ -1814,18 +2295,13 @@ function setupUserOnlineStatus() {
             }
         };
         
-        // When window closes or refreshes
         window.addEventListener('beforeunload', handleDisconnect);
-        
-        // When internet connection is lost
         window.addEventListener('offline', handleDisconnect);
         
-        // When page becomes hidden
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 handleDisconnect();
             } else {
-                // Set back to online when page becomes visible - only if user exists
                 if (currentUser && currentUser.uid) {
                     setDoc(userStatusRef, {
                         state: 'online',
@@ -1844,13 +2320,11 @@ function setupUserOnlineStatus() {
 
 // FIXED: Global message listener for unread counts with proper read status tracking
 async function setupGlobalMessageListener() {
-    // Safety check - don't set up listener if no user
     if (!currentUser || !currentUser.uid) {
         return;
     }
     
     try {
-        // Clean up existing listener if any
         if (globalMessageListener) {
             globalMessageListener();
         }
@@ -1860,18 +2334,15 @@ async function setupGlobalMessageListener() {
             where('participants', 'array-contains', currentUser.uid)
         );
         
-        // Set up a global listener for message count
         globalMessageListener = onSnapshot(threadsQuery, async (snapshot) => {
             let totalUnread = 0;
             
-            // Process all threads to count unread messages
             const threadPromises = snapshot.docs.map(async (doc) => {
                 const thread = doc.data();
                 const partnerId = thread.participants.find(id => id !== currentUser.uid);
                 
                 if (partnerId) {
                     try {
-                        // Get unread messages for this thread
                         const messagesQuery = query(
                             collection(db, 'conversations', doc.id, 'messages'),
                             where('senderId', '==', partnerId),
@@ -1888,21 +2359,15 @@ async function setupGlobalMessageListener() {
                 return 0;
             });
             
-            // Wait for all thread counts to be calculated
             const threadCounts = await Promise.all(threadPromises);
             totalUnread = threadCounts.reduce((sum, count) => sum + count, 0);
             
-            // Update the message count globally
             updateMessageCount(totalUnread);
-            
-            // Cache the unread count for offline use
             cache.set(`unread_count_${currentUser.uid}`, totalUnread, 'short');
         });
         
     } catch (error) {
         logError(error, 'setting up global message listener');
-        
-        // Fallback: try to use cached unread count
         const cachedUnread = cache.get(`unread_count_${currentUser.uid}`) || 0;
         updateMessageCount(cachedUnread);
     }
@@ -1942,7 +2407,6 @@ async function refreshUnreadMessageCount() {
         
     } catch (error) {
         logError(error, 'refreshing unread message count');
-        // Use cached value as fallback
         const cachedUnread = cache.get(`unread_count_${currentUser.uid}`) || 0;
         updateMessageCount(cachedUnread);
     }
@@ -1980,10 +2444,8 @@ function formatTime(timestamp) {
     
     try {
         if (typeof timestamp === 'string') {
-            // Handle ISO string from cache
             date = new Date(timestamp);
         } else if (timestamp && typeof timestamp.toDate === 'function') {
-            // Handle Firestore timestamp
             date = timestamp.toDate();
         } else if (timestamp instanceof Date) {
             date = timestamp;
@@ -2009,12 +2471,9 @@ function formatTime(timestamp) {
     const diffDays = Math.floor(diffHours / 24);
     const diffWeeks = Math.floor(diffDays / 7);
     
-    // If message is within 24 hours, show actual time
     if (diffHours < 24) {
         return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    } 
-    // Otherwise use the existing relative time format
-    else if (diffWeeks > 0) {
+    } else if (diffWeeks > 0) {
         return `${diffWeeks}w ago`;
     } else if (diffDays > 0) {
         return `${diffDays}d ago`;
@@ -2034,10 +2493,8 @@ function initReactionPicker() {
     const reactionPicker = document.getElementById('reactionPicker');
     if (!reactionPicker) return;
     
-    // Clear existing content
     reactionPicker.innerHTML = '';
     
-    // Add emoji buttons
     EMOJI_REACTIONS.forEach(emoji => {
         const emojiButton = document.createElement('div');
         emojiButton.className = 'reaction-emoji';
@@ -2054,12 +2511,10 @@ function showReactionPicker(messageId, x, y) {
     
     selectedMessageForReaction = messageId;
     
-    // Position the picker near the message
     reactionPicker.style.left = `${x}px`;
     reactionPicker.style.bottom = `${window.innerHeight - y}px`;
     reactionPicker.style.display = 'flex';
     
-    // Hide picker when clicking outside
     const hidePicker = (e) => {
         if (!reactionPicker.contains(e.target)) {
             reactionPicker.style.display = 'none';
@@ -2077,10 +2532,7 @@ async function addReactionToMessage(emoji) {
     if (!selectedMessageForReaction || !currentUser || !chatPartnerId) return;
     
     try {
-        // Create a combined ID for the chat thread
         const threadId = [currentUser.uid, chatPartnerId].sort().join('_');
-        
-        // Get the message reference
         const messageRef = doc(db, 'conversations', threadId, 'messages', selectedMessageForReaction);
         const messageSnap = await getDoc(messageRef);
         
@@ -2088,29 +2540,24 @@ async function addReactionToMessage(emoji) {
             const messageData = messageSnap.data();
             const reactions = messageData.reactions || {};
             
-            // Check if user already reacted with this emoji
             const userReactionIndex = reactions[emoji] ? reactions[emoji].indexOf(currentUser.uid) : -1;
             
             if (userReactionIndex > -1) {
-                // Remove reaction if already exists
                 reactions[emoji].splice(userReactionIndex, 1);
                 if (reactions[emoji].length === 0) {
                     delete reactions[emoji];
                 }
             } else {
-                // Add reaction
                 if (!reactions[emoji]) {
                     reactions[emoji] = [];
                 }
                 reactions[emoji].push(currentUser.uid);
             }
             
-            // Update message with new reactions
             await updateDoc(messageRef, {
                 reactions: reactions
             });
             
-            // Hide the reaction picker
             document.getElementById('reactionPicker').style.display = 'none';
         }
     } catch (error) {
@@ -2129,7 +2576,6 @@ function showReplyPreview(message) {
     
     selectedMessageForReply = message.id;
     
-    // Set reply preview content
     const senderName = message.senderId === currentUser.uid ? 'You' : document.getElementById('chatPartnerName').textContent;
     replyPreviewName.textContent = senderName;
     
@@ -2143,10 +2589,8 @@ function showReplyPreview(message) {
         replyPreviewText.textContent = '🎥 Video message';
     }
     
-    // Show reply preview
     replyPreview.style.display = 'flex';
     
-    // Focus on message input
     const messageInput = document.getElementById('messageInput');
     if (messageInput) {
         messageInput.focus();
@@ -2178,7 +2622,6 @@ function setupMessageLongPress() {
         }
     });
     
-    // Add touch events for mobile - FIXED: Only activate on received messages
     messagesContainer.addEventListener('touchstart', (e) => {
         const messageElement = e.target.closest('.message');
         if (messageElement && messageElement.classList.contains('received')) {
@@ -2186,7 +2629,7 @@ function setupMessageLongPress() {
             if (messageId) {
                 longPressTimer = setTimeout(() => {
                     showReactionPicker(messageId, e.touches[0].clientX, e.touches[0].clientY);
-                }, 800); // Increased delay to prevent accidental activation
+                }, 800);
             }
         }
     });
@@ -2210,12 +2653,11 @@ function setupMessageSwipe() {
     let currentX = 0;
     let currentElement = null;
     let isSwiping = false;
-    let swipeThreshold = 50; // Minimum horizontal movement to consider it a swipe
-    let tapThreshold = 10; // Maximum movement to consider it a tap
+    let swipeThreshold = 50;
+    let tapThreshold = 10;
     let swipeStartTime = 0;
     
     messagesContainer.addEventListener('touchstart', (e) => {
-        // Don't initiate swipe if clicking on interactive elements
         if (e.target.closest('.voice-message-play-btn') || 
             e.target.closest('.voice-message-controls') ||
             e.target.closest('.message-reactions') ||
@@ -2232,7 +2674,6 @@ function setupMessageSwipe() {
             swipeStartTime = Date.now();
             isSwiping = true;
             
-            // Add swipe action indicator if it doesn't exist
             if (!messageElement.querySelector('.message-swipe-action')) {
                 const swipeAction = document.createElement('div');
                 swipeAction.className = 'message-swipe-action';
@@ -2252,30 +2693,23 @@ function setupMessageSwipe() {
         const diffX = currentX - startX;
         const diffY = currentY - startY;
         
-        // Check if this is primarily a horizontal swipe (not vertical scroll)
         if (Math.abs(diffX) < Math.abs(diffY)) {
-            // This is more vertical than horizontal - probably scrolling
             resetSwipeState();
             return;
         }
         
-        // Only allow right-to-left swipe (positive diff) for reply
         if (diffX < 0) {
             resetSwipeState();
             return;
         }
         
-        // Prevent default to avoid page scrolling while swiping
         e.preventDefault();
         
-        // Limit maximum swipe distance
         const maxSwipe = 100;
         const swipeDistance = Math.min(Math.max(diffX, 0), maxSwipe);
         
-        // Apply transform for smooth swipe
         currentElement.style.transform = `translateX(${swipeDistance}px)`;
         
-        // Show/hide swipe action based on swipe distance
         const swipeAction = currentElement.querySelector('.message-swipe-action');
         if (swipeAction) {
             const opacity = Math.min(Math.abs(swipeDistance) / maxSwipe, 1);
@@ -2289,20 +2723,15 @@ function setupMessageSwipe() {
         const diffX = currentX - startX;
         const swipeDuration = Date.now() - swipeStartTime;
         
-        // Check if this was a tap (minimal movement) or a swipe
         const isTap = Math.abs(diffX) < tapThreshold && swipeDuration < 300;
         
         if (isTap) {
-            // It's a tap - do nothing for reply, allow default behavior
             resetSwipeState();
             return;
         }
         
-        // Only trigger reply if swipe was right-to-left and exceeded threshold
         if (diffX > swipeThreshold) {
-            // Swipe was far enough - trigger reply
             const messageId = currentElement.dataset.messageId;
-            // Get message data from cache or Firestore
             const cachedMessages = cache.get(`messages_${currentUser.uid}_${chatPartnerId}`) || [];
             const message = cachedMessages.find(m => m.id === messageId);
             if (message) {
@@ -2316,17 +2745,14 @@ function setupMessageSwipe() {
     function resetSwipeState() {
         if (!currentElement) return;
         
-        // Animate back to original position
         currentElement.style.transition = 'transform 0.3s ease';
         currentElement.style.transform = 'translateX(0)';
         
-        // Hide swipe action
         const swipeAction = currentElement.querySelector('.message-swipe-action');
         if (swipeAction) {
             swipeAction.style.opacity = '0';
         }
         
-        // Reset variables
         setTimeout(() => {
             if (currentElement) {
                 currentElement.style.transition = '';
@@ -2339,53 +2765,43 @@ function setupMessageSwipe() {
         }, 300);
     }
     
-    // Also add click event to prevent reply on tap
     messagesContainer.addEventListener('click', (e) => {
-        // If it's a received message and not an interactive element
         const messageElement = e.target.closest('.message');
         if (messageElement && messageElement.classList.contains('received')) {
-            // ALLOW image viewing - if click is on an image, don't prevent default behavior
             if (e.target.tagName === 'IMG' && e.target.classList.contains('message-image')) {
-                return; // Allow the image viewer to handle this click
+                return;
             }
             
-            // ALLOW video viewing - if click is on a video, don't prevent default behavior
             if (e.target.tagName === 'VIDEO' || e.target.closest('.video-message')) {
-                return; // Allow the video player to handle this click
+                return;
             }
             
-            // For other non-interactive elements, prevent reply on tap
             if (!e.target.closest('.voice-message-play-btn') && 
                 !e.target.closest('.voice-message-controls') &&
                 !e.target.closest('.message-reactions') &&
                 !e.target.closest('.message-time') &&
                 !e.target.closest('.video-play-btn')) {
-                // This is a tap on the message content - do nothing for reply
                 e.stopPropagation();
             }
         }
     });
 }
 
-// UPDATED: Voice Note Functions - Optimized for faster response
+// UPDATED: Voice Note Functions - Optimized for faster response with offline support
 async function startRecording() {
     try {
-        // Show recording UI immediately for faster response
         document.getElementById('voiceNoteIndicator').style.display = 'flex';
         document.getElementById('messageInput').style.display = 'none';
         
         let stream;
         
-        // Use preloaded stream if available for instant start
         if (preloadedAudioStream) {
             stream = preloadedAudioStream;
             console.log('Using pre-loaded microphone stream');
         } else {
-            // Otherwise request new permission (this might cause delay)
             const hasPermission = await requestMicrophonePermission();
             if (!hasPermission) {
                 showNotification('Microphone access is required to send voice notes. Please enable microphone permissions in your browser settings.', 'warning');
-                // Hide the recording UI if permission denied
                 document.getElementById('voiceNoteIndicator').style.display = 'none';
                 document.getElementById('messageInput').style.display = 'block';
                 return;
@@ -2397,20 +2813,16 @@ async function startRecording() {
         mediaRecorder = new MediaRecorder(stream);
         audioChunks = [];
         
-        // Start timer
         recordingStartTime = Date.now();
         updateRecordingTimer();
         recordingTimer = setInterval(updateRecordingTimer, 1000);
         
-        // Handle data available
         mediaRecorder.ondataavailable = (event) => {
             audioChunks.push(event.data);
         };
         
-        // Start recording
-        mediaRecorder.start(100); // Collect data every 100ms
+        mediaRecorder.start(100);
         
-        // Handle stop recording (when mouse is released)
         const stopRecordingOnRelease = () => {
             stopRecording();
             document.removeEventListener('mouseup', stopRecordingOnRelease);
@@ -2421,7 +2833,6 @@ async function startRecording() {
         logError(error, 'starting voice recording');
         showNotification('Could not access microphone. Please ensure you have granted microphone permissions.', 'error');
         
-        // Hide recording UI on error
         document.getElementById('voiceNoteIndicator').style.display = 'none';
         document.getElementById('messageInput').style.display = 'block';
     }
@@ -2439,18 +2850,14 @@ async function stopRecording() {
     clearInterval(recordingTimer);
     mediaRecorder.stop();
     
-    // Don't stop the preloaded stream - we want to keep it for future recordings
     if (!preloadedAudioStream) {
-        // Only stop the stream if it's not our preloaded one
         mediaRecorder.stream.getTracks().forEach(track => track.stop());
     }
     
-    // Wait for the recording to finish
     await new Promise(resolve => {
         mediaRecorder.onstop = resolve;
     });
     
-    // Hide recording UI
     document.getElementById('voiceNoteIndicator').style.display = 'none';
     document.getElementById('messageInput').style.display = 'block';
 }
@@ -2461,21 +2868,18 @@ async function cancelRecording() {
     clearInterval(recordingTimer);
     mediaRecorder.stop();
     
-    // Don't stop the preloaded stream
     if (!preloadedAudioStream) {
         mediaRecorder.stream.getTracks().forEach(track => track.stop());
     }
     
-    // Hide recording UI
     document.getElementById('voiceNoteIndicator').style.display = 'none';
     document.getElementById('messageInput').style.display = 'block';
     
-    // Reset variables
     mediaRecorder = null;
     audioChunks = [];
 }
 
-// UPDATED: Voice note sending with immediate display and sending state
+// UPDATED: Voice note sending with immediate display, offline support, and optimistic updates
 async function sendVoiceNote() {
     if (audioChunks.length === 0) {
         showNotification('No recording to send', 'warning');
@@ -2483,48 +2887,51 @@ async function sendVoiceNote() {
     }
     
     try {
-        // Check if user has chat points
         const hasPoints = await deductChatPoint();
         if (!hasPoints) {
             return;
         }
 
-        // Generate temporary ID for optimistic update
         const tempMessageId = 'temp_voice_' + Date.now();
         const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
         
-        // Create temporary message data for immediate display
         const tempMessage = {
             id: tempMessageId,
             senderId: currentUser.uid,
-            audioUrl: '', // Will be empty for now
+            audioUrl: '',
             duration: duration,
             timestamp: new Date().toISOString(),
             status: 'sending'
         };
 
-        // Display the voice message immediately with "sending" state
         displayMessage(tempMessage, currentUser.uid);
         
-        // Scroll to bottom to show the new message
         const messagesContainer = document.getElementById('chatMessages');
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Show uploading state
         document.getElementById('sendVoiceNoteBtn').innerHTML = 
             '<i class="fas fa-spinner fa-spin"></i> Uploading';
         document.getElementById('sendVoiceNoteBtn').disabled = true;
         
-        // Create a single blob from the audio chunks
         const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
         
-        // Upload to Cloudinary
-        const audioUrl = await uploadAudioToCloudinary(audioBlob);
+        // NEW: Add to pending messages if offline
+        if (!isOnline) {
+            await cache.addPendingMessage({
+                type: 'voice',
+                tempId: tempMessageId,
+                blob: audioBlob,
+                duration: duration,
+                threadId: [currentUser.uid, chatPartnerId].sort().join('_'),
+                timestamp: new Date().toISOString()
+            });
+            showNotification('Voice note saved offline. Will send when connection is restored.', 'info');
+            return;
+        }
         
-        // Add voice message to Firestore
+        const audioUrl = await uploadAudioToCloudinary(audioBlob);
         await addMessage(null, null, audioUrl, duration);
         
-        // Reset recording state
         document.getElementById('sendVoiceNoteBtn').innerHTML = 
             '<i class="fas fa-paper-plane"></i> Send';
         document.getElementById('sendVoiceNoteBtn').disabled = false;
@@ -2534,13 +2941,11 @@ async function sendVoiceNote() {
         logError(error, 'sending voice note');
         showNotification('Failed to send voice note. Please try again.', 'error');
         
-        // Remove the temporary message if there was an error
         const tempMessageElement = document.querySelector(`[data-message-id="temp_voice_"]`);
         if (tempMessageElement) {
             tempMessageElement.remove();
         }
         
-        // Reset button state
         document.getElementById('sendVoiceNoteBtn').innerHTML = 
             '<i class="fas fa-paper-plane"></i> Send';
         document.getElementById('sendVoiceNoteBtn').disabled = false;
@@ -2556,31 +2961,25 @@ async function startVideoRecording() {
             return;
         }
 
-        // Request camera and microphone access
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         videoRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9,opus' });
         videoChunks = [];
         
-        // Show recording UI
         document.getElementById('videoRecordingIndicator').style.display = 'flex';
         document.getElementById('messageInput').style.display = 'none';
         
-        // Start timer
         videoRecordingStartTime = Date.now();
         updateVideoRecordingTimer();
         videoRecordingTimer = setInterval(updateVideoRecordingTimer, 1000);
         
-        // Handle data available
         videoRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
                 videoChunks.push(event.data);
             }
         };
         
-        // Start recording
-        videoRecorder.start(100); // Collect data every 100ms
+        videoRecorder.start(100);
         
-        // Auto-stop after 20 seconds
         setTimeout(() => {
             if (videoRecorder && videoRecorder.state === 'recording') {
                 stopVideoRecording();
@@ -2599,7 +2998,6 @@ function updateVideoRecordingTimer() {
     document.getElementById('videoRecordingTimer').textContent = 
         `0:${remaining.toString().padStart(2, '0')}`;
     
-    // Auto-stop when reaching 20 seconds
     if (remaining <= 0) {
         stopVideoRecording();
     }
@@ -2611,19 +3009,15 @@ async function stopVideoRecording() {
     clearInterval(videoRecordingTimer);
     videoRecorder.stop();
     
-    // Stop all tracks in the stream
     videoRecorder.stream.getTracks().forEach(track => track.stop());
     
-    // Wait for the recording to finish
     await new Promise(resolve => {
         videoRecorder.onstop = resolve;
     });
     
-    // Hide recording UI
     document.getElementById('videoRecordingIndicator').style.display = 'none';
     document.getElementById('messageInput').style.display = 'block';
     
-    // Show video preview
     showVideoPreview();
 }
 
@@ -2633,14 +3027,11 @@ async function cancelVideoRecording() {
     clearInterval(videoRecordingTimer);
     videoRecorder.stop();
     
-    // Stop all tracks in the stream
     videoRecorder.stream.getTracks().forEach(track => track.stop());
     
-    // Hide recording UI
     document.getElementById('videoRecordingIndicator').style.display = 'none';
     document.getElementById('messageInput').style.display = 'block';
     
-    // Reset variables
     videoRecorder = null;
     videoChunks = [];
 }
@@ -2651,7 +3042,6 @@ function showVideoPreview() {
     const videoBlob = new Blob(videoChunks, { type: 'video/webm' });
     const videoUrl = URL.createObjectURL(videoBlob);
     
-    // Create preview modal
     const previewModal = document.createElement('div');
     previewModal.className = 'video-preview';
     previewModal.innerHTML = `
@@ -2672,7 +3062,6 @@ function showVideoPreview() {
     document.body.appendChild(previewModal);
     previewModal.style.display = 'flex';
     
-    // Add event listeners
     document.getElementById('cancelVideoPreview').addEventListener('click', () => {
         previewModal.remove();
         videoRecorder = null;
@@ -2685,57 +3074,60 @@ function showVideoPreview() {
     });
 }
 
-// UPDATED: Video message sending with immediate display and sending state
+// UPDATED: Video message sending with immediate display and offline support
 async function sendVideoMessage(videoBlob) {
     try {
-        // Check if user has chat points
         const hasPoints = await deductChatPoint();
         if (!hasPoints) {
             return;
         }
 
-        // Generate temporary ID for optimistic update
         const tempMessageId = 'temp_video_' + Date.now();
         const duration = Math.floor((Date.now() - videoRecordingStartTime) / 1000);
         
-        // Create temporary message data for immediate display
         const tempMessage = {
             id: tempMessageId,
             senderId: currentUser.uid,
-            videoUrl: '', // Will be empty for now
+            videoUrl: '',
             duration: duration,
             timestamp: new Date().toISOString(),
             status: 'sending'
         };
 
-        // Display the video message immediately with "sending" state
         displayMessage(tempMessage, currentUser.uid);
         
-        // Scroll to bottom to show the new message
         const messagesContainer = document.getElementById('chatMessages');
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Show uploading state
         const sendBtn = document.getElementById('sendVideoPreview');
         if (sendBtn) {
             sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             sendBtn.disabled = true;
         }
         
-        // Upload to Cloudinary
-        const videoUrl = await uploadVideoToCloudinary(videoBlob);
+        // NEW: Add to pending messages if offline
+        if (!isOnline) {
+            await cache.addPendingMessage({
+                type: 'video',
+                tempId: tempMessageId,
+                blob: videoBlob,
+                duration: duration,
+                threadId: [currentUser.uid, chatPartnerId].sort().join('_'),
+                timestamp: new Date().toISOString()
+            });
+            showNotification('Video saved offline. Will send when connection is restored.', 'info');
+            return;
+        }
         
-        // Add video message to Firestore
+        const videoUrl = await uploadVideoToCloudinary(videoBlob);
         await addMessage(null, null, null, null, videoUrl, duration);
         
-        // Reset recording state
         videoRecorder = null;
         videoChunks = [];
     } catch (error) {
         logError(error, 'sending video message');
         showNotification('Failed to send video message. Please try again.', 'error');
         
-        // Remove the temporary message if there was an error
         const tempMessageElement = document.querySelector(`[data-message-id="temp_video_"]`);
         if (tempMessageElement) {
             tempMessageElement.remove();
@@ -2743,12 +3135,12 @@ async function sendVideoMessage(videoBlob) {
     }
 }
 
-// Upload Functions - COMPLETELY REMOVED UPLOADTHING, USING ONLY CLOUDINARY
+// Upload Functions - USING ONLY CLOUDINARY
 async function uploadAudioToCloudinary(audioBlob) {
     const formData = new FormData();
     formData.append('file', audioBlob);
     formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-    formData.append('resource_type', 'auto'); // Important for audio files
+    formData.append('resource_type', 'auto');
     
     try {
         const response = await fetch(
@@ -2818,17 +3210,14 @@ async function uploadFileToCloudinary(file) {
     formData.append('file', file);
     formData.append('upload_preset', cloudinaryConfig.uploadPreset);
     
-    // Determine resource type based on file type
     const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
     formData.append('resource_type', resourceType);
     
     try {
-        // First check if we have a valid connection
         if (!navigator.onLine) {
             throw new Error('No internet connection available');
         }
 
-        // Validate file based on type
         if (resourceType === 'image') {
             validateImageFile(file);
         } else if (resourceType === 'video') {
@@ -2865,51 +3254,51 @@ async function uploadImageToCloudinary(file) {
     return uploadFileToCloudinary(file);
 }
 
-// UPDATED: Image sending with immediate display and sending state
+// UPDATED: Image sending with immediate display, offline support, and optimistic updates
 async function sendImageMessage(file) {
     try {
-        // Check if user has chat points
         const hasPoints = await deductChatPoint();
         if (!hasPoints) {
             return;
         }
 
-        // Generate temporary ID for optimistic update
         const tempMessageId = 'temp_image_' + Date.now();
         
-        // Create temporary message data for immediate display
         const tempMessage = {
             id: tempMessageId,
             senderId: currentUser.uid,
-            imageUrl: URL.createObjectURL(file), // Use blob URL for immediate display
+            imageUrl: URL.createObjectURL(file),
             timestamp: new Date().toISOString(),
             status: 'sending'
         };
 
-        // Display the image immediately with "sending" state
         displayMessage(tempMessage, currentUser.uid);
         
-        // Scroll to bottom to show the new message
         const messagesContainer = document.getElementById('chatMessages');
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Upload to Cloudinary
+        // NEW: Add to pending messages if offline
+        if (!isOnline) {
+            await cache.addPendingMessage({
+                type: 'image',
+                tempId: tempMessageId,
+                blob: file,
+                threadId: [currentUser.uid, chatPartnerId].sort().join('_'),
+                timestamp: new Date().toISOString()
+            });
+            showNotification('Image saved offline. Will send when connection is restored.', 'info');
+            return;
+        }
+
         const imageUrl = await uploadImageToCloudinary(file);
-        
-        // Revoke the blob URL to free memory
         URL.revokeObjectURL(tempMessage.imageUrl);
 
-        // Add the real message to Firestore
         await addMessage(null, imageUrl);
-        
-        // The real message will replace the temporary one via the listener
-        // The temporary message will be automatically removed when the real one arrives
 
     } catch (error) {
         logError(error, 'sending image message');
         showNotification('Failed to send image. Please try again.', 'error');
         
-        // Remove the temporary message if there was an error
         const tempMessageElement = document.querySelector(`[data-message-id="temp_image_"]`);
         if (tempMessageElement) {
             tempMessageElement.remove();
@@ -2939,24 +3328,19 @@ function createAudioPlayer(audioUrl, duration) {
     const waveformBars = container.querySelectorAll('.waveform-bar');
     let animationInterval = null;
     
-    // Function to start animation
     const startAnimation = () => {
-        // Clear any existing animation
         if (animationInterval) {
             clearInterval(animationInterval);
         }
         
-        // Start new animation
         animationInterval = setInterval(() => {
             waveformBars.forEach(bar => {
-                // Random height for each bar to create wave effect
                 const randomHeight = Math.floor(Math.random() * 15) + 5;
                 bar.style.height = `${randomHeight}px`;
             });
         }, 100);
     };
     
-    // Function to stop animation
     const stopAnimation = () => {
         if (animationInterval) {
             clearInterval(animationInterval);
@@ -2967,9 +3351,8 @@ function createAudioPlayer(audioUrl, duration) {
         });
     };
     
-    // FIX: Stop event propagation to prevent swipe detection from triggering
     playBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent the event from bubbling up to parent elements
+        e.stopPropagation();
         
         if (audio.paused) {
             audio.play();
@@ -2982,7 +3365,6 @@ function createAudioPlayer(audioUrl, duration) {
         }
     });
     
-    // Handle audio events
     audio.onended = () => {
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
         stopAnimation();
@@ -3014,11 +3396,10 @@ function createVideoPlayer(videoUrl, duration) {
     return container;
 }
 
-// UPDATED: Display message function to handle image, voice, and video sending states
+// UPDATED: Display message function to handle image, voice, and video sending states with offline support
 function displayMessage(message, currentUserId) {
     const messagesContainer = document.getElementById('chatMessages');
     
-    // Remove "no messages" placeholder if it exists
     const noMessagesDiv = messagesContainer.querySelector('.no-messages');
     if (noMessagesDiv) {
         noMessagesDiv.remove();
@@ -3028,7 +3409,6 @@ function displayMessage(message, currentUserId) {
     messageDiv.className = `message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
     messageDiv.dataset.messageId = message.id;
     
-    // Handle sending state for images, voice, video and temporary messages
     if (message.id && (message.id.startsWith('temp_') || message.status === 'sending')) {
         messageDiv.style.opacity = '0.7';
         messageDiv.classList.add('sending');
@@ -3036,7 +3416,6 @@ function displayMessage(message, currentUserId) {
     
     let messageContent = '';
     
-    // Add reply indicator if this is a reply
     if (message.replyTo) {
         const repliedMessage = getRepliedMessage(message.replyTo);
         if (repliedMessage) {
@@ -3063,7 +3442,6 @@ function displayMessage(message, currentUserId) {
     }
     
     if (message.imageUrl) {
-        // Create image container with sending indicator if needed
         const imageContainer = document.createElement('div');
         imageContainer.style.position = 'relative';
         imageContainer.style.display = 'inline-block';
@@ -3073,11 +3451,9 @@ function displayMessage(message, currentUserId) {
         img.alt = "Message image";
         img.className = 'message-image';
         
-        // Add sending class if this is a temporary image
         if (message.id && message.id.startsWith('temp_') || message.status === 'sending') {
             img.classList.add('sending');
             
-            // Add sending indicator
             const sendingIndicator = document.createElement('div');
             sendingIndicator.className = 'sending-indicator';
             sendingIndicator.innerHTML = '<i class="fas fa-spinner"></i> Sending...';
@@ -3090,7 +3466,6 @@ function displayMessage(message, currentUserId) {
         messageContent += `<p>${message.text}</p>`;
     }
     
-    // Add reactions if any
     if (message.reactions && Object.keys(message.reactions).length > 0) {
         messageContent += `<div class="message-reactions">`;
         for (const [emoji, users] of Object.entries(message.reactions)) {
@@ -3099,7 +3474,6 @@ function displayMessage(message, currentUserId) {
         messageContent += `</div>`;
     }
     
-    // Add timestamp - Handle different states
     let timestampText = '';
     if (message.id && message.id.startsWith('temp_') || message.status === 'sending') {
         timestampText = 'Sending...';
@@ -3114,12 +3488,10 @@ function displayMessage(message, currentUserId) {
     
     messageDiv.innerHTML = messageContent;
     
-    // Handle voice messages
     if (message.audioUrl || (message.id && message.id.startsWith('temp_voice'))) {
         const voiceMessageDiv = document.createElement('div');
         voiceMessageDiv.className = `voice-message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
         
-        // Add sending overlay if temporary
         if (message.id && message.id.startsWith('temp_voice') || message.status === 'sending') {
             voiceMessageDiv.classList.add('sending');
             const sendingOverlay = document.createElement('div');
@@ -3131,7 +3503,6 @@ function displayMessage(message, currentUserId) {
         const audioPlayer = createAudioPlayer(message.audioUrl || '', message.duration || 0);
         voiceMessageDiv.appendChild(audioPlayer);
         
-        // Add timestamp for voice message
         const timeSpan = document.createElement('span');
         timeSpan.className = 'message-time';
         timeSpan.textContent = timestampText;
@@ -3139,11 +3510,9 @@ function displayMessage(message, currentUserId) {
         messageDiv.appendChild(voiceMessageDiv);
     }
     
-    // Handle video messages
     if (message.videoUrl || (message.id && message.id.startsWith('temp_video'))) {
         const videoPlayer = createVideoPlayer(message.videoUrl || '', message.duration || 0);
         
-        // Add sending overlay if temporary
         if (message.id && message.id.startsWith('temp_video') || message.status === 'sending') {
             videoPlayer.classList.add('sending');
             const sendingOverlay = document.createElement('div');
@@ -3160,7 +3529,6 @@ function displayMessage(message, currentUserId) {
 
 // Loading message functions
 function showFastLoadingMessage() {
-    // Remove any existing loading messages
     const existingMessages = document.querySelectorAll('.fast-loading-message');
     existingMessages.forEach(msg => msg.remove());
     
@@ -3171,7 +3539,6 @@ function showFastLoadingMessage() {
     const mainContent = document.querySelector('main') || document.querySelector('.container') || document.body;
     mainContent.insertBefore(loadingMsg, mainContent.firstChild);
     
-    // Auto-remove after 3 seconds
     setTimeout(() => {
         loadingMsg.remove();
     }, 3000);
@@ -3181,10 +3548,8 @@ function showChatLoadingMessage() {
     const messagesContainer = document.getElementById('chatMessages');
     if (!messagesContainer) return;
     
-    // Remove any existing loading messages first
     hideChatLoadingMessage();
     
-    // Create and show loading message
     const loadingDiv = document.createElement('div');
     loadingDiv.className = 'loading-message';
     loadingDiv.innerHTML = `
@@ -3223,6 +3588,22 @@ function hideMessagesLoadingMessage() {
     }
 }
 
+// NEW: Show instant loading overlay
+function showInstantLoading() {
+    const instantLoading = document.getElementById('instantLoading');
+    if (instantLoading) {
+        instantLoading.style.display = 'flex';
+    }
+}
+
+// NEW: Hide instant loading overlay
+function hideInstantLoading() {
+    const instantLoading = document.getElementById('instantLoading');
+    if (instantLoading) {
+        instantLoading.style.display = 'none';
+    }
+}
+
 // Add this function to handle page cleanup
 function cleanupChatPage() {
     if (unsubscribeChat) {
@@ -3230,50 +3611,44 @@ function cleanupChatPage() {
         unsubscribeChat = null;
     }
     
-    // Clear typing status
     if (chatPartnerId && currentUser) {
         updateTypingStatus(false);
     }
     
-    // Stop any ongoing recording
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
-        // Don't stop preloaded stream
         if (!preloadedAudioStream) {
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
         }
     }
     
-    // Stop any ongoing video recording
     if (videoRecorder && videoRecorder.state !== 'inactive') {
         videoRecorder.stop();
         videoRecorder.stream.getTracks().forEach(track => track.stop());
     }
     
-    // Clear timers
     if (typingTimeout) clearTimeout(typingTimeout);
     if (recordingTimer) clearInterval(recordingTimer);
     if (videoRecordingTimer) clearInterval(videoRecordingTimer);
     if (longPressTimer) clearTimeout(longPressTimer);
     
-    // Reset chat partner ID
     chatPartnerId = null;
 }
 
-// FIXED: Updated chat messages loading with proper read status handling
+// UPDATED: Chat messages loading with IndexedDB caching and offline support
 function loadChatMessages(userId, partnerId) {
     const messagesContainer = document.getElementById('chatMessages');
     
-    // Clear any existing listener
     if (unsubscribeChat) {
         unsubscribeChat();
     }
     
-    // Create a combined ID for the chat thread
     const threadId = [userId, partnerId].sort().join('_');
     
-    // Show loading message immediately
     showChatLoadingMessage();
+    
+    // NEW: Show instant loading for background sync
+    showInstantLoading();
     
     // Try to load cached messages first
     const cacheKey = `messages_${userId}_${partnerId}`;
@@ -3281,10 +3656,15 @@ function loadChatMessages(userId, partnerId) {
     
     if (cachedMessages && cachedMessages.length > 0) {
         displayCachedMessages(cachedMessages);
-        // Don't hide loading message here - wait for real-time data
     }
     
-    // Set up real-time listener with proper error handling
+    // Also try IndexedDB
+    cache.getMessages(threadId).then(messages => {
+        if (messages && messages.length > 0 && (!cachedMessages || messages.length > cachedMessages.length)) {
+            displayCachedMessages(messages);
+        }
+    });
+    
     try {
         unsubscribeChat = onSnapshot(
             collection(db, 'conversations', threadId, 'messages'),
@@ -3294,7 +3674,6 @@ function loadChatMessages(userId, partnerId) {
                 
                 snapshot.forEach(doc => {
                     const messageData = doc.data();
-                    // Convert Firestore timestamp to serializable format for caching
                     const serializableMessage = {
                         id: doc.id,
                         ...messageData,
@@ -3304,62 +3683,58 @@ function loadChatMessages(userId, partnerId) {
                     };
                     messages.push(serializableMessage);
                     
-                    // Check if there are unread messages from partner
                     if (messageData.senderId === partnerId && !messageData.read) {
                         hasUnreadMessages = true;
                     }
                 });
                 
-                // Sort messages by timestamp
                 messages.sort((a, b) => {
                     const timeA = new Date(a.timestamp).getTime();
                     const timeB = new Date(b.timestamp).getTime();
                     return timeA - timeB;
                 });
                 
-                // Cache messages with proper timestamp format
                 cache.set(cacheKey, messages, 'short');
+                await cache.setMessages(threadId, messages);
                 
-                // FIXED: Clear only temporary messages and update display
                 updateMessagesDisplay(messages, userId);
                 
-                // Mark messages as read if there are unread ones
                 if (hasUnreadMessages) {
                     await markMessagesAsRead(threadId, partnerId, userId);
                 }
                 
-                // Scroll to bottom
                 setTimeout(() => {
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }, 100);
                 
-                // Only hide loading message on initial load, not on subsequent updates
                 if (document.querySelector('#chatMessages .loading-message')) {
                     hideChatLoadingMessage();
                 }
                 
-                // Refresh the global unread count
+                // NEW: Hide instant loading after data is loaded
+                hideInstantLoading();
+                
                 refreshUnreadMessageCount();
             },
             (error) => {
                 logError(error, 'chat messages listener');
-                // If real-time fails, show cached messages
                 if (cachedMessages) {
                     displayCachedMessages(cachedMessages);
                 }
                 hideChatLoadingMessage();
+                hideInstantLoading();
             }
         );
     } catch (error) {
         logError(error, 'setting up chat messages listener');
         hideChatLoadingMessage();
+        hideInstantLoading();
     }
 }
 
 // FIXED: Mark messages as read when viewing chat
 async function markMessagesAsRead(threadId, partnerId, userId) {
     try {
-        // Get all unread messages from partner
         const unreadMessagesQuery = query(
             collection(db, 'conversations', threadId, 'messages'),
             where('senderId', '==', partnerId),
@@ -3368,7 +3743,6 @@ async function markMessagesAsRead(threadId, partnerId, userId) {
         
         const unreadMessagesSnap = await getDocs(unreadMessagesQuery);
         
-        // Mark each message as read
         const updatePromises = [];
         unreadMessagesSnap.forEach((doc) => {
             updatePromises.push(updateDoc(doc.ref, {
@@ -3378,7 +3752,6 @@ async function markMessagesAsRead(threadId, partnerId, userId) {
         
         await Promise.all(updatePromises);
         
-        // Refresh unread count after marking messages as read
         refreshUnreadMessageCount();
         
     } catch (error) {
@@ -3390,32 +3763,25 @@ async function markMessagesAsRead(threadId, partnerId, userId) {
 function updateMessagesDisplay(newMessages, currentUserId) {
     const messagesContainer = document.getElementById('chatMessages');
     
-    // Remove only temporary messages and keep real messages
     const tempMessages = messagesContainer.querySelectorAll('[data-message-id^="temp_"]');
     tempMessages.forEach(msg => msg.remove());
     
-    // Remove loading message if it exists
     hideChatLoadingMessage();
     
-    // Clear the container only if we have no messages displayed
     const existingMessages = messagesContainer.querySelectorAll('.message:not([data-message-id^="temp_"])');
     if (existingMessages.length === 0 && newMessages.length > 0) {
         messagesContainer.innerHTML = '';
     }
     
-    // Display all messages
     newMessages.forEach(message => {
-        // Check if message already exists (not temporary)
         const existingMessage = messagesContainer.querySelector(`[data-message-id="${message.id}"]`);
         if (!existingMessage) {
             displayMessage(message, currentUserId);
         } else {
-            // Update existing message if needed (like reactions, read status)
             updateExistingMessage(existingMessage, message, currentUserId);
         }
     });
     
-    // If no messages at all, show empty state
     if (newMessages.length === 0 && messagesContainer.children.length === 0) {
         const noMessagesDiv = document.createElement('div');
         noMessagesDiv.className = 'no-messages';
@@ -3424,12 +3790,11 @@ function updateMessagesDisplay(newMessages, currentUserId) {
     }
 }
 
-// FIXED: Updated addMessage function to prevent duplicate messages
+// UPDATED: Add message function with offline support and optimistic updates
 async function addMessage(text = null, imageUrl = null, audioUrl = null, audioDuration = null, videoUrl = null, videoDuration = null) {
     if (!text && !imageUrl && !audioUrl && !videoUrl) return;
     
     try {
-        // Create a combined ID for the chat thread
         const threadId = [currentUser.uid, chatPartnerId].sort().join('_');
         
         const messageData = {
@@ -3443,33 +3808,39 @@ async function addMessage(text = null, imageUrl = null, audioUrl = null, audioDu
             timestamp: serverTimestamp()
         };
         
-        // Add replyTo if replying to a message
         if (selectedMessageForReply) {
             messageData.replyTo = selectedMessageForReply;
         }
         
-        // FIXED: Generate a temporary ID that we can track
         const tempMessageId = 'temp_' + Date.now();
         const tempMessage = {
             id: tempMessageId,
             ...messageData,
-            timestamp: new Date().toISOString() // Temporary client-side timestamp
+            timestamp: new Date().toISOString()
         };
         
-        // Store the temp message ID so we can remove it later
         window.lastTempMessageId = tempMessageId;
         
-        // Display the message immediately (optimistic update)
         displayMessage(tempMessage, currentUser.uid);
         
-        // Scroll to bottom to show the new message
         const messagesContainer = document.getElementById('chatMessages');
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
-        // Add message to Firestore
+        // NEW: Add to pending messages if offline
+        if (!isOnline) {
+            await cache.addPendingMessage({
+                type: 'text',
+                tempId: tempMessageId,
+                data: messageData,
+                threadId: threadId,
+                timestamp: new Date().toISOString()
+            });
+            showNotification('Message saved offline. Will send when connection is restored.', 'info');
+            return;
+        }
+        
         const docRef = await addDoc(collection(db, 'conversations', threadId, 'messages'), messageData);
         
-        // FIXED: Update the conversation document after successful message send
         let lastMessageText = '';
         if (text) lastMessageText = text;
         else if (imageUrl) lastMessageText = 'Image';
@@ -3486,17 +3857,12 @@ async function addMessage(text = null, imageUrl = null, audioUrl = null, audioDu
             updatedAt: serverTimestamp()
         }, { merge: true });
         
-        // The Firestore listener will automatically update the message with the real ID and timestamp
-        // The temporary message will be replaced when the real message comes through the listener
-        
-        // Clear reply after sending
         cancelReply();
         
     } catch (error) {
         logError(error, 'adding message');
         showNotification('Error sending message. Please try again.', 'error');
         
-        // FIXED: Remove the optimistic message if there was an error
         const tempMessageElement = document.querySelector(`[data-message-id="${window.lastTempMessageId}"]`);
         if (tempMessageElement) {
             tempMessageElement.remove();
@@ -3506,10 +3872,8 @@ async function addMessage(text = null, imageUrl = null, audioUrl = null, audioDu
 
 // FIXED: Update existing message without recreating it
 function updateExistingMessage(existingElement, message, currentUserId) {
-    // Update reactions
     updateMessageReactions(existingElement, message);
     
-    // Update read status
     if (message.senderId === currentUserId && message.read) {
         const timeElement = existingElement.querySelector('.message-time');
         if (timeElement && !timeElement.textContent.includes('✓✓')) {
@@ -3517,7 +3881,6 @@ function updateExistingMessage(existingElement, message, currentUserId) {
         }
     }
     
-    // Update timestamp if it's a temporary message that was just confirmed
     if (existingElement.classList.contains('sending')) {
         const timeElement = existingElement.querySelector('.message-time');
         if (timeElement && timeElement.textContent === 'Sending...') {
@@ -3525,25 +3888,21 @@ function updateExistingMessage(existingElement, message, currentUserId) {
             existingElement.style.opacity = '1';
             existingElement.classList.remove('sending');
             
-            // Remove sending indicator for images
             const sendingIndicator = existingElement.querySelector('.sending-indicator');
             if (sendingIndicator) {
                 sendingIndicator.remove();
             }
             
-            // Remove sending class from image
             const image = existingElement.querySelector('.message-image.sending');
             if (image) {
                 image.classList.remove('sending');
             }
             
-            // Remove sending overlay for voice and video messages
             const sendingOverlay = existingElement.querySelector('.sending-overlay');
             if (sendingOverlay) {
                 sendingOverlay.remove();
             }
             
-            // Remove sending class from voice and video messages
             const voiceMessage = existingElement.querySelector('.voice-message.sending');
             if (voiceMessage) {
                 voiceMessage.classList.remove('sending');
@@ -3563,7 +3922,6 @@ function updateMessageReactions(messageElement, message) {
     const reactions = message.reactions || {};
     
     if (Object.keys(reactions).length === 0) {
-        // Remove reactions container if no reactions
         if (reactionsContainer) {
             reactionsContainer.remove();
         }
@@ -3571,11 +3929,9 @@ function updateMessageReactions(messageElement, message) {
     }
     
     if (!reactionsContainer) {
-        // Create reactions container if it doesn't exist
         reactionsContainer = document.createElement('div');
         reactionsContainer.className = 'message-reactions';
         
-        // Insert before the timestamp
         const timeElement = messageElement.querySelector('.message-time');
         if (timeElement) {
             messageElement.insertBefore(reactionsContainer, timeElement);
@@ -3584,7 +3940,6 @@ function updateMessageReactions(messageElement, message) {
         }
     }
     
-    // Update reactions content
     reactionsContainer.innerHTML = '';
     for (const [emoji, users] of Object.entries(reactions)) {
         const reactionElement = document.createElement('span');
@@ -3598,10 +3953,8 @@ function updateMessageReactions(messageElement, message) {
 function displayCachedMessages(messages) {
     const messagesContainer = document.getElementById('chatMessages');
     
-    // Remove loading message but don't clear the entire container
     hideChatLoadingMessage();
     
-    // Only proceed if we have messages to display
     if (messages.length === 0) {
         const noMessagesDiv = document.createElement('div');
         noMessagesDiv.className = 'no-messages';
@@ -3610,14 +3963,12 @@ function displayCachedMessages(messages) {
         return;
     }
     
-    // Ensure messages are sorted
     messages.sort((a, b) => {
         const timeA = new Date(a.timestamp).getTime();
         const timeB = new Date(b.timestamp).getTime();
         return timeA - timeB;
     });
     
-    // Add messages that don't already exist
     messages.forEach(message => {
         const existingMessage = document.querySelector(`[data-message-id="${message.id}"]`);
         if (!existingMessage) {
@@ -3625,7 +3976,6 @@ function displayCachedMessages(messages) {
         }
     });
     
-    // Scroll to bottom
     setTimeout(() => {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }, 100);
@@ -3636,9 +3986,8 @@ function getRepliedMessage(messageId) {
     return cachedMessages.find(m => m.id === messageId);
 }
 
-// Page Initialization Functions
+// UPDATED: Page Initialization Functions with preloading
 function initLandingPage() {
-    // Show fast loading message
     showFastLoadingMessage();
 }
 
@@ -3646,9 +3995,6 @@ function initLoginPage() {
     const loginForm = document.getElementById('loginForm');
     const togglePassword = document.getElementById('toggleLoginPassword');
     const resetPasswordLink = document.getElementById('resetPassword');
-
-    // Show fast loading message
-    showFastLoadingMessage();
 
     if (loginForm) {
         eventManager.addListener(loginForm, 'submit', async (e) => {
@@ -3660,11 +4006,8 @@ function initLoginPage() {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
-                // Manually check if account is disabled
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists() && userDoc.data().accountDisabled) {
-                    // DON'T sign out - just redirect to disabled page
-                    // This keeps the user logged in so they can request verification emails
                     window.location.href = 'disabled.html';
                     return;
                 }
@@ -3711,9 +4054,6 @@ function initSignupPage() {
     const signupForm = document.getElementById('signupForm');
     const togglePassword = document.getElementById('toggleSignupPassword');
 
-    // Show fast loading message
-    showFastLoadingMessage();
-
     if (signupForm) {
         eventManager.addListener(signupForm, 'submit', async (e) => {
             e.preventDefault();
@@ -3730,7 +4070,6 @@ function initSignupPage() {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
-                // Create user profile in Firestore
                 await setDoc(doc(db, 'users', user.uid), {
                     email: email,
                     createdAt: serverTimestamp(),
@@ -3771,10 +4110,6 @@ function initDashboardPage() {
     const accountBtn = document.getElementById('accountBtn');
     const purchasePointsBtn = document.getElementById('purchasePointsBtn');
 
-    // Show fast loading message
-    showFastLoadingMessage();
-
-    // Load user's chat points
     loadUserChatPoints();
 
     if (logoutBtn) {
@@ -3819,10 +4154,6 @@ function initPaymentPage() {
     const paymentForm = document.getElementById('paymentForm');
     const copyBtns = document.querySelectorAll('.copy-btn');
 
-    // Show fast loading message
-    showFastLoadingMessage();
-
-    // Load user's chat points
     loadUserChatPoints();
 
     if (logoutBtn) {
@@ -3835,7 +4166,6 @@ function initPaymentPage() {
         });
     }
 
-    // Plan selection
     planButtons.forEach(button => {
         eventManager.addListener(button, 'click', () => {
             planButtons.forEach(btn => btn.classList.remove('selected'));
@@ -3844,7 +4174,6 @@ function initPaymentPage() {
         });
     });
 
-    // Copy wallet address
     copyBtns.forEach(btn => {
         eventManager.addListener(btn, 'click', (e) => {
             e.preventDefault();
@@ -3861,7 +4190,6 @@ function initPaymentPage() {
         });
     });
 
-    // Payment form submission
     if (paymentForm) {
         eventManager.addListener(paymentForm, 'submit', async (e) => {
             e.preventDefault();
@@ -3881,7 +4209,6 @@ function initPaymentPage() {
             }
             
             try {
-                // Add payment to user's history using arrayUnion
                 const userRef = doc(db, 'users', currentUser.uid);
                 
                 const paymentData = {
@@ -3913,10 +4240,8 @@ function initAdminPage() {
     const adminContent = document.getElementById('adminContent');
     const logoutBtn = document.getElementById('adminLogoutBtn');
 
-    // Show fast loading message
     showFastLoadingMessage();
 
-    // Check if admin is already logged in
     const isAdmin = sessionStorage.getItem('adminLoggedIn') === 'true';
     if (isAdmin) {
         showAdminContent();
@@ -3991,7 +4316,6 @@ function initAdminPage() {
                 }
             }
             
-            // Add event listeners to approve/reject buttons
             document.querySelectorAll('.approve-btn').forEach(btn => {
                 eventManager.addListener(btn, 'click', async () => {
                     const userId = btn.dataset.user;
@@ -3999,12 +4323,10 @@ function initAdminPage() {
                     const plan = btn.dataset.plan;
                     
                     try {
-                        // Get user data
                         const userRef = doc(db, 'users', userId);
                         const userSnap = await getDoc(userRef);
                         
                         if (userSnap.exists()) {
-                            // Update payment status in the array
                             const updatedPayments = userSnap.data().paymentHistory.map(p => {
                                 if (p.transactionId === txId) {
                                     return { ...p, status: 'approved' };
@@ -4012,7 +4334,6 @@ function initAdminPage() {
                                 return p;
                             });
                             
-                            // Determine points to add based on plan
                             let pointsToAdd = 0;
                             switch (plan) {
                                 case '30_points': pointsToAdd = 30; break;
@@ -4020,7 +4341,6 @@ function initAdminPage() {
                                 case 'lifetime': pointsToAdd = 9999; break;
                             }
                             
-                            // Update user document
                             await updateDoc(userRef, {
                                 paymentHistory: updatedPayments,
                                 chatPoints: (userSnap.data().chatPoints || 0) + pointsToAdd,
@@ -4043,12 +4363,10 @@ function initAdminPage() {
                     const txId = btn.dataset.tx;
                     
                     try {
-                        // Get user data
                         const userRef = doc(db, 'users', userId);
                         const userSnap = await getDoc(userRef);
                         
                         if (userSnap.exists()) {
-                            // Update payment status in the array
                             const updatedPayments = userSnap.data().paymentHistory.map(p => {
                                 if (p.transactionId === txId) {
                                     return { ...p, status: 'rejected' };
@@ -4056,7 +4374,6 @@ function initAdminPage() {
                                 return p;
                             });
                             
-                            // Update user document
                             await updateDoc(userRef, {
                                 paymentHistory: updatedPayments,
                                 updatedAt: serverTimestamp()
@@ -4078,6 +4395,7 @@ function initAdminPage() {
     }
 }
 
+// UPDATED: Mingle page with preloading
 function initMinglePage() {
     const dislikeBtn = document.getElementById('dislikeBtn');
     const likeBtn = document.getElementById('likeBtn');
@@ -4086,10 +4404,6 @@ function initMinglePage() {
     const logoutBtn = document.getElementById('logoutBtn');
     const dashboardBtn = document.getElementById('dashboardBtn');
 
-    // Show fast loading message
-    showFastLoadingMessage();
-
-    // Load profiles to mingle with
     loadProfiles();
 
     if (dislikeBtn) {
@@ -4103,13 +4417,11 @@ function initMinglePage() {
             const currentProfile = profiles[currentProfileIndex];
             if (currentProfile) {
                 try {
-                    // Add to liked profiles
                     await addDoc(collection(db, 'users', currentUser.uid, 'liked'), {
                         userId: currentProfile.id,
                         timestamp: serverTimestamp()
                     });
                     
-                    // Increment like count for the profile
                     const profileRef = doc(db, 'users', currentProfile.id);
                     const profileSnap = await getDoc(profileRef);
                     
@@ -4159,8 +4471,6 @@ function initMinglePage() {
 }
 
 function initProfilePage() {
-    console.log('Initializing profile page...');
-    
     const backToMingle = document.getElementById('backToMingle');
     const messageProfileBtn = document.getElementById('messageProfileBtn');
     const likeProfileBtn = document.getElementById('likeProfileBtn');
@@ -4168,20 +4478,14 @@ function initProfilePage() {
     const dashboardBtn = document.getElementById('dashboardBtn');
     const thumbnails = document.querySelectorAll('.thumbnail');
 
-    // Show fast loading message
-    showFastLoadingMessage();
-
-    // Load profile data from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     const profileId = urlParams.get('id');
 
-    // Store profileId globally for use in like function
     window.currentProfileId = profileId;
 
     if (profileId) {
         loadProfileData(profileId);
     } else {
-        // If no profile ID, redirect to mingle page
         showNotification('No profile selected', 'error');
         setTimeout(() => {
             window.location.href = 'mingle.html';
@@ -4189,7 +4493,6 @@ function initProfilePage() {
         return;
     }
 
-    // Thumbnail click event
     thumbnails.forEach(thumbnail => {
         eventManager.addListener(thumbnail, 'click', () => {
             thumbnails.forEach(t => t.classList.remove('active'));
@@ -4259,7 +4562,6 @@ function initProfilePage() {
 
 // Handle like profile function
 async function handleLikeProfile(likeButton) {
-    // Use the stored profileId
     const profileIdToLike = window.currentProfileId;
     
     if (!profileIdToLike) {
@@ -4273,7 +4575,6 @@ async function handleLikeProfile(likeButton) {
     }
 
     try {
-        // Check if already liked to prevent duplicate likes
         const likedRef = collection(db, 'users', currentUser.uid, 'liked');
         const likedQuery = query(likedRef, where('userId', '==', profileIdToLike));
         const likedSnap = await getDocs(likedQuery);
@@ -4283,14 +4584,12 @@ async function handleLikeProfile(likeButton) {
             return;
         }
 
-        // Add to liked profiles
         await addDoc(collection(db, 'users', currentUser.uid, 'liked'), {
             userId: profileIdToLike,
             timestamp: serverTimestamp(),
             likedAt: new Date().toISOString()
         });
         
-        // Increment like count for the profile
         const profileRef = doc(db, 'users', profileIdToLike);
         const profileSnap = await getDoc(profileRef);
         
@@ -4301,14 +4600,12 @@ async function handleLikeProfile(likeButton) {
                 updatedAt: serverTimestamp()
             });
             
-            // Update the displayed like count immediately
             const likeCountElement = document.getElementById('viewLikeCount');
             if (likeCountElement) {
                 likeCountElement.textContent = currentLikes + 1;
             }
         }
         
-        // Update button state
         likeButton.innerHTML = '<i class="fas fa-heart"></i> Liked';
         likeButton.classList.add('liked');
         likeButton.disabled = true;
@@ -4332,10 +4629,6 @@ function initAccountPage() {
     const logoutBtn = document.getElementById('logoutBtn');
     const dashboardBtn = document.getElementById('dashboardBtn');
 
-    // Show fast loading message
-    showFastLoadingMessage();
-
-    // Initialize menu tabs
     accountMenuItems.forEach(item => {
         eventManager.addListener(item, 'click', () => {
             accountMenuItems.forEach(i => i.classList.remove('active'));
@@ -4349,32 +4642,26 @@ function initAccountPage() {
         });
     });
 
-    // Profile image upload
     if (profileImageUpload) {
         eventManager.addListener(profileImageUpload, 'change', async (e) => {
             const file = e.target.files[0];
             if (file) {
                 try {
-                    // Show loading state
                     const uploadButton = document.querySelector('.upload-button');
                     if (uploadButton) {
                         uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
                         uploadButton.disabled = true;
                     }
 
-                    // Upload to Cloudinary
                     const imageUrl = await uploadImageToCloudinary(file);
                     
-                    // Update profile image in Firestore
                     await updateDoc(doc(db, 'users', currentUser.uid), {
                         profileImage: imageUrl,
                         updatedAt: serverTimestamp()
                     });
                     
-                    // Update image display
                     document.getElementById('accountProfileImage').src = imageUrl;
                     
-                    // Reset button state
                     if (uploadButton) {
                         uploadButton.innerHTML = '<i class="fas fa-upload"></i> Upload Image';
                         uploadButton.disabled = false;
@@ -4383,7 +4670,6 @@ function initAccountPage() {
                     logError(error, 'uploading profile image');
                     showNotification('Failed to upload image. Please check your connection and try again.', 'error');
                     
-                    // Reset button state on error
                     const uploadButton = document.querySelector('.upload-button');
                     if (uploadButton) {
                         uploadButton.innerHTML = '<i class="fas fa-upload"></i> Upload Image';
@@ -4397,13 +4683,11 @@ function initAccountPage() {
     if (removeProfileImage) {
         eventManager.addListener(removeProfileImage, 'click', async () => {
             try {
-                // Remove profile image in Firestore
                 await updateDoc(doc(db, 'users', currentUser.uid), {
                     profileImage: null,
                     updatedAt: serverTimestamp()
                 });
                 
-                // Reset to default image
                 document.getElementById('accountProfileImage').src = 'images-default-profile.jpg';
             } catch (error) {
                 logError(error, 'removing profile image');
@@ -4412,7 +4696,6 @@ function initAccountPage() {
         });
     }
 
-    // Add interest
     if (addInterestBtn) {
         eventManager.addListener(addInterestBtn, 'click', () => {
             const interestInput = document.getElementById('accountInterests');
@@ -4445,7 +4728,6 @@ function initAccountPage() {
         });
     }
 
-    // Profile form submission
     if (profileForm) {
         eventManager.addListener(profileForm, 'submit', async (e) => {
             e.preventDefault();
@@ -4483,7 +4765,6 @@ function initAccountPage() {
         });
     }
 
-    // Settings form submission
     if (settingsForm) {
         eventManager.addListener(settingsForm, 'submit', async (e) => {
             e.preventDefault();
@@ -4507,7 +4788,6 @@ function initAccountPage() {
                     showNotification('Password change not possible at the moment', 'info');
                 }
                 
-                // Clear form
                 settingsForm.reset();
                 showNotification('Settings updated successfully!', 'success');
             } catch (error) {
@@ -4517,7 +4797,6 @@ function initAccountPage() {
         });
     }
 
-    // Privacy form submission
     if (privacyForm) {
         eventManager.addListener(privacyForm, 'submit', async (e) => {
             e.preventDefault();
@@ -4555,7 +4834,7 @@ function initAccountPage() {
     }
 }
 
-// UPDATED: Chat page initialization with optimized voice recording and image sending
+// UPDATED: Chat page initialization with optimized voice recording, image sending, and offline support
 function initChatPage() {
     const backToMessages = document.getElementById('backToMessages');
     const messageInput = document.getElementById('messageInput');
@@ -4576,21 +4855,17 @@ function initChatPage() {
     const dashboardBtn = document.getElementById('dashboardBtn');
     const cancelReplyBtn = document.getElementById('cancelReply');
 
-    // FIX: Show loading message immediately and keep it until messages are loaded
     showChatLoadingMessage();
 
-    // Load chat data from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     chatPartnerId = urlParams.get('id');
 
-    // Clear any existing listeners first
     if (unsubscribeChat) {
         unsubscribeChat();
         unsubscribeChat = null;
     }
 
     if (chatPartnerId) {
-        // Try to load cached chat partner data first
         const cachedPartnerData = cache.get(`partner_${chatPartnerId}`);
         if (cachedPartnerData) {
             displayChatPartnerData(cachedPartnerData);
@@ -4598,14 +4873,12 @@ function initChatPage() {
             loadChatPartnerData(chatPartnerId);
         }
 
-        // Load messages with proper cleanup - this will handle the loading state
         loadChatMessages(currentUser.uid, chatPartnerId);
         
         setupTypingIndicator();
         setupMessageLongPress();
         setupMessageSwipe();
     } else {
-        // If no chat partner, show error and redirect
         showNotification('No chat selected', 'error');
         setTimeout(() => {
             window.location.href = 'messages.html';
@@ -4615,37 +4888,30 @@ function initChatPage() {
 
     if (backToMessages) {
         eventManager.addListener(backToMessages, 'click', () => {
-            // Clean up before leaving
             cleanupChatPage();
             window.location.href = 'messages.html';
         });
     }
 
-    // Send message function - FIXED with faster sending
     async function sendMessage() {
         const message = messageInput.value.trim();
         if (message) {
-            // Check if user has chat points
             const hasPoints = await deductChatPoint();
             if (!hasPoints) {
                 return;
             }
             
-            // Disable send button and show sending state immediately
             sendMessageBtn.disabled = true;
             
             messageInput.value = '';
             
             try {
                 await addMessage(message);
-                
-                // Clear reply if any
                 cancelReply();
             } catch (error) {
                 logError(error, 'sending message');
                 showNotification('Error sending message. Please try again.', 'error');
             } finally {
-                // Re-enable send button regardless of outcome
                 sendMessageBtn.disabled = false;
                 sendMessageBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
             }
@@ -4664,12 +4930,10 @@ function initChatPage() {
         });
     }
 
-    // Typing indicator
     if (messageInput) {
         eventManager.addListener(messageInput, 'input', () => {
             updateTypingStatus(true);
             
-            // Reset after 2 seconds of no typing
             clearTimeout(typingTimeout);
             typingTimeout = setTimeout(() => {
                 updateTypingStatus(false);
@@ -4677,10 +4941,8 @@ function initChatPage() {
         });
     }
 
-    // File attachment - UPDATED to use new image sending function
     if (attachmentBtn) {
         eventManager.addListener(attachmentBtn, 'click', () => {
-            // Create a file input for images and videos
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = 'image/*,video/*';
@@ -4690,31 +4952,24 @@ function initChatPage() {
                 const file = e.target.files[0];
                 if (file) {
                     try {
-                        // Show loading state
                         const originalText = attachmentBtn.innerHTML;
                         attachmentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                         attachmentBtn.disabled = true;
                         
                         if (file.type.startsWith('image/')) {
-                            // Use the new image sending function with immediate display
                             await sendImageMessage(file);
                         } else if (file.type.startsWith('video/')) {
-                            // Upload to Cloudinary for videos
                             const fileUrl = await uploadFileToCloudinary(file);
                             await addMessage(null, null, null, null, fileUrl, 0);
                         }
                         
-                        // Reset button state
                         attachmentBtn.innerHTML = originalText;
                         attachmentBtn.disabled = false;
-                        
-                        // Clear reply if any
                         cancelReply();
                     } catch (error) {
                         logError(error, 'uploading file');
                         showNotification('Failed to upload file. Please check your connection and try again.', 'error');
                         
-                        // Reset button state on error
                         attachmentBtn.innerHTML = '<i class="fas fa-paperclip"></i>';
                         attachmentBtn.disabled = false;
                     }
@@ -4725,17 +4980,14 @@ function initChatPage() {
         });
     }
 
-    // UPDATED: Voice note functionality with faster response
     if (voiceNoteBtn) {
         eventManager.addListener(voiceNoteBtn, 'mousedown', async () => {
-            // Show recording UI immediately for faster response
             document.getElementById('voiceNoteIndicator').style.display = 'flex';
             document.getElementById('messageInput').style.display = 'none';
             
             try {
                 await startRecording();
             } catch (error) {
-                // Hide recording UI if there's an error
                 document.getElementById('voiceNoteIndicator').style.display = 'none';
                 document.getElementById('messageInput').style.display = 'block';
                 showNotification('Could not start recording. Please try again.', 'error');
@@ -4751,7 +5003,6 @@ function initChatPage() {
         eventManager.addListener(sendVoiceNoteBtn, 'click', sendVoiceNote);
     }
 
-    // Video note functionality
     if (videoNoteBtn) {
         eventManager.addListener(videoNoteBtn, 'click', async () => {
             const hasPermission = await requestCameraPermission();
@@ -4782,25 +5033,22 @@ function initChatPage() {
     }
 }
 
+// UPDATED: Messages page with preloading
 function initMessagesPage() {
     const logoutBtn = document.getElementById('logoutBtn');
     const messageSearch = document.getElementById('messageSearch');
     const dashboardBtn = document.getElementById('dashboardBtn');
 
-    // Show loading message initially
     showMessagesLoadingMessage();
 
-    // Try to load cached message threads first
     const cachedThreads = cache.get(`threads_${currentUser.uid}`);
     if (cachedThreads) {
         renderMessageThreads(cachedThreads);
         hideMessagesLoadingMessage();
     } else {
-        // Show loader immediately while we fetch fresh data
         showMessagesLoadingMessage();
     }
 
-    // Always load fresh data in the background
     loadMessageThreads();
 
     if (messageSearch) {
@@ -4834,14 +5082,12 @@ function initMessagesPage() {
 
 // Data Loading Functions
 async function loadUserData(userId) {
-    // Try cache first
     const cachedData = cache.get(`user_${userId}`);
     if (cachedData) {
         updateAccountPage(cachedData);
         return cachedData;
     }
 
-    // Fall back to network
     try {
         const userRef = doc(db, 'users', userId);
         const userSnap = await getDoc(userRef);
@@ -4874,7 +5120,6 @@ function updateAccountPage(userData) {
         document.getElementById('accountProfileImage').src = userData.profileImage;
     }
     
-    // Load interests
     const interestsContainer = document.getElementById('accountInterestsContainer');
     interestsContainer.innerHTML = '';
     
@@ -4896,7 +5141,6 @@ function updateAccountPage(userData) {
         });
     }
     
-    // Load privacy settings
     if (userData.privacySettings) {
         document.getElementById('showAge').checked = userData.privacySettings.showAge !== false;
         document.getElementById('showLocation').checked = userData.privacySettings.showLocation !== false;
@@ -4904,23 +5148,22 @@ function updateAccountPage(userData) {
     }
 }
 
-async function loadProfiles() {
-    // Try cache first
-    const cachedProfiles = cache.get('mingle_profiles');
-    if (cachedProfiles) {
-        profiles = cachedProfiles;
-        // Shuffle profiles when loading from cache
-        shuffleProfiles();
-        if (profiles.length > 0) {
-            showProfile(0);
-        } else {
-            showNoProfilesMessage();
+// UPDATED: Load profiles with IndexedDB caching
+async function loadProfiles(forceRefresh = false) {
+    if (!forceRefresh) {
+        const cachedProfiles = await cache.getProfiles();
+        if (cachedProfiles && cachedProfiles.length > 0) {
+            profiles = cachedProfiles;
+            shuffleProfiles();
+            if (profiles.length > 0) {
+                showProfile(0);
+            } else {
+                showNoProfilesMessage();
+            }
         }
     }
 
-    // Always fetch fresh data in the background
     try {
-        // Get all users except current user
         const usersRef = collection(db, 'users');
         const q = query(usersRef, where('__name__', '!=', currentUser.uid));
         const querySnapshot = await getDocs(q);
@@ -4930,11 +5173,10 @@ async function loadProfiles() {
             profiles.push({ id: doc.id, ...doc.data() });
         });
         
-        // Shuffle the profiles array
         shuffleProfiles();
         
-        // Cache the profiles
         cache.set('mingle_profiles', profiles, 'short');
+        await cache.setProfiles(profiles);
         
         if (profiles.length > 0) {
             showProfile(0);
@@ -4949,7 +5191,6 @@ async function loadProfiles() {
     }
 }
 
-// Function to shuffle profiles array
 function shuffleProfiles() {
     for (let i = profiles.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -4980,7 +5221,6 @@ function showProfile(index) {
         document.getElementById('profileBio').textContent = profile.bio || 'No bio available';
         document.getElementById('likeCount').textContent = profile.likes || 0;
         
-        // Update online status indicator
         updateProfileOnlineStatus(profile.id);
     }
 }
@@ -5002,30 +5242,26 @@ function showNextProfile() {
     if (currentProfileIndex < profiles.length - 1) {
         showProfile(currentProfileIndex + 1);
     } else {
-        // Reached end of profiles
         showNoProfilesMessage();
     }
 }
 
+// UPDATED: Load profile data with caching
 async function loadProfileData(profileId) {
-    // Try cache first
     const cachedProfile = cache.get(`profile_${profileId}`);
     if (cachedProfile) {
         displayProfileData(cachedProfile);
     }
 
-    // Always fetch fresh data
     try {
         const profileRef = doc(db, 'users', profileId);
         const profileSnap = await getDoc(profileRef);
         
         if (profileSnap.exists()) {
             const profileData = profileSnap.data();
-            // Cache the profile data
             cache.set(`profile_${profileId}`, profileData, 'medium');
             displayProfileData(profileData);
             
-            // Check if already liked
             const likedRef = collection(db, 'users', currentUser.uid, 'liked');
             const likedQuery = query(likedRef, where('userId', '==', profileId));
             const likedSnap = await getDocs(likedQuery);
@@ -5035,7 +5271,6 @@ async function loadProfileData(profileId) {
                 document.getElementById('likeProfileBtn').classList.add('liked');
             }
             
-            // Set up online status listener
             setupOnlineStatusListener(profileId);
         } else {
             window.location.href = 'mingle.html';
@@ -5064,7 +5299,6 @@ function displayProfileData(profileData) {
     document.getElementById('viewProfileBio').textContent = profileData.bio || 'No bio available';
     document.getElementById('viewLikeCount').textContent = profileData.likes || 0;
     
-    // Load interests
     const interestsContainer = document.getElementById('interestsContainer');
     interestsContainer.innerHTML = '';
     
@@ -5077,10 +5311,8 @@ function displayProfileData(profileData) {
         });
     }
     
-    // Add online status indicator to profile image
     const profileImageContainer = document.querySelector('.profile-image-container');
     if (profileImageContainer) {
-        // Remove existing status indicator if any
         const existingIndicator = profileImageContainer.querySelector('.online-status');
         if (existingIndicator) {
             existingIndicator.remove();
@@ -5091,7 +5323,6 @@ function displayProfileData(profileData) {
         statusIndicator.className = 'online-status';
         profileImageContainer.appendChild(statusIndicator);
         
-        // Set up online status listener
         setupOnlineStatusListener(profileData.id, 'profileStatusIndicator');
     }
 }
@@ -5103,11 +5334,9 @@ async function loadChatPartnerData(partnerId) {
         
         if (partnerSnap.exists()) {
             const partnerData = partnerSnap.data();
-            // Cache the partner data
             cache.set(`partner_${partnerId}`, partnerData, 'medium');
             displayChatPartnerData(partnerData);
             
-            // Set up online status listener
             setupOnlineStatusListener(partnerId, 'chatPartnerStatus');
         }
     } catch (error) {
@@ -5138,7 +5367,6 @@ function setupOnlineStatusListener(userId, elementId = 'onlineStatus') {
                 } else {
                     element.innerHTML = '<i class="far fa-circle"></i>';
                     element.style.color = 'var(--text-light)';
-                    // Show last seen time if available
                     if (statusData?.lastSeen) {
                         const lastSeen = statusData.lastSeen.toDate ? 
                             statusData.lastSeen.toDate() : 
@@ -5165,12 +5393,19 @@ async function markMessageAsRead(messageRef) {
     }
 }
 
-// FIXED: Load message threads with proper unread count handling
-async function loadMessageThreads() {
+// UPDATED: Load message threads with IndexedDB caching
+async function loadMessageThreads(forceRefresh = false) {
     const messagesList = document.getElementById('messagesList');
     
+    if (!forceRefresh) {
+        const cachedThreads = await cache.getConversations();
+        if (cachedThreads && cachedThreads.length > 0) {
+            renderMessageThreads(cachedThreads);
+            hideMessagesLoadingMessage();
+        }
+    }
+    
     try {
-        // Get all conversations where user is a participant
         const threadsQuery = query(
             collection(db, 'conversations'),
             where('participants', 'array-contains', currentUser.uid)
@@ -5179,19 +5414,16 @@ async function loadMessageThreads() {
         unsubscribeMessages = onSnapshot(threadsQuery, async (snapshot) => {
             const threads = [];
             
-            // First collect all thread data
             snapshot.forEach(doc => {
                 threads.push({ id: doc.id, ...doc.data() });
             });
             
-            // Sort threads client-side by lastMessageTime
             threads.sort((a, b) => {
                 const timeA = a.lastMessage?.timestamp?.toMillis ? a.lastMessage.timestamp.toMillis() : (new Date(a.lastMessage?.timestamp)).getTime();
                 const timeB = b.lastMessage?.timestamp?.toMillis ? b.lastMessage.timestamp.toMillis() : (new Date(b.lastMessage?.timestamp)).getTime();
                 return (timeB || 0) - (timeA || 0);
             });
             
-            // Now load partner data and unread counts
             const threadsWithData = [];
             let totalUnread = 0;
             
@@ -5200,13 +5432,11 @@ async function loadMessageThreads() {
                 if (!partnerId) continue;
                 
                 try {
-                    // Get partner profile
                     const partnerRef = doc(db, 'users', partnerId);
                     const partnerSnap = await getDoc(partnerRef);
                     
                     if (!partnerSnap.exists()) continue;
                     
-                    // Get unread count
                     let unreadCount = 0;
                     try {
                         const messagesQuery = query(
@@ -5232,10 +5462,9 @@ async function loadMessageThreads() {
                 }
             }
             
-            // Cache the threads
             cache.set(`threads_${currentUser.uid}`, threadsWithData, 'short');
+            await cache.setConversations(threadsWithData);
             
-            // Render all threads
             renderMessageThreads(threadsWithData);
             updateMessageCount(totalUnread);
             hideMessagesLoadingMessage();
@@ -5260,7 +5489,6 @@ function renderMessageThreads(threads) {
         const messageCard = document.createElement('div');
         messageCard.className = 'message-card';
         
-        // Truncate message preview to 3 words
         let messagePreview = thread.lastMessage?.text || 'New match';
         if (messagePreview.split(' ').length > 3) {
             messagePreview = messagePreview.split(' ').slice(0, 3).join(' ') + '...';
@@ -5293,7 +5521,6 @@ function renderMessageThreads(threads) {
         
         messagesList.appendChild(messageCard);
         
-        // Set up online status listener for each thread
         const partnerId = thread.participants.find(id => id !== currentUser.uid);
         if (partnerId) {
             setupOnlineStatusListener(partnerId, `status-${partnerId}`);
@@ -5306,7 +5533,6 @@ function setupTypingIndicator() {
         const threadId = [currentUser.uid, chatPartnerId].sort().join('_');
         const typingRef = doc(db, 'typing', threadId);
         
-        // Listen for partner's typing status
         onSnapshot(typingRef, (doc) => {
             const typingData = doc.data();
             const typingIndicator = document.getElementById('typingIndicator');
@@ -5337,28 +5563,24 @@ async function updateTypingStatus(isTyping) {
     }
 }
 
-// FIXED: Clean up listeners when leaving page
+// UPDATED: Clean up listeners when leaving page with offline support
 window.addEventListener('beforeunload', () => {
     try {
-        // Clean up messages page listener
         if (unsubscribeMessages) {
             unsubscribeMessages();
             unsubscribeMessages = null;
         }
         
-        // Clean up chat page
         cleanupChatPage();
         
-        // Clean up global message listener
         if (globalMessageListener) {
             globalMessageListener();
             globalMessageListener = null;
         }
         
-        // Clear all event listeners
         eventManager.clearAll();
+        optimisticUpdates.cleanupOldUpdates();
         
-        // Set user as offline when leaving - ONLY if user exists and is authenticated
         if (currentUser && currentUser.uid && auth.currentUser) {
             const userStatusRef = doc(db, 'status', currentUser.uid);
             setDoc(userStatusRef, {
