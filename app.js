@@ -387,7 +387,7 @@ async function registerServiceWorker() {
             return null;
         }
     } else {
-        console.log('Service Worker not supported or running locally');
+        
         return null;
     }
 }
@@ -395,7 +395,7 @@ async function registerServiceWorker() {
 // NEW: Enhanced offline support without Service Worker dependency
 function setupOfflineSupport() {
     // Use localStorage and IndexedDB for offline support
-    console.log('Setting up offline support with local storage');
+    
     
     // Process pending messages when coming online
     window.addEventListener('online', async () => {
