@@ -12,6 +12,36 @@
     body {
         font-family: 'Nunito', sans-serif;
     }
+    .game-icon-btn{
+        font-size:3px;
+    }
+    /* Input expands between buttons */
+.chat-input:focus-within {
+    position: relative;
+}
+
+.chat-input:focus-within input {
+    position: absolute;
+    left: 50px; /* Space for left buttons */
+    right: 50px; /* Space for right button */
+    width: calc(100% - 100px);
+    z-index: 11;
+    background: var(--white);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.chat-input:focus-within .attachment-btn,
+.chat-input:focus-within .voice-note-btn-main {
+    position: absolute;
+    left: 10px;
+    z-index: 12;
+}
+
+.chat-input:focus-within .send-btn {
+    position: absolute;
+    right: 10px;
+    z-index: 12;
+}
     .message.sending {
     opacity: 0.7;
     transition: opacity 0.3s ease;
@@ -52,7 +82,7 @@
         background: none;
         border: none;
         color: #ff4757;
-        font-size: 16px;
+        font-size: 10px;
         cursor: pointer;
         padding: 5px 10px;
         border-radius: 50%;
