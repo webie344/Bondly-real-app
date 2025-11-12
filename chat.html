@@ -15,38 +15,36 @@
     .game-icon-btn{
         font-size:3px;
     }
-    /* Input expands between buttons */
-.chat-input:focus-within {
-    position: relative;
+/* Override the existing chat-input styles for focus state */
+.chat-input.input-focused {
+    position: relative !important;
 }
 
-.chat-input:focus-within input {
-    position: absolute;
-    left: 50px; /* Space for left buttons */
-    right: 50px; /* Space for right button */
-    width: calc(100% - 100px);
-    z-index: 11;
-    background: var(--white);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+.chat-input.input-focused input {
+    position: absolute !important;
+    left: 0 !important;
+    width: 100% !important;
+    flex: none !important;
+    padding-right: 50px !important;
+    background: var(--white) !important;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1) !important;
+    z-index: 100 !important;
 }
 
-.chat-input:focus-within .attachment-btn,
-.chat-input:focus-within .voice-note-btn-main {
-    position: absolute;
-    left: 10px;
-    z-index: 12;
+.chat-input.input-focused .send-btn {
+    position: absolute !important;
+    right: 10px !important;
+    z-index: 101 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
-.chat-input:focus-within .send-btn {
-    position: absolute;
-    right: 10px;
-    z-index: 12;
+.chat-input.input-focused .attachment-btn,
+.chat-input.input-focused .voice-note-btn-main {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
-    .message.sending {
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-}
-
 .message.sending .message-time {
     font-style: italic;
     color: var(--text-light);
@@ -537,5 +535,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatInput = document.querySelector('.chat-input');
+    const inputField = document.querySelector('.chat-input input[type="text"]');
+    
+    if (!inputField) return;
+    
+    inputField.addEventListener('focus', function() {
+        chatInput.classList.add('input-focused');
+    });
+    
+    inputField.addEventListener('blur', function() {
+        chatInput.classList.remove('input-focused');
+    });
+    
+    // Close when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!chatInput.contains(e.target)) {
+            chatInput.classList.remove('input-focused');
+        }
+    });
+});
+    </script>
     </body>
 </html>
