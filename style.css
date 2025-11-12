@@ -50,7 +50,83 @@ body {
         radial-gradient(circle at 15% 50%, rgba(74, 140, 255, 0.03) 0%, transparent 25%),
         radial-gradient(circle at 85% 30%, rgba(135, 206, 235, 0.03) 0%, transparent 25%);
 }
+/* Add smooth scrolling to the entire page */
+html {
+    scroll-behavior: smooth;
+}
 
+/* Improve scrolling performance */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+}
+
+/* Optimize scrolling containers */
+.chat-messages,
+.thumbnail-container,
+.messages-list,
+.conversations-list {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* For iOS smooth scrolling */
+}
+
+/* Force hardware acceleration for better performance */
+.chat-messages,
+.messages-list,
+.conversations-list,
+.profile-view-container,
+.account-container,
+.mingle-container {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+}
+
+/* Optimize scrollable areas */
+.chat-messages {
+    overflow-anchor: auto; /* Prevents scroll jumping */
+    will-change: transform; /* Hint for browser optimization */
+}
+
+/* Improve scrollbar performance */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--white-smoke);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Optimize images and heavy elements */
+img, .profile-image, .main-profile-image img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Reduce animations on scroll-heavy pages */
+.chat-messages .message,
+.messages-list .message-card,
+.conversations-list .conversation-card {
+    animation-duration: 0.2s; /* Faster animations */
+}
+
+/* Add loading states for better perceived performance */
+.chat-messages.loading,
+.messages-list.loading {
+    opacity: 0.8;
+    pointer-events: none;
+}
 /* ===== WALLPAPER & ANIMATION COMPATIBILITY ===== */
 /* Only apply transparent backgrounds to profile-related pages */
 body.profile-page,
@@ -1191,7 +1267,7 @@ typing-indicator {    padding: 0.5rem 1rem;    font-size: 0.7rem;    color: var(
 
 .conversation-avatar {
     width: 50px;
-    height: 50px;
+    height: 30px;
     border-radius: 50%;
     object-fit: cover;
     margin-right: 15px;
@@ -1434,13 +1510,13 @@ typing-indicator {    padding: 0.5rem 1rem;    font-size: 0.7rem;    color: var(
 }
 /* Position timestamp at the far right of message card */
 .message-card {
-    position: relative;
-    padding-right: 80px; /* Make space for timestamp */
+    position: right;
+    padding-right: 30px; /* Make space for timestamp */
 }
 
 .message-card .message-time {
     position: absolute;
-    right: 16px;
+    right: 20px;
     top: 16px;
     font-size: 0.75rem;
     color: var(--text-muted);

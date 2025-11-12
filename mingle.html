@@ -4,107 +4,452 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mingle - Bondly</title>
-
-    <link rel="stylesheet" href="style.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* Add these new styles for social features */
+        :root {
+            /* Modern Color Palette */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #a5b4fc;
+            --secondary: #f472b6;
+            --accent: #10b981;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-card: #ffffff;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Modern Navigation */
+        .navbar {
+            background: var(--bg-primary);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.75rem 0;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "💎";
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            gap: 0.25rem;
+            transition: color 0.2s ease;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+        }
+
+        .nav-links:hover {
+            color: var(--primary);
+            background-color: var(--bg-secondary);
+        }
+
+        .nav-links i {
+            font-size: 1.25rem;
+        }
+
+        .message-count, .posts-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        /* Main Content */
+        .mingle-container {
+            max-width: 480px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Modern Profile Card */
+        .profile-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-image-container {
+            position: relative;
+            height: 380px;
+            overflow: hidden;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-image-container:hover .profile-image {
+            transform: scale(1.03);
+        }
+
+        .profile-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 2rem 1.5rem 1.5rem;
+            color: white;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .dislike-btn {
+            background-color: white;
+            color: var(--text-secondary);
+        }
+
+        .view-btn {
+            background-color: white;
+            color: var(--text-secondary);
+        }
+
+        .like-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .chat-btn {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .profile-info {
+            padding: 1.5rem;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .profile-name-age {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .profile-age {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .profile-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .profile-bio {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .stat i {
+            color: var(--primary);
+        }
+
+        .social-links-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
         .profile-social-icons {
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 15px 0;
-            padding: 10px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
         }
 
         .social-profile-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 1.25rem;
             transition: all 0.3s ease;
-            background: var(--bg-light);
+            background: var(--bg-secondary);
             border: 2px solid transparent;
         }
 
         .social-profile-icon:hover {
             transform: translateY(-3px);
             border-color: currentColor;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow-lg);
         }
 
         .social-profile-icon.facebook { color: #1877F2; }
         .social-profile-icon.instagram { color: #E4405F; }
-        .social-profile-icon.snapchat { color: #FFFC00; }
+        .social-profile-icon.snapchat { color: #FFFC00; text-shadow: 0 0 1px rgba(0,0,0,0.3); }
         .social-profile-icon.tiktok { color: #000000; }
+        .social-profile-icon.twitter { color: #1DA1F2; }
 
+        /* Floating Posts Indicator */
         .posts-indicator {
             position: fixed;
-            top: 80px;
-            right: 20px;
-            background: var(--accent-color);
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 1.25rem;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
             transition: all 0.3s ease;
-            animation: pulse 2s infinite;
+            animation: float 3s ease-in-out infinite;
         }
 
         .posts-indicator:hover {
             transform: scale(1.1);
-            background: var(--accent-dark);
+            background: var(--primary-dark);
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
-        .nav-posts-indicator {
-            position: relative;
+        /* Interests Tags */
+        .interests-container {
+            margin-top: 1.5rem;
         }
 
-        .posts-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #e74c3c;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
+        .interests-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .interests-tags {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
-        .social-links-header {
-            text-align: center;
-            margin: 10px 0;
-            font-size: 14px;
-            color: var(--text-light);
+        .interest-tag {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
-        .social-links-header i {
-            margin-right: 5px;
-            color: var(--accent-color);
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 70px;
+                flex-direction: column;
+                background-color: var(--bg-primary);
+                width: 100%;
+                text-align: center;
+                transition: 0.3s;
+                box-shadow: var(--shadow);
+                padding: 2rem 0;
+                gap: 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-item {
+                margin: 0.75rem 0;
+            }
+
+            .nav-toggle {
+                display: flex;
+            }
+
+            .mingle-container {
+                margin: 1rem auto;
+            }
+
+            .profile-image-container {
+                height: 320px;
+            }
+
+            .posts-indicator {
+                bottom: 1.5rem;
+                right: 1.5rem;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-image-container {
+                height: 280px;
+            }
+
+            .profile-actions {
+                padding: 1.5rem 1rem 1rem;
+            }
+
+            .action-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
@@ -117,62 +462,49 @@
                 <span class="bar"></span>
                 <span class="bar"></span>
             </div>
-            <ul class="nav-menu">
+            <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item">
-                    <a href="mingle.html" class="nav-links">
+                    <a href="mingle.html" class="nav-links active">
                         <i class="fas fa-fire"></i>
-                        <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+                        <span>Discover</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="messages.html" class="nav-links">
                         <i class="fas fa-comments"></i>
-                        <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
-                        <span class="message-count">0</span>
+                        <span>Messages</span>
+                        <span class="message-count">3</span>
                     </a>
                 </li>
-                <li class="nav-item nav-posts-indicator">
+                <li class="nav-item">
                     <a href="posts.html" class="nav-links">
                         <i class="fas fa-images"></i>
-                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.1rem;">Posts</span>
-                        <span class="posts-badge" id="navPostsBadge" style="display: none;">0</span>
+                        <span>Posts</span>
+                        <span class="posts-badge">5</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="account.html" class="nav-links">
                         <i class="fas fa-user"></i>
-                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" id="logoutBtn" class="nav-links">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="dashboard.html" class="nav-links">
-                        <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
-                        <i class="fas fa-arrow-right"></i>
+                        <span>Profile</span>
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <!-- New Posts Indicator -->
-    <div class="posts-indicator" id="floatingPostsIndicator" style="display: none;" onclick="window.location.href='posts.html'">
+    <!-- Floating Posts Indicator -->
+    <div class="posts-indicator" id="floatingPostsIndicator" onclick="window.location.href='posts.html'">
         <i class="fas fa-images"></i>
     </div>
 
     <div class="mingle-container">
         <div class="profile-card">
             <div class="profile-image-container">
-                <img src="images-default-profile.jpg" alt="Profile" class="profile-image" id="currentProfileImage">
-                <!-- Online status indicator will be managed by app.js -->
-               
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80" alt="Profile" class="profile-image" id="currentProfileImage">
                 <div class="profile-overlay">
                     <div class="profile-actions">
+                        <!-- Your original button IDs preserved -->
                         <button class="action-btn dislike-btn" id="dislikeBtn"><i class="fas fa-times"></i></button>
                         <button class="action-btn view-btn" id="viewProfileBtn"><i class="fas fa-user"></i></button>
                         <button class="action-btn like-btn" id="likeBtn"><i class="fas fa-heart"></i></button>
@@ -180,44 +512,49 @@
                     </div>
                 </div>
             </div>
-            
 
-            <div class="profile-info">
-                <!-- BANNER DISPLAYS HERE -->
-                <div class="creative-profile-banner" id="mingleProfileBanner" style="display: none;"></div>
-                
-                <div id="profileStatusIndicator"></div>
+<div id="profileStatusIndicator"></div>
                 <h2 id="profileName">Loading...</h2>
                 <p id="profileAgeLocation">...</p>
                 
-                <!-- Social Links Header -->
-                <div class="social-links-header" id="socialLinksHeader" style="display: none;">
-                    <i class="fas fa-share-alt"></i> Connect on social media
-                </div>
+                <p class="profile-bio" id="profileBio">Adventure seeker and coffee enthusiast. Love hiking, photography, and trying new restaurants. Looking for someone to explore the city with and share meaningful conversations.</p>
                 
-                <!-- Social Media Icons will be inserted here by social.js -->
-                <div id="profileSocialIcons"></div>
-                
-                <p id="profileBio">No bio available</p>
                 <div class="profile-stats">
-                    <span><i class="fas fa-heart"></i> <span id="likeCount">0</span> likes</span>
-                    
+                    <div class="stat">
+                        <i class="fas fa-heart"></i>
+                        <span id="likeCount">142</span> likes
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-eye"></i>
+                        <span id="viewCount">245</span> views
+                    </div>
                 </div>
+                
+                <div class="social-links-header">
+                    <i class="fas fa-share-alt"></i> 
+                    <span>Connect on social media</span>
+                </div>
+                
+                <div class="profile-social-icons">
+                    <a href="#" class="social-profile-icon instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-profile-icon twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-profile-icon facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-profile-icon tiktok">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+                
+
             </div>
         </div>
     </div>
 
-    <script type="module" src="call.js"></script>
-    <script type="module" src="message.js"></script>
-    <script type="module" src="mingle-upgrades.js"></script>
     <script type="module" src="app.js"></script>
-    <script type="module" src="additional.js"></script>
-    <script type="module" src="creative.js"></script>
-    <script type="module" src="flip.js"></script>
-    
-    <!-- ADD THIS LINE - Import the social.js file -->
-    <script type="module" src="social.js"></script>
-
-
 </body>
 </html>
