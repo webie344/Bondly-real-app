@@ -12,7 +12,7 @@
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="stye.css">
     <style>
         :root {
             /* Modern Color Palette */
@@ -28,6 +28,10 @@
             --bg-secondary: #f9fafb;
             --bg-card: #ffffff;
             --border: #e5e7eb;
+            --border-color: #e5e7eb; /* Added for social icons */
+            --bg-light: #f9fafb; /* Added for social icons */
+            --accent-color: #10b981; /* Added for social icons */
+            --accent-dark: #0d9668; /* Added for social icons */
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --radius: 12px;
@@ -158,7 +162,7 @@
             box-shadow: var(--shadow-lg);
             overflow: hidden;
             position: relative;
-            padding:5px;
+            padding: 5px;
         }
 
         .profile-image-container {
@@ -294,19 +298,15 @@
             color: var(--primary);
         }
 
-        .social-links-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
+        /* Social Icons Styles - FIXED */
         .profile-social-icons {
             display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .social-profile-icon {
@@ -317,23 +317,47 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            font-size: 1.25rem;
+            font-size: 18px;
             transition: all 0.3s ease;
-            background: var(--bg-secondary);
+            background: var(--bg-light);
             border: 2px solid transparent;
         }
 
         .social-profile-icon:hover {
             transform: translateY(-3px);
             border-color: currentColor;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .social-profile-icon.facebook { color: #1877F2; }
-        .social-profile-icon.instagram { color: #E4405F; }
-        .social-profile-icon.snapchat { color: #FFFC00; text-shadow: 0 0 1px rgba(0,0,0,0.3); }
-        .social-profile-icon.tiktok { color: #000000; }
-        .social-profile-icon.twitter { color: #1DA1F2; }
+        .social-profile-icon.facebook { 
+            color: #1877F2; 
+        }
+        .social-profile-icon.instagram { 
+            color: #E4405F; 
+        }
+        .social-profile-icon.snapchat { 
+            color: #FFFC00; 
+            background: #000000; /* Snapchat needs dark background for yellow */
+        }
+        .social-profile-icon.tiktok { 
+            color: #000000; 
+        }
+        .social-profile-icon.twitter { 
+            color: #1DA1F2; 
+        }
+
+        .social-links-header {
+            text-align: center;
+            margin: 15px 0 10px 0;
+            font-size: 14px;
+            color: var(--text-light);
+            display: block !important; /* Force display */
+        }
+
+        .social-links-header i {
+            margin-right: 5px;
+            color: var(--accent-color);
+        }
 
         /* Floating Posts Indicator */
         .posts-indicator {
@@ -364,33 +388,6 @@
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
-        }
-
-        /* Interests Tags */
-        .interests-container {
-            margin-top: 1.5rem;
-        }
-
-        .interests-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: var(--text-primary);
-        }
-
-        .interests-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .interest-tag {
-            background-color: var(--bg-secondary);
-            color: var(--text-secondary);
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
         }
 
         /* Responsive Design */
@@ -451,6 +448,16 @@
                 height: 44px;
                 font-size: 1.1rem;
             }
+
+            .profile-social-icons {
+                gap: 12px;
+            }
+
+            .social-profile-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -505,7 +512,6 @@
                 <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80" alt="Profile" class="profile-image" id="currentProfileImage">
                 <div class="profile-overlay">
                     <div class="profile-actions">
-                        <!-- Your original button IDs preserved -->
                         <button class="action-btn dislike-btn" id="dislikeBtn"><i class="fas fa-times"></i></button>
                         <button class="action-btn view-btn" id="viewProfileBtn"><i class="fas fa-user"></i></button>
                         <button class="action-btn like-btn" id="likeBtn"><i class="fas fa-heart"></i></button>
@@ -514,9 +520,10 @@
                 </div>
             </div>
 
-<div id="profileStatusIndicator"></div>
-                <h2 id="profileName">Loading...</h2>
-                <p id="profileAgeLocation">...</p>
+            <div class="profile-info">
+                <div id="profileStatusIndicator"></div>
+                <h2 id="profileName">Sarah Johnson</h2>
+                <p id="profileAgeLocation">28 • New York, NY</p>
                 
                 <p class="profile-bio" id="profileBio">Adventure seeker and coffee enthusiast. Love hiking, photography, and trying new restaurants. Looking for someone to explore the city with and share meaningful conversations.</p>
                 
@@ -526,45 +533,41 @@
                         <span id="likeCount">142</span> likes
                     </div>
                     <div class="stat">
-                        <i class="fas fa-check" style="color: green; font-size: 24px;"></i>
-                        <span id="viewCount">email verified</span> 
+                        <i class="fas fa-check" style="color: var(--accent);"></i>
+                        <span id="viewCount">Email verified</span> 
                     </div>
                 </div>
                 
+                <!-- Social Links Section - CLEANED UP -->
                 <div class="social-links-header">
                     <i class="fas fa-share-alt"></i> 
                     <span>Connect on social media</span>
                 </div>
                 
-                <div class="profile-social-icons">
-                    <a href="#" class="social-profile-icon instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="social-profile-icon twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="social-profile-icon facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="social-profile-icon tiktok">
-                        <i class="fab fa-tiktok"></i>
-                    </a>
-                </div>
-                
+                <!-- Social Media Icons Container -->
+                <div class="profile-social-icons" id="profileSocialIcons">
+                    <!-- Icons will be dynamically inserted by social.js -->
 
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Cleaned up script imports - REMOVED DUPLICATES -->
     <script type="module" src="call.js"></script>
     <script type="module" src="message.js"></script>
     <script type="module" src="mingle-upgrades.js"></script>
     <script type="module" src="app.js"></script>
+    <script type="module" src="social.js"></script>
     <script type="module" src="additional.js"></script>
     <script type="module" src="creative.js"></script>
     <script type="module" src="flip.js"></script>
-    
-    <!-- ADD THIS LINE - Import the social.js file -->
-    <script type="module" src="social.js"></script>
+
+    <script>
+        // Simple mobile menu toggle
+        document.getElementById('mobile-menu').addEventListener('click', function() {
+            document.getElementById('nav-menu').classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
