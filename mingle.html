@@ -28,10 +28,10 @@
             --bg-secondary: #f9fafb;
             --bg-card: #ffffff;
             --border: #e5e7eb;
-            --border-color: #e5e7eb; /* Added for social icons */
-            --bg-light: #f9fafb; /* Added for social icons */
-            --accent-color: #10b981; /* Added for social icons */
-            --accent-dark: #0d9668; /* Added for social icons */
+            --border-color: #e5e7eb;
+            --bg-light: #f9fafb;
+            --accent-color: #10b981;
+            --accent-dark: #0d9668;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --radius: 12px;
@@ -50,16 +50,21 @@
             color: var(--text-primary);
             line-height: 1.5;
             overflow-x: hidden;
+            height: 100vh;
+            position: relative;
         }
 
         /* Modern Navigation */
         .navbar {
-            background: var(--bg-primary);
-            box-shadow: var(--shadow);
-            position: sticky;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
             padding: 0.75rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .navbar-container {
@@ -110,7 +115,7 @@
 
         .nav-links:hover {
             color: var(--primary);
-            background-color: var(--bg-secondary);
+            background-color: rgba(255, 255, 255, 0.5);
         }
 
         .nav-links i {
@@ -148,26 +153,14 @@
             border-radius: 2px;
         }
 
-        /* Main Content */
-        .mingle-container {
-            max-width: 480px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        /* Modern Profile Card */
-        .profile-card {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-            position: relative;
-            padding: 5px;
-        }
-
+        /* Full Screen Profile Image */
         .profile-image-container {
-            position: relative;
-            height: 380px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
             overflow: hidden;
         }
 
@@ -175,70 +168,32 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
         }
 
-        .profile-image-container:hover .profile-image {
-            transform: scale(1.03);
-        }
-
-        .profile-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-            padding: 2rem 1.5rem 1.5rem;
-            color: white;
-        }
-
-        .profile-actions {
+        /* Floating Content */
+        .floating-content {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
-            align-items: center;
+            padding: 80px 1rem 1.5rem;
         }
 
-        .action-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow);
-        }
-
-        .dislike-btn {
-            background-color: white;
-            color: var(--text-secondary);
-        }
-
-        .view-btn {
-            background-color: white;
-            color: var(--text-secondary);
-        }
-
-        .like-btn {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .chat-btn {
-            background-color: var(--accent);
-            color: white;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .profile-info {
+        /* Top Floating Info */
+        .profile-top-info {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(25px);
+            border-radius: var(--radius-lg);
             padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-lg);
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .profile-header {
@@ -269,7 +224,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--text-light);
+            color: var(--text-secondary);
             margin-bottom: 1rem;
             font-size: 0.9rem;
         }
@@ -290,7 +245,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--text-light);
+            color: var(--text-secondary);
             font-size: 0.9rem;
         }
 
@@ -298,15 +253,74 @@
             color: var(--primary);
         }
 
-        /* Social Icons Styles - FIXED */
+        /* Bottom Floating Actions */
+        .profile-bottom-actions {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(25px);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .dislike-btn {
+            background-color: rgba(255, 255, 255, 0.7);
+            color: var(--text-secondary);
+        }
+
+        .view-btn {
+            background-color: rgba(255, 255, 255, 0.7);
+            color: var(--text-secondary);
+        }
+
+        .like-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .chat-btn {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Social Icons Styles */
         .profile-social-icons {
             display: flex;
             justify-content: center;
             gap: 15px;
             margin: 15px 0;
             padding: 15px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .social-profile-icon {
@@ -319,7 +333,7 @@
             text-decoration: none;
             font-size: 18px;
             transition: all 0.3s ease;
-            background: var(--bg-light);
+            background: rgba(255, 255, 255, 0.6);
             border: 2px solid transparent;
         }
 
@@ -337,7 +351,7 @@
         }
         .social-profile-icon.snapchat { 
             color: #FFFC00; 
-            background: #000000; /* Snapchat needs dark background for yellow */
+            background: rgba(0, 0, 0, 0.6);
         }
         .social-profile-icon.tiktok { 
             color: #000000; 
@@ -350,8 +364,8 @@
             text-align: center;
             margin: 15px 0 10px 0;
             font-size: 14px;
-            color: var(--text-light);
-            display: block !important; /* Force display */
+            color: var(--text-secondary);
+            display: block !important;
         }
 
         .social-links-header i {
@@ -397,7 +411,8 @@
                 left: -100%;
                 top: 70px;
                 flex-direction: column;
-                background-color: var(--bg-primary);
+                background-color: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(15px);
                 width: 100%;
                 text-align: center;
                 transition: 0.3s;
@@ -418,12 +433,18 @@
                 display: flex;
             }
 
-            .mingle-container {
-                margin: 1rem auto;
+            .floating-content {
+                padding: 80px 1rem 1rem;
             }
 
-            .profile-image-container {
-                height: 320px;
+            .profile-top-info, .profile-bottom-actions {
+                max-width: 100%;
+            }
+
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.25rem;
             }
 
             .posts-indicator {
@@ -435,18 +456,8 @@
         }
 
         @media (max-width: 480px) {
-            .profile-image-container {
-                height: 280px;
-            }
-
-            .profile-actions {
-                padding: 1.5rem 1rem 1rem;
-            }
-
-            .action-btn {
-                width: 44px;
-                height: 44px;
-                font-size: 1.1rem;
+            .profile-top-info, .profile-bottom-actions {
+                padding: 1rem;
             }
 
             .profile-social-icons {
@@ -501,26 +512,16 @@
         </div>
     </nav>
 
-    <!-- Floating Posts Indicator -->
-    <div class="posts-indicator" id="floatingPostsIndicator" onclick="window.location.href='posts.html'">
-        <i class="fas fa-images"></i>
+    <!-- Full Screen Profile Image -->
+    <div class="profile-image-container">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80" alt="Profile" class="profile-image" id="currentProfileImage">
     </div>
 
-    <div class="mingle-container">
-        <div class="profile-card">
-            <div class="profile-image-container">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80" alt="Profile" class="profile-image" id="currentProfileImage">
-                <div class="profile-overlay">
-                    <div class="profile-actions">
-                        <button class="action-btn dislike-btn" id="dislikeBtn"><i class="fas fa-times"></i></button>
-                        <button class="action-btn view-btn" id="viewProfileBtn"><i class="fas fa-user"></i></button>
-                        <button class="action-btn like-btn" id="likeBtn"><i class="fas fa-heart"></i></button>
-                        <button class="action-btn chat-btn" id="chatBtn"><i class="fas fa-comment"></i></button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="profile-info">
+    <!-- Floating Content -->
+    <div class="floating-content">
+        <!-- Top Floating Info -->
+        <div class="profile-top-info">
+<div class="profile-info">
                 <div id="profileStatusIndicator"></div>
                 <h2 id="profileName">Sarah Johnson</h2>
                 <p id="profileAgeLocation">28 • New York, NY</p>
@@ -551,6 +552,23 @@
                 </div>
             </div>
         </div>
+    
+
+
+        <!-- Bottom Floating Actions -->
+        <div class="profile-bottom-actions">
+            <div class="profile-actions">
+                <button class="action-btn dislike-btn" id="dislikeBtn"><i class="fas fa-times"></i></button>
+                <button class="action-btn view-btn" id="viewProfileBtn"><i class="fas fa-user"></i></button>
+                <button class="action-btn like-btn" id="likeBtn"><i class="fas fa-heart"></i></button>
+                <button class="action-btn chat-btn" id="chatBtn"><i class="fas fa-comment"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Posts Indicator -->
+    <div class="posts-indicator" id="floatingPostsIndicator" onclick="window.location.href='posts.html'">
+        <i class="fas fa-images"></i>
     </div>
 
     <!-- Cleaned up script imports - REMOVED DUPLICATES -->
