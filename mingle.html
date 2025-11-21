@@ -12,7 +12,7 @@
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="sty.css">
+    
     <style>
         :root {
             /* Modern Color Palette */
@@ -510,6 +510,13 @@
     <nav class="navbar">
         <div class="navbar-container">
             <a href="index.html" class="logo">Bondly</a>
+            <!-- Add this to your navigation menu -->
+<li>
+    <a href="notification.html" class="nav-links">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge">0</span>
+    </a>
+</li>
             <div class="nav-toggle" id="mobile-menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -609,14 +616,16 @@
 
     <!-- Cleaned up script imports - REMOVED DUPLICATES -->
     <script type="module" src="call.js"></script>
-    <script type="module" src="message.js"></script>
+
+    
     <script type="module" src="mingle-upgrades.js"></script>
     <script type="module" src="app.js"></script>
+
     <script type="module" src="social.js"></script>
     <script type="module" src="additional.js"></script>
     <script type="module" src="creative.js"></script>
     <script type="module" src="flip.js"></script>
-
+        <script  type="module"src="notification.js"></script>
     <script>
         // Simple toggle functionality - GUARANTEED TO WORK
         document.addEventListener('DOMContentLoaded', function() {

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Dating Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #8a2be2;
+            --primary-dark: #6a1bb0;
+            --secondary-color: #ff6b6b;
+            --accent-color: #4a8cff;
+            --bg-light: #f8f9fa;
+            --bg-dark: #2f3136;
+            --text-dark: #333;
+            --text-light: #666;
+            --text-white: #fff;
+            --border-color: #e0e0e0;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --error-color: #dc3545;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .logo i {
+            font-size: 28px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links:hover {
+            color: var(--primary-color);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 40px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            color: var(--text-dark);
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-light);
+        }
+
+        /* Notification Filters */
+        .notification-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Notifications List */
+        .notifications-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .notification-item {
+            display: flex;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background-color: rgba(138, 43, 226, 0.05);
+        }
+
+        .notification-item.unread {
+            background-color: rgba(74, 140, 255, 0.08);
+        }
+
+        .notification-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.message {
+            background-color: rgba(74, 140, 255, 0.1);
+            color: var(--accent-color);
+        }
+
+        .notification-icon.like {
+            background-color: rgba(255, 107, 107, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .notification-icon.match {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .notification-icon.system {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-text {
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.3s;
+            padding: 5px;
+        }
+
+        .action-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .unread-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: var(--border-color);
+        }
+
+        .empty-state h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: white;
+            padding: 30px 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-link {
+            text-decoration: none;
+            color: var(--text-light);
+            transition: color 0.3s;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                gap: 15px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .notification-item {
+                flex-direction: column;
+            }
+
+            .notification-icon {
+                margin-bottom: 10px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="dashboard.html" class="logo">
+                    <i class="fas fa-heart"></i>
+                    <span>Dating Connect</span>
+                </a>
+                    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">Bondly</a>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu">
+    <li class="nav-item">
+        <a href="mingle.html" class="nav-links">
+            <i class="fas fa-fire"></i>
+            <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="messages.html" class="nav-links">
+            <i class="fas fa-comments"></i>
+            <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
+            <span class="message-count">0</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="account.html" class="nav-links">
+            <i class="fas fa-user"></i>
+            <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" id="logoutBtn" class="nav-links">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="dashboard.html" class="nav-links">
+            <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </li>
+</ul>
+        </div>
+    </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Notifications</h1>
+                <div class="notification-actions">
+                    <button class="btn btn-outline" id="markAllReadBtn">
+                        <i class="fas fa-check-double"></i>
+                        Mark All as Read
+                    </button>
+                    <button class="btn btn-primary" id="refreshNotificationsBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+
+
+            <!-- Notifications List -->
+            <div class="notifications-container" id="notificationsList">
+                <!-- Notifications will be dynamically loaded here -->
+                <div class="empty-state">
+                    <i class="fas fa-bell-slash"></i>
+                    <h3>No notifications yet</h3>
+                    <p>When you receive notifications, they will appear here.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="#" class="footer-link">About</a>
+                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link">Terms</a>
+                    <a href="#" class="footer-link">Help</a>
+                </div>
+                <div class="copyright">
+                    &copy; 2023 Dating Connect. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="notification.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

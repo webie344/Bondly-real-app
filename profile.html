@@ -46,6 +46,29 @@
             line-height: 1.5;
         }
 
+    .notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: bold;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+.nav-links {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+    
         /* Modern Navigation */
         .navbar {
             background: var(--bg-primary);
@@ -692,6 +715,13 @@
     <nav class="navbar">
         <div class="navbar-container">
             <a href="index.html" class="logo">Bondly</a>
+                        <!-- Add this to your navigation menu -->
+<li>
+    <a href="notification.html" class="nav-links">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge">0</span>
+    </a>
+</li>
             <div class="nav-toggle" id="mobile-menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -824,7 +854,7 @@
     <script type="module" src="app.js"></script>
     <script type="module" src="event.js"></script>
     <script type="module" src="call.js"></script>
-    <script type="module" src="message.js"></script>
+        <script  type="module"src="notification.js"></script>
     <script type="module" src="additional.js"></script>
     <script type="module" src="creative.js"></script>
     <script type="module" src="social.js"></script>
