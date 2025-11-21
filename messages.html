@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,305 +6,71 @@
     <title>Messages - Bondly</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Pacifico&family=Great+Vibes&family=Satisfy&family=Parisienne&display=swap" rel="stylesheet">
-    <style>
-        /* Sidebar Navigation Styles */
-        .dashboard-layout {
-            display: flex;
-            min-height: 100vh;
-            background: #f8f9fa;
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-        }
-
-        .sidebar {
-            width: 10px;
-            min-width: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            position: fixed;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            z-index: 1000;
-            overflow-y: auto;
-            box-sizing: border-box;
-        }
-
-        .sidebar-header {
-            padding: 30px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            box-sizing: border-box;
-        }
-
-        .sidebar-header .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 24px;
-            font-weight: bold;
-            white-space: nowrap;
-            color: white;
-            text-decoration: none;
-        }
-
-        .sidebar-header .logo i {
-            color: #ff6b6b;
-        }
-
-        .sidebar-nav {
-            padding: 20px 0;
-            box-sizing: border-box;
-        }
-
-        .nav-items {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-        }
-
-        .nav-item {
-            margin: 5px 0;
-            width: 100%;
-        }
-
-        .nav-item a {
-            display: flex;
-            align-items: center;
-            padding: 15px 25px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-            width: 100%;
-            box-sizing: border-box;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .nav-item a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .nav-item.active a {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border-right: 3px solid #ff6b6b;
-        }
-
-        .nav-item i {
-            width: 20px;
-            margin-right: 12px;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .nav-badge {
-            background: #ff6b6b;
-            color: white;
-            border-radius: 12px;
-            padding: 2px 8px;
-            font-size: 12px;
-            margin-left: auto;
-            flex-shrink: 0;
-        }
-
-        .main-content {
-            flex: 1;
-            margin-left: 2px;
-            padding: 30px;
-            width: calc(100% - 2px);
-            box-sizing: border-box;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 40px;
-                min-width: 40px;
-            }
-            
-            .sidebar-header .logo span,
-            .nav-item span {
-                display: none;
-            }
-            
-            .sidebar-header {
-                padding: 20px 15px;
-                text-align: center;
-            }
-            
-            .nav-item a {
-                justify-content: center;
-                padding: 15px;
-            }
-            
-            .nav-item i {
-                margin-right: 0;
-            }
-            
-            .nav-badge {
-                position: absolute;
-                top: 8px;
-                right: 8px;
-            }
-            
-            .main-content {
-                margin-left: 20px;
-                padding: 10px;
-                width: calc(100% - 90px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .main-content {
-                padding: 7px;
-            }
-        }
-
-        /* Messages specific styles */
-        .empty-state{
-            margin-left:40px;
-        }
-
-        .search-container {
-            position: relative;
-            flex: 1;
-            max-width: 400px;
-            margin-left:15px;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 25px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .search-container input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .search-container i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        .messages-list {
-            max-height: 70vh;
-            overflow-y: auo;
-        }
-
-        /* Ensure no horizontal overflow */
-        body {
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-    </style>
 </head>
 <body>
-    <div class="dashboard-layout">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <a href="dashboard.html" class="logo">
-                    <i class="fas fa-heart"></i>
-                    <span>Bondly</span>
-                </a>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">Bondly</a>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
             </div>
+            <ul class="nav-menu">
+    <li class="nav-item">
+        <a href="mingle.html" class="nav-links">
+            <i class="fas fa-fire"></i>
+            <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="messages.html" class="nav-links">
+            <i class="fas fa-comments"></i>
+            <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
+            <span class="message-count">0</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="account.html" class="nav-links">
+            <i class="fas fa-user"></i>
+            <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" id="logoutBtn" class="nav-links">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-text" style="font-family: 'Satisfy', cursive; font-size: 1rem;">Logout</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="dashboard.html" class="nav-links">
+            <span class="nav-text" style="font-family: 'Parisienne', cursive; font-size: 1.1rem;">Dashboard</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </li>
+</ul>
+        </div>
+    </nav>
+
+    <div class="messages-container">
+        <div class="messages-header">
             
-            <nav class="sidebar-nav">
-                <ul class="nav-items">
-                    <li class="nav-item">
-                        <a href="dashboard.html">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="mingle.html">
-                            <i class="fas fa-fire"></i>
-                            <span>Discover</span>
-                        </a>
-                    </li>
-                    <li class="nav-item active">
-                        <a href="messages.html">
-                            <i class="fas fa-comments"></i>
-                            <span>Messages</span>
-                            <span class="nav-badge" id="Message-Count">0</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="account.html">
-                            <i class="fas fa-user"></i>
-                            <span>Profile</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="settings.html">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" id="logoutBtn">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="messages-container">
-                <div class="messages-header">
-                    
-                    <div class="search-container">
-                        <input type="text" placeholder="Search messages..." id="messageSearch">
-                        <i class="fas fa-search"></i>
-                    </div>
-                </div>
-                
-                <div class="messages-list" id="messagesList">
-                    <!-- Your existing HTML structure -->
-
-    <!-- Data appears here instantly from cache -->
-<
-<div id="pagination"></div>
-                    <!-- Message cards will be loaded here -->
-                    <div class="empty-state">
-                        <i class="fas fa-comments"></i>
-                        <p>No messages yet</p>
-                        <p>Start conversations to see them here!</p>
-                    </div>
-                </div>
+            <div class="search-container">
+                <input type="text" placeholder="Search messages..." id="messageSearch">
+                <i class="fas fa-search"></i>
             </div>
-        </main>
-    </div>
-
-    <script type="module" src="call.js"></script>
-    <script type="module" src="app.js"></script>
+        </div>
         
+        <div class="messages-list" id="messagesList">
+            <!-- Message cards will be loaded here -->
+        </div>
+    </div>
+     <script type="module" src="call.js"></script>
+    <script type="module" src="app.js"></script>
     <script src="messages.js"></script>
+<!-- That's it! It auto-starts -->
+
+
+    
 </body>
 </html>

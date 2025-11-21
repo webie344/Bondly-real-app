@@ -12,7 +12,7 @@
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="stye.css">
+    <link rel="stylesheet" href="sty.css">
     <style>
         :root {
             /* Modern Color Palette */
@@ -52,6 +52,7 @@
             overflow-x: hidden;
             height: 100vh;
             position: relative;
+            cursor: default;
         }
 
         /* Modern Navigation */
@@ -162,6 +163,7 @@
             height: 100%;
             z-index: 1;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .profile-image {
@@ -179,6 +181,7 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 80px 1rem 1.5rem;
+            transition: all 0.4s ease;
         }
 
         /* Top Floating Info */
@@ -194,6 +197,7 @@
             margin-right: auto;
             width: 100%;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
         }
 
         .profile-header {
@@ -265,6 +269,7 @@
             margin-right: auto;
             width: 100%;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
         }
 
         .profile-actions {
@@ -404,6 +409,29 @@
             50% { transform: translateY(-10px); }
         }
 
+        /* SIMPLE FIX: Click-to-toggle functionality */
+        .cards-hidden .floating-content {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        /* Click indicator */
+        .click-indicator {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+            z-index: 50;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .nav-menu {
@@ -448,10 +476,16 @@
             }
 
             .posts-indicator {
-                bottom: 1.5rem;
+                bottom: 5rem;
                 right: 1.5rem;
                 width: 50px;
                 height: 50px;
+            }
+
+            .click-indicator {
+                bottom: 1rem;
+                left: 1rem;
+                font-size: 0.7rem;
             }
         }
 
@@ -512,8 +546,13 @@
         </div>
     </nav>
 
+    <!-- Click Indicator -->
+    <div class="click-indicator" id="clickIndicator">
+        Click profile to toggle info
+    </div>
+
     <!-- Full Screen Profile Image -->
-    <div class="profile-image-container">
+    <div class="profile-image-container" id="profileImageContainer">
         <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80" alt="Profile" class="profile-image" id="currentProfileImage">
     </div>
 
@@ -521,7 +560,7 @@
     <div class="floating-content">
         <!-- Top Floating Info -->
         <div class="profile-top-info">
-<div class="profile-info">
+            <div class="profile-info">
                 <div id="profileStatusIndicator"></div>
                 <h2 id="profileName">Sarah Johnson</h2>
                 <p id="profileAgeLocation">28 • New York, NY</p>
@@ -548,12 +587,9 @@
                 <!-- Social Media Icons Container -->
                 <div class="profile-social-icons" id="profileSocialIcons">
                     <!-- Icons will be dynamically inserted by social.js -->
-
                 </div>
             </div>
         </div>
-    
-
 
         <!-- Bottom Floating Actions -->
         <div class="profile-bottom-actions">
@@ -581,6 +617,44 @@
     <script type="module" src="creative.js"></script>
     <script type="module" src="flip.js"></script>
 
+    <script>
+        // Simple toggle functionality - GUARANTEED TO WORK
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileImage = document.getElementById('currentProfileImage');
+            const body = document.body;
+            const clickIndicator = document.getElementById('clickIndicator');
+            
+            let cardsVisible = true;
+            
+            // Add click event to profile image
+            profileImage.addEventListener('click', function() {
+                console.log('Profile image clicked!'); // Debug log
+                
+                // Toggle visibility
+                cardsVisible = !cardsVisible;
+                
+                if (cardsVisible) {
+                    body.classList.remove('cards-hidden');
+                    clickIndicator.textContent = 'Click profile to hide info';
+                    console.log('Cards are now VISIBLE'); // Debug log
+                } else {
+                    body.classList.add('cards-hidden');
+                    clickIndicator.textContent = 'Click profile to show info';
+                    console.log('Cards are now HIDDEN'); // Debug log
+                }
+            });
 
+            // Hide click indicator after 5 seconds
+            setTimeout(() => {
+                clickIndicator.style.opacity = '0';
+                setTimeout(() => {
+                    clickIndicator.style.display = 'none';
+                }, 300);
+            }, 5000);
+
+
+            });
+        
+    </script>
 </body>
 </html>

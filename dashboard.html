@@ -1051,8 +1051,8 @@ img {
                         <i class="fas fa-coins"></i>
                         <span>Points: <strong id="chatPoints">0</strong></span>
                     </div>
-                    <button id="buyPointsBtn" class="btn btn-primary">
-                        <i class="fas fa-shopping-cart"></i> Buy Po..
+                    <button   id="buyPointsBtn" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart"></i> <a href="payment.html">Buy</a>
                     </button>
                 </div>
             </header>
@@ -1459,11 +1459,7 @@ img {
                 }
             });
             
-            // Buy points button
-            document.getElementById('buyPointsBtn').addEventListener('click', function() {
-                showNotification('Points purchase feature coming soon!', 'info');
-            });
-
+            
             // Navigation active states
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.addEventListener('click', function(e) {
