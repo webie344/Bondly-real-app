@@ -47,6 +47,7 @@ class GenderFilter {
         await this.waitForAuth();
         this.createFilterPopup();
         this.setupEventListeners();
+        this.overrideViewProfileFunction();
     }
 
     waitForAuth() {
@@ -211,6 +212,7 @@ class GenderFilter {
         const profileAgeLocation = document.getElementById('profileAgeLocation');
         const profileBio = document.getElementById('profileBio');
         const likeCount = document.getElementById('likeCount');
+        const viewProfileBtn = document.getElementById('viewProfileBtn');
 
         if (profileImage) {
             profileImage.src = profile.profileImage || 'images/default-profile.jpg';
@@ -224,6 +226,18 @@ class GenderFilter {
         
         if (profileBio) profileBio.textContent = profile.bio || 'No bio available';
         if (likeCount) likeCount.textContent = profile.likes || 0;
+
+        // Update View Profile button to use filtered profile ID
+        if (viewProfileBtn) {
+            // Remove any existing click listeners
+            const newViewProfileBtn = viewProfileBtn.cloneNode(true);
+            viewProfileBtn.parentNode.replaceChild(newViewProfileBtn, viewProfileBtn);
+            
+            // Add new click listener with filtered profile ID
+            newViewProfileBtn.addEventListener('click', () => {
+                this.viewProfile(profile.id);
+            });
+        }
 
         this.updateButtonHandlers();
     }
@@ -294,11 +308,28 @@ class GenderFilter {
         }
     }
 
+    viewProfile(profileId) {
+        // Store filter state for navigation
+        sessionStorage.setItem('currentFilteredProfileId', profileId);
+        sessionStorage.setItem('isFilterActive', this.isFilterActive.toString());
+        sessionStorage.setItem('filteredProfiles', JSON.stringify(this.filteredProfiles));
+        sessionStorage.setItem('currentFilteredIndex', this.currentFilteredIndex.toString());
+        
+        // Navigate to profile page with the correct filtered profile ID
+        window.location.href = `profile.html?id=${profileId}`;
+    }
+
     resetFilter() {
         this.isFilterActive = false;
         this.filteredProfiles = [];
         this.currentFilteredIndex = 0;
         this.updateSearchIconState(false);
+        
+        // Clear session storage
+        sessionStorage.removeItem('isFilterActive');
+        sessionStorage.removeItem('filteredProfiles');
+        sessionStorage.removeItem('currentFilteredIndex');
+        sessionStorage.removeItem('currentFilteredProfileId');
         
         this.showNotification('Filter reset - reloading all profiles');
         setTimeout(() => {
@@ -312,12 +343,19 @@ class GenderFilter {
         const profileAgeLocation = document.getElementById('profileAgeLocation');
         const profileBio = document.getElementById('profileBio');
         const likeCount = document.getElementById('likeCount');
+        const viewProfileBtn = document.getElementById('viewProfileBtn');
 
         if (profileImage) profileImage.src = 'images/default-profile.jpg';
         if (profileName) profileName.textContent = 'No profiles found';
         if (profileAgeLocation) profileAgeLocation.textContent = 'Try changing your filter';
         if (profileBio) profileBio.textContent = `No ${this.selectedGender} profiles found`;
         if (likeCount) likeCount.textContent = '0';
+        
+        // Disable view profile button when no profiles
+        if (viewProfileBtn) {
+            viewProfileBtn.style.opacity = '0.5';
+            viewProfileBtn.style.pointerEvents = 'none';
+        }
         
         this.showNotification(`No ${this.selectedGender} profiles found`);
     }
@@ -371,6 +409,26 @@ class GenderFilter {
                 }
             });
         }
+    }
+
+    // Override the global viewProfile function to use filtered profiles
+    overrideViewProfileFunction() {
+        // Store the original function if it exists
+        const originalViewProfile = window.viewProfile;
+        
+        // Override the global viewProfile function
+        window.viewProfile = (profileId) => {
+            // If filter is active, use the current filtered profile ID
+            if (this.isFilterActive && this.filteredProfiles.length > 0) {
+                const currentProfile = this.filteredProfiles[this.currentFilteredIndex];
+                if (currentProfile) {
+                    profileId = currentProfile.id;
+                }
+            }
+            
+            // Navigate to profile page
+            window.location.href = `profile.html?id=${profileId}`;
+        };
     }
 }
 
