@@ -1,0 +1,593 @@
+// filter.js - Independent Gender Filter with Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+    getFirestore, 
+    collection, 
+    doc, 
+    getDoc, 
+    getDocs, 
+    query, 
+    where,
+    updateDoc,
+    addDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    getAuth, 
+    onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyC9uL_BX14Z6rRpgG4MT9Tca1opJl8EviQ",
+    authDomain: "dating-connect.firebaseapp.com",
+    projectId: "dating-connect",
+    storageBucket: "dating-connect.appspot.com",
+    messagingSenderId: "1062172180210",
+    appId: "1:1062172180210:web:0c9b3c1578a5dbae58da6b"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+class GenderFilter {
+    constructor() {
+        this.filterPopup = null;
+        this.selectedGender = null;
+        this.filteredProfiles = [];
+        this.isFilterActive = false;
+        this.currentFilteredIndex = 0;
+        this.currentUser = null;
+        this.init();
+    }
+
+    async init() {
+        await this.waitForAuth();
+        this.createFilterPopup();
+        this.setupEventListeners();
+    }
+
+    waitForAuth() {
+        return new Promise((resolve) => {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    this.currentUser = user;
+                    resolve();
+                } else {
+                    resolve();
+                }
+            });
+        });
+    }
+
+    createFilterPopup() {
+        this.filterPopup = document.createElement('div');
+        this.filterPopup.className = 'gender-filter-popup';
+        this.filterPopup.style.display = 'none';
+        this.filterPopup.innerHTML = `
+            <div class="filter-popup-content">
+                <div class="filter-header">
+                    <h3>What are you looking for?</h3>
+                    <button class="close-filter-popup">&times;</button>
+                </div>
+                <div class="gender-options">
+                    <div class="gender-option" data-gender="male">
+                        <div class="gender-icon">👨</div>
+                        <span>Man</span>
+                    </div>
+                    <div class="gender-option" data-gender="female">
+                        <div class="gender-icon">👩</div>
+                        <span>Woman</span>
+                    </div>
+                    <div class="gender-option" data-gender="all">
+                        <div class="gender-icon">👥</div>
+                        <span>Everyone</span>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="cancel-filter-btn">Cancel</button>
+                    <button class="apply-filter-btn" disabled>Search</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(this.filterPopup);
+        this.addPopupEventListeners();
+    }
+
+    addPopupEventListeners() {
+        const closeBtn = this.filterPopup.querySelector('.close-filter-popup');
+        const cancelBtn = this.filterPopup.querySelector('.cancel-filter-btn');
+        const applyBtn = this.filterPopup.querySelector('.apply-filter-btn');
+        const genderOptions = this.filterPopup.querySelectorAll('.gender-option');
+
+        [closeBtn, cancelBtn].forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.hidePopup();
+            });
+        });
+
+        genderOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                genderOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                applyBtn.disabled = false;
+                this.selectedGender = option.dataset.gender;
+            });
+        });
+
+        applyBtn.addEventListener('click', () => {
+            this.applyFilter();
+            this.hidePopup();
+        });
+
+        this.filterPopup.addEventListener('click', (e) => {
+            if (e.target === this.filterPopup) {
+                this.hidePopup();
+            }
+        });
+    }
+
+    showPopup() {
+        this.filterPopup.style.display = 'flex';
+        
+        const genderOptions = this.filterPopup.querySelectorAll('.gender-option');
+        genderOptions.forEach(opt => opt.classList.remove('active'));
+        this.filterPopup.querySelector('.apply-filter-btn').disabled = true;
+        this.selectedGender = null;
+    }
+
+    hidePopup() {
+        this.filterPopup.style.display = 'none';
+    }
+
+    async applyFilter() {
+        if (!this.selectedGender) return;
+
+        this.showNotification(`Searching for ${this.selectedGender} profiles...`);
+
+        try {
+            const allProfiles = await this.loadAllProfilesFromFirebase();
+            
+            if (this.selectedGender === 'all') {
+                this.filteredProfiles = allProfiles;
+            } else {
+                this.filteredProfiles = allProfiles.filter(profile => 
+                    profile.gender && profile.gender.toLowerCase() === this.selectedGender.toLowerCase()
+                );
+            }
+
+            if (this.filteredProfiles.length > 0) {
+                this.isFilterActive = true;
+                this.currentFilteredIndex = 0;
+                this.updateSearchIconState(true);
+                this.displayFilteredProfile(0);
+                this.showNotification(`Found ${this.filteredProfiles.length} ${this.selectedGender} profiles`);
+            } else {
+                this.showNoProfilesMessage();
+            }
+        } catch (error) {
+            this.showNotification('Error loading profiles. Please try again.');
+        }
+    }
+
+    async loadAllProfilesFromFirebase() {
+        try {
+            if (!this.currentUser) {
+                throw new Error('No user signed in');
+            }
+
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('__name__', '!=', this.currentUser.uid));
+            const querySnapshot = await getDocs(q);
+            
+            const profiles = [];
+            querySnapshot.forEach((doc) => {
+                const userData = doc.data();
+                if (userData.name && userData.gender) {
+                    profiles.push({ 
+                        id: doc.id, 
+                        ...userData 
+                    });
+                }
+            });
+
+            return profiles;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    displayFilteredProfile(index) {
+        if (index < 0 || index >= this.filteredProfiles.length) return;
+
+        const profile = this.filteredProfiles[index];
+        this.currentFilteredIndex = index;
+
+        const profileImage = document.getElementById('currentProfileImage');
+        const profileName = document.getElementById('profileName');
+        const profileAgeLocation = document.getElementById('profileAgeLocation');
+        const profileBio = document.getElementById('profileBio');
+        const likeCount = document.getElementById('likeCount');
+
+        if (profileImage) {
+            profileImage.src = profile.profileImage || 'images/default-profile.jpg';
+        }
+        if (profileName) profileName.textContent = profile.name || 'Unknown';
+        
+        let ageLocation = '';
+        if (profile.age) ageLocation += `${profile.age} • `;
+        if (profile.location) ageLocation += profile.location;
+        if (profileAgeLocation) profileAgeLocation.textContent = ageLocation;
+        
+        if (profileBio) profileBio.textContent = profile.bio || 'No bio available';
+        if (likeCount) likeCount.textContent = profile.likes || 0;
+
+        this.updateButtonHandlers();
+    }
+
+    updateButtonHandlers() {
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const likeBtn = document.getElementById('likeBtn');
+
+        if (dislikeBtn) {
+            const newDislikeBtn = dislikeBtn.cloneNode(true);
+            dislikeBtn.parentNode.replaceChild(newDislikeBtn, dislikeBtn);
+            
+            newDislikeBtn.addEventListener('click', () => {
+                this.nextFilteredProfile();
+            });
+        }
+
+        if (likeBtn) {
+            const newLikeBtn = likeBtn.cloneNode(true);
+            likeBtn.parentNode.replaceChild(newLikeBtn, likeBtn);
+            
+            newLikeBtn.addEventListener('click', () => {
+                this.handleLikeProfile();
+            });
+        }
+    }
+
+    nextFilteredProfile() {
+        if (this.currentFilteredIndex < this.filteredProfiles.length - 1) {
+            this.currentFilteredIndex++;
+            this.displayFilteredProfile(this.currentFilteredIndex);
+        } else {
+            this.showNotification('No more profiles in this filter');
+        }
+    }
+
+    async handleLikeProfile() {
+        const currentProfile = this.filteredProfiles[this.currentFilteredIndex];
+        
+        try {
+            if (!this.currentUser) {
+                throw new Error('No user signed in');
+            }
+
+            await addDoc(collection(db, 'users', this.currentUser.uid, 'liked'), {
+                userId: currentProfile.id,
+                timestamp: serverTimestamp()
+            });
+            
+            const profileRef = doc(db, 'users', currentProfile.id);
+            const profileSnap = await getDoc(profileRef);
+            
+            if (profileSnap.exists()) {
+                const currentLikes = profileSnap.data().likes || 0;
+                await updateDoc(profileRef, {
+                    likes: currentLikes + 50
+                });
+            }
+            
+            this.showNotification('Profile liked!');
+            
+            setTimeout(() => {
+                this.nextFilteredProfile();
+            }, 500);
+            
+        } catch (error) {
+            this.showNotification('Error liking profile');
+        }
+    }
+
+    resetFilter() {
+        this.isFilterActive = false;
+        this.filteredProfiles = [];
+        this.currentFilteredIndex = 0;
+        this.updateSearchIconState(false);
+        
+        this.showNotification('Filter reset - reloading all profiles');
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    }
+
+    showNoProfilesMessage() {
+        const profileImage = document.getElementById('currentProfileImage');
+        const profileName = document.getElementById('profileName');
+        const profileAgeLocation = document.getElementById('profileAgeLocation');
+        const profileBio = document.getElementById('profileBio');
+        const likeCount = document.getElementById('likeCount');
+
+        if (profileImage) profileImage.src = 'images/default-profile.jpg';
+        if (profileName) profileName.textContent = 'No profiles found';
+        if (profileAgeLocation) profileAgeLocation.textContent = 'Try changing your filter';
+        if (profileBio) profileBio.textContent = `No ${this.selectedGender} profiles found`;
+        if (likeCount) likeCount.textContent = '0';
+        
+        this.showNotification(`No ${this.selectedGender} profiles found`);
+    }
+
+    updateSearchIconState(isActive) {
+        const searchIcon = document.getElementById('searchFilterBtn');
+        if (searchIcon) {
+            if (isActive) {
+                searchIcon.classList.add('active');
+                searchIcon.innerHTML = '<i class="fas fa-filter"></i>';
+                searchIcon.title = 'Filter active - Click to reset';
+            } else {
+                searchIcon.classList.remove('active');
+                searchIcon.innerHTML = '<i class="fas fa-search"></i>';
+                searchIcon.title = 'Search by gender';
+            }
+        }
+    }
+
+    showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 10001;
+            font-size: 14px;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
+    }
+
+    setupEventListeners() {
+        const searchIcon = document.getElementById('searchFilterBtn');
+        if (searchIcon) {
+            searchIcon.addEventListener('click', () => {
+                if (this.isFilterActive) {
+                    this.resetFilter();
+                } else {
+                    this.showPopup();
+                }
+            });
+        }
+    }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            window.genderFilter = new GenderFilter();
+        }, 1000);
+    });
+} else {
+    setTimeout(() => {
+        window.genderFilter = new GenderFilter();
+    }, 1000);
+}
+
+// CSS styles
+const filterStyles = `
+<style>
+.gender-filter-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(5px);
+}
+
+.filter-popup-content {
+    background: var(--discord-darker, #2f3136);
+    border-radius: 15px;
+    padding: 25px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--discord-dark, #36393f);
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filter-header h3 {
+    color: var(--text-dark);
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.close-filter-popup {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-filter-popup:hover {
+    background: var(--discord-dark, #36393f);
+}
+
+.gender-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.gender-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 15px;
+    background: var(--discord-dark, #36393f);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.gender-option:hover {
+    background: var(--discord-darker, #2f3136);
+    border-color: var(--accent-color);
+}
+
+.gender-option.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.gender-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.gender-option span {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.gender-option.active span {
+    color: white;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-actions button {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cancel-filter-btn {
+    background: var(--discord-dark, #36393f);
+    color: var(--text-dark);
+}
+
+.cancel-filter-btn:hover {
+    background: var(--discord-darker, #2f3136);
+}
+
+.apply-filter-btn {
+    background: var(--accent-color);
+    color: white;
+}
+
+.apply-filter-btn:disabled {
+    background: var(--discord-dark, #36393f);
+    color: var(--text-light);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.apply-filter-btn:not(:disabled):hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+}
+
+.search-filter-icon {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    margin-right: 10px;
+}
+
+.search-filter-icon:hover {
+    background: var(--accent-dark);
+    transform: scale(1.05);
+}
+
+.search-filter-icon.active {
+    background: #ff6b6b;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 480px) {
+    .filter-popup-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .gender-options {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .gender-option {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 15px;
+    }
+    
+    .gender-icon {
+        margin-right: 15px;
+        margin-bottom: 0;
+        font-size: 1.5rem;
+    }
+}
+</style>
+`;
+
+document.head.insertAdjacentHTML('beforeend', filterStyles);

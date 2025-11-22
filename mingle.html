@@ -21,8 +21,8 @@
             --primary-light: #a5b4fc;
             --secondary: #f472b6;
             --accent: #10b981;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
+            --text-primary: #ffffff; /* Changed to white for better contrast */
+            --text-secondary: #e5e7eb;
             --text-light: #9ca3af;
             --bg-primary: #ffffff;
             --bg-secondary: #f9fafb;
@@ -106,7 +106,7 @@
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: var(--text-secondary);
+            color: black;
             font-size: 0.75rem;
             gap: 0.25rem;
             transition: color 0.2s ease;
@@ -184,19 +184,19 @@
             transition: all 0.4s ease;
         }
 
-        /* Top Floating Info */
+        /* Top Floating Info - COMPLETELY TRANSPARENT */
         .profile-top-info {
-            background: rgba(255, 255, 255, 0.35);
-            backdrop-filter: blur(25px);
+            background: transparent !important; /* Completely transparent */
+            backdrop-filter: none !important; /* Remove blur effect */
             border-radius: var(--radius-lg);
             padding: 1.5rem;
             margin-bottom: 1rem;
-            box-shadow: var(--shadow-lg);
+            box-shadow: none !important; /* Remove shadow */
             max-width: 480px;
             margin-left: auto;
             margin-right: auto;
             width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: none !important; /* Remove border */
             transition: all 0.4s ease;
         }
 
@@ -214,29 +214,35 @@
         }
 
         .profile-name {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.8rem; /* Slightly larger for better visibility */
+            font-weight: 700; /* Bolder for better contrast */
             color: var(--text-primary);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Stronger shadow for better readability */
         }
 
         .profile-age {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
+            font-size: 1.4rem; /* Slightly larger */
+            color: var(--text-primary);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Stronger shadow */
         }
 
         .profile-location {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--text-secondary);
+            color: var(--text-primary);
             margin-bottom: 1rem;
-            font-size: 0.9rem;
+            font-size: 1rem; /* Slightly larger */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Stronger shadow */
         }
 
         .profile-bio {
-            color: var(--text-secondary);
+            color: var(--text-primary);
             margin-bottom: 1.5rem;
             line-height: 1.6;
+            font-size: 1.1rem; /* Slightly larger */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Stronger shadow */
+            font-weight: 500; /* Medium weight for better readability */
         }
 
         .profile-stats {
@@ -249,26 +255,29 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-size: 1rem; /* Slightly larger */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Stronger shadow */
+            font-weight: 500; /* Medium weight */
         }
 
         .stat i {
-            color: var(--primary);
+            color: var(--primary-light); /* Lighter color for icons */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Shadow for icons too */
         }
 
-        /* Bottom Floating Actions */
+        /* Bottom Floating Actions - COMPLETELY TRANSPARENT */
         .profile-bottom-actions {
-            background: rgba(255, 255, 255, 0.35);
-            backdrop-filter: blur(25px);
+            background: transparent !important; /* Completely transparent */
+            backdrop-filter: none !important; /* Remove blur effect */
             border-radius: var(--radius-lg);
             padding: 1.5rem;
-            box-shadow: var(--shadow-lg);
+            box-shadow: none !important; /* Remove shadow */
             max-width: 480px;
             margin-left: auto;
             margin-right: auto;
             width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: none !important; /* Remove border */
             transition: all 0.4s ease;
         }
 
@@ -293,23 +302,23 @@
         }
 
         .dislike-btn {
-            background-color: rgba(255, 255, 255, 0.7);
-            color: var(--text-secondary);
+            background-color: rgba(255, 255, 255, 0.8); /* Slightly more opaque for visibility */
+            color: black;
         }
 
         .view-btn {
-            background-color: rgba(255, 255, 255, 0.7);
-            color: var(--text-secondary);
+            background-color: rgba(255, 255, 255, 0.8); /* Slightly more opaque for visibility */
+            color: black;
         }
 
         .like-btn {
             background-color: var(--primary);
-            color: white;
+            color: black;
         }
 
         .chat-btn {
             background-color: var(--accent);
-            color: white;
+            color: black;
         }
 
         .action-btn:hover {
@@ -324,8 +333,8 @@
             gap: 15px;
             margin: 15px 0;
             padding: 15px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.3); /* Slightly more visible border */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Slightly more visible border */
         }
 
         .social-profile-icon {
@@ -338,7 +347,7 @@
             text-decoration: none;
             font-size: 18px;
             transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.8); /* Slightly more opaque for visibility */
             border: 2px solid transparent;
         }
 
@@ -368,9 +377,11 @@
         .social-links-header {
             text-align: center;
             margin: 15px 0 10px 0;
-            font-size: 14px;
-            color: var(--text-secondary);
+            font-size: 16px; /* Slightly larger */
+            color: var(--text-primary);
             display: block !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Stronger shadow */
+            font-weight: 500; /* Medium weight */
         }
 
         .social-links-header i {
@@ -510,13 +521,16 @@
     <nav class="navbar">
         <div class="navbar-container">
             <a href="index.html" class="logo">Bondly</a>
+            <button class="search-filter-icon" id="searchFilterBtn" title="Search by gender">
+    <i class="fas fa-search"></i>
+</button>
             <!-- Add this to your navigation menu -->
-<li>
-    <a href="notification.html" class="nav-links">
-        <i class="fas fa-bell"></i>
-        <span class="notification-badge">0</span>
-    </a>
-</li>
+            <li>
+                <a href="notification.html" class="nav-links">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">0</span>
+                </a>
+            </li>
             <div class="nav-toggle" id="mobile-menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -569,15 +583,15 @@
         <div class="profile-top-info">
             <div class="profile-info">
                 <div id="profileStatusIndicator"></div>
-                <h2 id="profileName">Sarah Johnson</h2>
-                <p id="profileAgeLocation">28 • New York, NY</p>
+                <h2 id="profileName">Ava Green</h2>
+                <p id="profileAgeLocation">27 • New York, NY</p>
                 
-                <p class="profile-bio" id="profileBio">Adventure seeker and coffee enthusiast. Love hiking, photography, and trying new restaurants. Looking for someone to explore the city with and share meaningful conversations.</p>
+                <p class="profile-bio" id="profileBio">Environmental science student passionate about sustainability. Love hiking and beach cleanups.</p>
                 
                 <div class="profile-stats">
                     <div class="stat">
                         <i class="fas fa-heart"></i>
-                        <span id="likeCount">142</span> likes
+                        <span id="likeCount">148</span> likes
                     </div>
                     <div class="stat">
                         <i class="fas fa-check" style="color: var(--accent);"></i>
@@ -620,7 +634,7 @@
     
     <script type="module" src="mingle-upgrades.js"></script>
     <script type="module" src="app.js"></script>
-
+<script  type="module"src="filter.js"></script>
     <script type="module" src="social.js"></script>
     <script type="module" src="additional.js"></script>
     <script type="module" src="creative.js"></script>
