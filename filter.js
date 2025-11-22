@@ -152,26 +152,41 @@ class GenderFilter {
         try {
             const allProfiles = await this.loadAllProfilesFromFirebase();
             
+            let filteredProfiles = [];
             if (this.selectedGender === 'all') {
-                this.filteredProfiles = allProfiles;
+                filteredProfiles = allProfiles;
             } else {
-                this.filteredProfiles = allProfiles.filter(profile => 
+                filteredProfiles = allProfiles.filter(profile => 
                     profile.gender && profile.gender.toLowerCase() === this.selectedGender.toLowerCase()
                 );
             }
+
+            // Shuffle the filtered profiles
+            this.filteredProfiles = this.shuffleArray([...filteredProfiles]);
 
             if (this.filteredProfiles.length > 0) {
                 this.isFilterActive = true;
                 this.currentFilteredIndex = 0;
                 this.updateSearchIconState(true);
                 this.displayFilteredProfile(0);
-                this.showNotification(`Found ${this.filteredProfiles.length} ${this.selectedGender} profiles`);
+                this.showNotification(`Found ${this.filteredProfiles.length} ${this.selectedGender} profiles (shuffled)`);
             } else {
                 this.showNoProfilesMessage();
             }
         } catch (error) {
+            console.error('Error applying filter:', error);
             this.showNotification('Error loading profiles. Please try again.');
         }
+    }
+
+    // Fisher-Yates shuffle algorithm
+    shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
     }
 
     async loadAllProfilesFromFirebase() {
@@ -195,8 +210,10 @@ class GenderFilter {
                 }
             });
 
-            return profiles;
+            // Shuffle the initial profiles too
+            return this.shuffleArray(profiles);
         } catch (error) {
+            console.error('Error loading profiles:', error);
             throw error;
         }
     }
@@ -216,6 +233,7 @@ class GenderFilter {
 
         if (profileImage) {
             profileImage.src = profile.profileImage || 'images/default-profile.jpg';
+            profileImage.alt = profile.name || 'Profile';
         }
         if (profileName) profileName.textContent = profile.name || 'Unknown';
         
@@ -240,6 +258,28 @@ class GenderFilter {
         }
 
         this.updateButtonHandlers();
+        
+        // Update navigation buttons state
+        this.updateNavigationButtons();
+    }
+
+    updateNavigationButtons() {
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const likeBtn = document.getElementById('likeBtn');
+        
+        // Enable/disable buttons based on current position
+        if (dislikeBtn && likeBtn) {
+            // Always enable buttons if there are more profiles
+            if (this.currentFilteredIndex < this.filteredProfiles.length - 1) {
+                dislikeBtn.style.opacity = '1';
+                likeBtn.style.opacity = '1';
+                dislikeBtn.style.pointerEvents = 'auto';
+                likeBtn.style.pointerEvents = 'auto';
+            } else {
+                // Last profile - show end message
+                this.showNotification('Last profile in this search');
+            }
+        }
     }
 
     updateButtonHandlers() {
@@ -270,7 +310,28 @@ class GenderFilter {
             this.currentFilteredIndex++;
             this.displayFilteredProfile(this.currentFilteredIndex);
         } else {
-            this.showNotification('No more profiles in this filter');
+            this.showEndOfResultsMessage();
+        }
+    }
+
+    showEndOfResultsMessage() {
+        this.showNotification('No more profiles in this search. Try a different filter!');
+        
+        // Optionally, you can reshuffle and start over
+        setTimeout(() => {
+            const reshuffle = confirm('You\'ve seen all profiles in this search. Would you like to reshuffle and start over?');
+            if (reshuffle) {
+                this.reshuffleProfiles();
+            }
+        }, 1000);
+    }
+
+    reshuffleProfiles() {
+        if (this.filteredProfiles.length > 0) {
+            this.filteredProfiles = this.shuffleArray([...this.filteredProfiles]);
+            this.currentFilteredIndex = 0;
+            this.displayFilteredProfile(0);
+            this.showNotification('Profiles reshuffled! Starting over.');
         }
     }
 
@@ -304,6 +365,7 @@ class GenderFilter {
             }, 500);
             
         } catch (error) {
+            console.error('Error liking profile:', error);
             this.showNotification('Error liking profile');
         }
     }
@@ -344,17 +406,30 @@ class GenderFilter {
         const profileBio = document.getElementById('profileBio');
         const likeCount = document.getElementById('likeCount');
         const viewProfileBtn = document.getElementById('viewProfileBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const likeBtn = document.getElementById('likeBtn');
 
-        if (profileImage) profileImage.src = 'images/default-profile.jpg';
+        if (profileImage) {
+            profileImage.src = 'images/default-profile.jpg';
+            profileImage.alt = 'No profiles found';
+        }
         if (profileName) profileName.textContent = 'No profiles found';
         if (profileAgeLocation) profileAgeLocation.textContent = 'Try changing your filter';
         if (profileBio) profileBio.textContent = `No ${this.selectedGender} profiles found`;
         if (likeCount) likeCount.textContent = '0';
         
-        // Disable view profile button when no profiles
+        // Disable buttons when no profiles
         if (viewProfileBtn) {
             viewProfileBtn.style.opacity = '0.5';
             viewProfileBtn.style.pointerEvents = 'none';
+        }
+        if (dislikeBtn) {
+            dislikeBtn.style.opacity = '0.5';
+            dislikeBtn.style.pointerEvents = 'none';
+        }
+        if (likeBtn) {
+            likeBtn.style.opacity = '0.5';
+            likeBtn.style.pointerEvents = 'none';
         }
         
         this.showNotification(`No ${this.selectedGender} profiles found`);
@@ -376,24 +451,41 @@ class GenderFilter {
     }
 
     showNotification(message) {
+        // Remove existing notifications
+        const existingNotifications = document.querySelectorAll('.filter-notification');
+        existingNotifications.forEach(notification => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        });
+
         const notification = document.createElement('div');
+        notification.className = 'filter-notification';
         notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
             background: var(--accent-color);
             color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
             z-index: 10001;
             font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideInRight 0.3s ease-out;
         `;
         notification.textContent = message;
         document.body.appendChild(notification);
         
         setTimeout(() => {
             if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
             }
         }, 3000);
     }
@@ -620,6 +712,28 @@ const filterStyles = `
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 }
 
 @media (max-width: 480px) {
