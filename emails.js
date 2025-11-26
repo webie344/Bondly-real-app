@@ -1,4 +1,4 @@
-// notifications.js - FIXED OneSignal notification service
+// notifications.js - Enhanced with background detection
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getFirestore, 
@@ -15,13 +15,9 @@ import {
     onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-class OneSignalNotificationService {
+class NotificationService {
     constructor() {
-        // ⚠️ REPLACE THIS WITH YOUR REAL ONESIGNAL APP ID!
-        this.oneSignalAppId = "3129a6d2-f764-4d6b-bcd1-abd0260bc839"; 
-        this.isInitialized = false;
         this.currentUser = null;
-        this.oneSignalInitialized = false;
         this.firebaseConfig = {
             apiKey: "AIzaSyC9uL_BX14Z6rRpgG4MT9Tca1opJl8EviQ",
             authDomain: "dating-connect.firebaseapp.com",
@@ -31,30 +27,33 @@ class OneSignalNotificationService {
             appId: "1:1062172180210:web:0c9b3c1578a5dbae58da6b"
         };
         this.listeners = [];
+        this.notificationPermission = null;
+        this.isTabActive = true;
+        this.backgroundNotifications = [];
         
-        console.log('🚀 Starting OneSignal Notification Service...');
+        console.log('🚀 Starting Enhanced Notification Service...');
         this.init();
     }
 
     async init() {
         try {
-            // 1. First load OneSignal SDK
-            await this.loadOneSignalSDK();
-            
-            // 2. Wait a bit for SDK to load completely
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // 3. Initialize Firebase
-            this.app = initializeApp(this.firebaseConfig, 'OneSignalNotificationService');
+            // Initialize Firebase
+            this.app = initializeApp(this.firebaseConfig, 'NotificationService');
             this.db = getFirestore(this.app);
             this.auth = getAuth(this.app);
             
-            // 4. Wait for auth state
+            // Set up visibility detection
+            this.setupVisibilityDetection();
+            
+            // Request notification permission
+            await this.requestNotificationPermission();
+            
+            // Wait for auth state
             onAuthStateChanged(this.auth, (user) => {
                 this.currentUser = user;
                 if (user) {
                     console.log('✅ User logged in:', user.email);
-                    this.initializeOneSignal();
+                    this.setupFirebaseListeners();
                 } else {
                     console.log('❌ User logged out');
                     this.cleanupListeners();
@@ -66,89 +65,71 @@ class OneSignalNotificationService {
         }
     }
 
-    loadOneSignalSDK() {
-        return new Promise((resolve, reject) => {
-            if (window.OneSignal) {
-                console.log('✅ OneSignal SDK already loaded');
-                resolve();
-                return;
+    setupVisibilityDetection() {
+        // Detect when tab becomes visible/hidden
+        document.addEventListener('visibilitychange', () => {
+            this.isTabActive = !document.hidden;
+            console.log('👀 Tab visibility changed:', this.isTabActive ? 'ACTIVE' : 'BACKGROUND');
+            
+            // If tab becomes active, show any queued notifications
+            if (this.isTabActive && this.backgroundNotifications.length > 0) {
+                console.log('🔄 Showing queued notifications:', this.backgroundNotifications.length);
+                this.processQueuedNotifications();
             }
+        });
 
-            const script = document.createElement('script');
-            script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
-            script.async = true; // Changed from defer to async
-            script.onload = () => {
-                console.log('✅ OneSignal SDK loaded successfully');
-                resolve();
-            };
-            script.onerror = (error) => {
-                console.error('❌ Failed to load OneSignal SDK:', error);
-                reject(error);
-            };
-            document.head.appendChild(script);
+        // Also detect page focus/blur
+        window.addEventListener('focus', () => {
+            this.isTabActive = true;
+            console.log('🎯 Page focused');
+        });
+
+        window.addEventListener('blur', () => {
+            this.isTabActive = false;
+            console.log('🔲 Page blurred');
+        });
+
+        // Detect window minimize/restore
+        window.addEventListener('beforeunload', () => {
+            console.log('⚠️ Page unloading - stopping notifications');
         });
     }
 
-    initializeOneSignal() {
-        if (!window.OneSignal) {
-            console.error('❌ OneSignal SDK not loaded - waiting...');
-            setTimeout(() => this.initializeOneSignal(), 1000);
+    async requestNotificationPermission() {
+        if (!('Notification' in window)) {
+            console.log('❌ Browser does not support notifications');
+            this.notificationPermission = 'unsupported';
             return;
         }
 
-        console.log('🔄 Initializing OneSignal...');
-        
-        // Use the correct OneSignal initialization method
-        window.OneSignal.init({
-            appId: this.oneSignalAppId,
-            allowLocalhostAsSecureOrigin: true,
+        try {
+            this.notificationPermission = Notification.permission;
             
-            // Simpler prompt options
-            promptOptions: {
-                slidedown: {
-                    enabled: true,
-                    autoPrompt: true,
-                    timeDelay: 1, // Faster prompt
-                    pageViews: 1,
-                }
-            },
-            
-            notifyButton: {
-                enable: false,
-            },
-        }).then(() => {
-            console.log('✅ OneSignal initialization complete');
-            
-            // Set external user ID
-            if (this.currentUser) {
-                window.OneSignal.setExternalUserId(this.currentUser.uid)
-                    .then(() => console.log('✅ External user ID set'))
-                    .catch(err => console.error('❌ Failed to set external user ID:', err));
+            if (this.notificationPermission === 'default') {
+                console.log('🔄 Requesting notification permission...');
+                
+                // Only request permission when user is interacting with the page
+                const requestPermission = () => {
+                    Notification.requestPermission().then(permission => {
+                        this.notificationPermission = permission;
+                        console.log('📢 Notification permission:', permission);
+                    });
+                };
+                
+                // Request on user interaction (better UX)
+                document.addEventListener('click', requestPermission, { once: true });
+                console.log('💡 Click anywhere to enable notifications');
             }
             
-            // Check if push is enabled
-            window.OneSignal.isPushNotificationsEnabled((isEnabled) => {
-                console.log('📢 Push notifications enabled:', isEnabled);
-                this.oneSignalInitialized = true;
-                this.isInitialized = true;
-                
-                // Now setup Firebase listeners
-                this.setupFirebaseListeners();
-                
-                // Auto-test after initialization
-                setTimeout(() => {
-                    this.testNotification();
-                }, 3000);
-            });
-            
-        }).catch(error => {
-            console.error('❌ OneSignal initialization failed:', error);
-        });
+        } catch (error) {
+            console.error('❌ Error requesting notification permission:', error);
+            this.notificationPermission = 'error';
+        }
     }
 
     setupFirebaseListeners() {
         if (!this.currentUser) {
-            console.log('❌ No user logged in, skipping Firebase listeners');
+            console.log('❌ No user logged in');
             return;
         }
 
@@ -198,13 +179,14 @@ class OneSignalNotificationService {
     listenToConversationMessages(conversationId, conversation) {
         const messagesQuery = query(
             collection(this.db, 'conversations', conversationId, 'messages'),
-            where('senderId', '!=', this.currentUser.uid)
+            where('senderId', '!=', this.currentUser.uid),
+            where('read', '==', false)
         );
 
         const messageListener = onSnapshot(messagesQuery, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
-                    console.log('✉️ New message detected');
+                    console.log('✉️ New message detected - Tab active:', this.isTabActive);
                     this.handleNewMessage(change.doc.data(), conversation);
                 }
             });
@@ -219,18 +201,19 @@ class OneSignalNotificationService {
         }
 
         try {
-            console.log('🔄 Processing new message notification...');
+            console.log('🔄 Processing new message...');
             
             const senderDoc = await getDoc(doc(this.db, 'users', message.senderId));
             if (!senderDoc.exists()) return;
 
             const senderData = senderDoc.data();
             
-            // Send notification
-            this.sendOneSignalNotification(
-                `New message from ${senderData.name || 'Someone'}`,
+            // Show notification (works in background too!)
+            await this.showSmartNotification(
+                `💌 ${senderData.name || 'Someone'}`,
                 this.formatMessagePreview(message),
-                message.senderId
+                `chat.html?id=${message.senderId}`,
+                'message'
             );
             
         } catch (error) {
@@ -248,10 +231,11 @@ class OneSignalNotificationService {
 
             const partnerData = partnerDoc.data();
 
-            this.sendOneSignalNotification(
-                'New Match! 🎉',
+            await this.showSmartNotification(
+                '✨ New Match!',
                 `You matched with ${partnerData.name || 'Someone'}`,
-                partnerId
+                `chat.html?id=${partnerId}`,
+                'match'
             );
             
         } catch (error) {
@@ -259,84 +243,133 @@ class OneSignalNotificationService {
         }
     }
 
-    sendOneSignalNotification(title, message, targetUserId) {
-        if (!this.isOneSignalReady()) {
-            console.log('❌ OneSignal not ready, queuing notification...');
-            // Retry after 2 seconds
-            setTimeout(() => this.sendOneSignalNotification(title, message, targetUserId), 2000);
-            return;
+    async showSmartNotification(title, body, url, type = 'message') {
+        // Check if notifications are supported and permitted
+        if (!('Notification' in window) || this.notificationPermission !== 'granted') {
+            console.log('❌ Notifications not available');
+            return false;
+        }
+
+        // If tab is not active, we can show the notification
+        // Browser will display it even if tab is in background!
+        if (!this.isTabActive) {
+            console.log('📱 Tab is in background - showing notification');
+        } else {
+            console.log('💻 Tab is active - showing notification');
         }
 
         try {
-            console.log('📤 Sending notification:', title);
-            
-            // Use the correct method for sending notifications
-            window.OneSignal.sendSelfNotification({
-                title: title,
-                message: message,
-                url: `chat.html?id=${targetUserId}`,
-                icon: 'https://yourdomain.com/icons/icon-192x192.png'
+            const notification = new Notification(title, {
+                body: body,
+                icon: this.getNotificationIcon(type),
+                badge: '/icons/badge-72x72.png',
+                tag: `dating-${type}-${Date.now()}`, // Unique tag to avoid grouping
+                requireInteraction: type === 'match', // Matches require click
+                silent: false,
+                vibrate: [200, 100, 200] // Vibration pattern for mobile
             });
-            
-            console.log('✅ Notification sent successfully');
+
+            // Handle notification click
+            notification.onclick = () => {
+                console.log('🎯 Notification clicked');
+                window.focus();
+                if (url) {
+                    window.location.href = url;
+                }
+                notification.close();
+            };
+
+            // Handle notification close
+            notification.onclose = () => {
+                console.log('✅ Notification closed');
+            };
+
+            // Handle notification error
+            notification.onerror = (error) => {
+                console.error('❌ Notification error:', error);
+            };
+
+            // Auto close after different times based on type
+            const autoCloseTime = type === 'match' ? 10000 : 7000; // 10s for matches, 7s for messages
+            setTimeout(() => {
+                if (notification.close) {
+                    notification.close();
+                }
+            }, autoCloseTime);
+
+            console.log('✅ Notification sent in background:', !this.isTabActive, '- Type:', type);
+            return true;
             
         } catch (error) {
-            console.error('❌ Error sending notification:', error);
+            console.error('❌ Error showing notification:', error);
+            
+            // Queue notification for when tab becomes active
+            if (!this.isTabActive) {
+                this.backgroundNotifications.push({ title, body, url, type });
+                console.log('📥 Queued notification for when tab becomes active');
+            }
+            
+            return false;
+        }
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            message: '/icons/message-icon.png',
+            match: '/icons/heart-icon.png', 
+            default: '/icons/icon-192x192.png'
+        };
+        return icons[type] || icons.default;
+    }
+
+    processQueuedNotifications() {
+        while (this.backgroundNotifications.length > 0) {
+            const notification = this.backgroundNotifications.shift();
+            this.showSmartNotification(notification.title, notification.body, notification.url, notification.type);
         }
     }
 
     formatMessagePreview(message) {
         if (message.text) {
-            return message.text.length > 100 ? message.text.substring(0, 100) + '...' : message.text;
+            return message.text.length > 50 ? message.text.substring(0, 50) + '...' : message.text;
         } else if (message.imageUrl) {
             return '📷 Sent a photo';
         } else if (message.audioUrl) {
-            return '🎤 Sent a voice message';
+            return '🎤 Voice message';
         } else if (message.videoUrl) {
-            return '🎥 Sent a video';
+            return '🎥 Video message';
         } else {
-            return 'Sent a message';
+            return 'New message';
         }
     }
 
-    isOneSignalReady() {
-        return window.OneSignal && this.oneSignalInitialized;
-    }
-
-    // TEST FUNCTION - Call this to test notifications
-    async testNotification() {
-        console.log('🧪 Testing notification...');
+    // Test function that simulates background behavior
+    async testBackgroundNotification() {
+        console.log('🧪 Testing background notification...');
         
-        if (this.isOneSignalReady()) {
-            console.log('✅ OneSignal is ready, sending test notification...');
-            
-            window.OneSignal.sendSelfNotification({
-                title: "Test Notification 🔔",
-                message: "This is a test notification from Dating Connect!",
-                url: "mingle.html",
-                icon: "https://yourdomain.com/icons/icon-192x192.png"
-            });
-            
-            console.log('✅ Test notification sent successfully!');
-        } else {
-            console.log('❌ OneSignal not ready yet. Current status:', {
-                windowOneSignal: !!window.OneSignal,
-                oneSignalInitialized: this.oneSignalInitialized,
-                isInitialized: this.isInitialized
-            });
-            
-            // Retry test in 2 seconds
-            setTimeout(() => this.testNotification(), 2000);
+        // Simulate receiving a message while in background
+        const result = await this.showSmartNotification(
+            'Test Background Notification 🔔',
+            'This simulates a message received while app is in background!',
+            'mingle.html',
+            'message'
+        );
+        
+        if (result) {
+            console.log('✅ Background test notification sent!');
+            console.log('💡 Now switch to another tab or minimize browser to see it work');
         }
+        
+        return result;
     }
 
-    // Check if user has granted notification permission
-    async getNotificationPermission() {
-        if (!window.OneSignal) return 'OneSignal not loaded';
-        
-        return new Promise((resolve) => {
-            window.OneSignal.getNotificationPermission(resolve);
-        });
+    // Check if we're currently in background
+    isInBackground() {
+        return !this.isTabActive;
+    }
+
+    getPermissionStatus() {
+        return this.notificationPermission;
     }
 
     cleanupListeners() {
@@ -346,21 +379,20 @@ class OneSignalNotificationService {
             }
         });
         this.listeners = [];
-        this.oneSignalInitialized = false;
-        this.isInitialized = false;
     }
 }
 
 // Auto-initialize
-const notificationService = new OneSignalNotificationService();
+console.log('🚀 Initializing Enhanced Notification Service...');
+const notificationService = new NotificationService();
 
 // Make it globally available for testing
 window.notificationService = notificationService;
 
-// Auto-test after 15 seconds (gives time for initialization)
+// Test after initialization
 setTimeout(() => {
-    console.log('⏰ Running auto-test...');
-    if (window.notificationService) {
-        window.notificationService.testNotification();
-    }
-}, 15000);
+    console.log('⏰ Notification service ready!');
+    console.log('💡 Try these tests:');
+    console.log('   - notificationService.testBackgroundNotification()');
+    console.log('   - Then switch to another tab to see notifications work');
+}, 3000);
