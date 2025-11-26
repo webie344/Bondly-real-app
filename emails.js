@@ -18,7 +18,7 @@ import {
 class OneSignalNotificationService {
     constructor() {
         // REPLACE THIS WITH YOUR ACTUAL ONESIGNAL APP ID
-        this.oneSignalAppId = "1f8025a5-6c28-4e9a-bf4a-54a6d94b3a7d"; // ← REPLACE THIS!
+        this.oneSignalAppId = "3129a6d2-f764-4d6b-bcd1-abd0260bc839"; // ← REPLACE THIS!
         this.isInitialized = false;
         this.currentUser = null;
         this.firebaseConfig = {
