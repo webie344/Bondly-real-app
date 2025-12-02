@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Posts - Bondly</title>
+    <title>Resources - WhipRoom</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -351,6 +351,28 @@
             font-size: 14px;
         }
 
+        /* Resource-specific styles */
+        .resource-tag {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .resource-category {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
         @media (max-width: 768px) {
             .posts-container {
                 padding: 15px;
@@ -422,7 +444,7 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="index.html" class="logo">Bondly</a>
+            <a href="index.html" class="logo">WhipRoom</a>
             <div class="nav-toggle" id="mobile-menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -431,27 +453,33 @@
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="mingle.html" class="nav-links">
-                        <i class="fas fa-fire"></i>
-                        <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Discover</span>
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem;">Connect</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="messages.html" class="nav-links">
                         <i class="fas fa-comments"></i>
-                        <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Messages</span>
+                        <span class="nav-text" style="font-family: 'Pacifico', cursive; font-size: 1rem;">Chat</span>
                         <span class="message-count">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="posts.html" class="nav-links active">
-                        <i class="fas fa-images"></i>
-                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.1rem;">Posts</span>
+                        <i class="fas fa-graduation-cap"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.1rem;">Resources</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="stream.html" class="nav-links active">
+                        <i class="fas fa-play-circle"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.1rem;">Stream</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="account.html" class="nav-links">
-                        <i class="fas fa-user"></i>
-                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">Profile</span>
+                        <i class="fas fa-user-shield"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.2rem;">My Profile</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -473,25 +501,25 @@
     <main class="main-content">
         <div class="posts-container">
             <div class="posts-header">
-                <h1><i class="fas fa-images"></i> Community Posts</h1>
-                <p>See what's happening in your dating community</p>
+                <h1><i class="fas fa-graduation-cap"></i> Educational Resources</h1>
+                <p>Discover educational content from our community of sexual health experts</p>
                 <a href="create.html" class="create-post-btn">
-                    <i class="fas fa-plus"></i> Create Post
+                    <i class="fas fa-plus"></i> Share Resource
                 </a>
             </div>
 
             <div id="userPostsHeader" class="user-posts-header" style="display: none;">
                 <img src="images/default-profile.jpg" alt="User" class="user-posts-avatar" id="userPostsAvatar">
                 <div class="user-posts-info">
-                    <h2 id="userPostsName">User's Posts</h2>
-                    <p id="userPostsBio">Viewing all posts by this user</p>
+                    <h2 id="userPostsName">Educator's Resources</h2>
+                    <p id="userPostsBio">Viewing all educational content by this expert</p>
                 </div>
             </div>
 
             <div id="postsContainer" class="posts-feed">
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i><br>
-                    Loading posts...
+                    Loading educational resources...
                 </div>
             </div>
         </div>
@@ -503,7 +531,7 @@
     <script>
         // Debug script to check what's happening
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== POSTS PAGE DEBUG ===');
+            console.log('=== RESOURCES PAGE DEBUG ===');
             
             // Check if socialManager is loaded
             if (window.socialManager) {

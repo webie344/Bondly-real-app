@@ -261,59 +261,7 @@
                 <a href="signup.html" class="btn-primary">Create an account</a>
                 <a href="login.html" class="btn-secondary">I have an account</a>
                                 
-                <!-- Download Button with Dropdown -->
-                <div class="download-container">
-                    <button class="btn-download">
-                        Download App <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="download-dropdown">
-                        <a href="https://median.co/share/eebjlde#apk" class="dropdown-item android-download">
-                            <i class="fab fa-android"></i>
-                            Android Download
-                        </a>
-                        <a href="#" class="dropdown-item ios-download" id="ios-download-btn">
-                            <i class="fab fa-apple"></i>
-                            iOS Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- iOS Download Modal -->
-    <div class="modal" id="ios-modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>iOS App Coming Soon</h2>
-            <p>Our iOS app will be available very soon on the App Store. In the meantime, you can add our website to your home screen for the best experience.</p>
-            
-            <div class="pwa-instructions">
-                <h3>How to Add to Home Screen:</h3>
-                <div class="instruction-step">
-                    <h4><i class="fas fa-safari"></i> For Safari (iPhone/iPad):</h4>
-                    <ol>
-                        <li>Tap the Share button <i class="fas fa-share-square"></i> at the bottom of the screen</li>
-                        <li>Scroll down and tap "Add to Home Screen"</li>
-                        <li>Tap "Add" in the top right corner</li>
-                        <li>The Bondly app will appear on your home screen</li>
-                    </ol>
-                </div>
                 
-                <div class="instruction-step">
-                    <h4><i class="fab fa-chrome"></i> For Chrome (Android/iPhone):</h4>
-                    <ol>
-                        <li>Tap the three dots menu <i class="fas fa-ellipsis-v"></i> in the top right</li>
-                        <li>Tap "Add to Home Screen" or "Install App"</li>
-                        <li>Confirm by tapping "Add" or "Install"</li>
-                        <li>The Bondly app will be installed on your home screen</li>
-                    </ol>
-                </div>
-            </div>
-            
-            <button class="btn-primary modal-close">Got It!</button>
-        </div>
-    </div>
             </div>
             <p class="terms">
                 By signing up, you agree to our Terms. See how we use your data in our Privacy Policy
@@ -361,55 +309,6 @@
         </div>
     </footer>
 
- <script>
-        // Download dropdown functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const downloadBtn = document.querySelector('.btn-download');
-            const dropdown = document.querySelector('.download-dropdown');
-            const iosDownloadBtn = document.getElementById('ios-download-btn');
-            const iosModal = document.getElementById('ios-modal');
-            const closeModal = document.querySelector('.close-modal');
-            const modalCloseBtn = document.querySelector('.modal-close');
-            
-            // Toggle dropdown
-            downloadBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdown.classList.toggle('show');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function() {
-                dropdown.classList.remove('show');
-            });
-            
-            // Prevent dropdown from closing when clicking inside it
-            dropdown.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-            
-            // iOS download button click
-            iosDownloadBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                dropdown.classList.remove('show');
-                iosModal.style.display = 'flex';
-            });
-            
-            // Close modal events
-            closeModal.addEventListener('click', function() {
-                iosModal.style.display = 'none';
-            });
-            
-            modalCloseBtn.addEventListener('click', function() {
-                iosModal.style.display = 'none';
-            });
-            
-            // Close modal when clicking outside
-            iosModal.addEventListener('click', function(e) {
-                if (e.target === iosModal) {
-                    iosModal.style.display = 'none';
-                }
-            });
-        });
-    </script>
+ 
 </body>
 </html>

@@ -1,4 +1,4 @@
-// creative.js - COMPLETELY STANDALONE - No app.js dependencies
+// creative.js - COMPLETELY STANDALONE - No app.js dependencies - BDSM THEME
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getAuth, 
@@ -30,18 +30,18 @@ const db = getFirestore(app);
 class CreativeManager {
     constructor() {
         this.currentUser = null;
-        this.BANNERS = [
-            { id: 'single', name: 'Single', class: 'banner-single' },
-            { id: 'playboy', name: 'Playboy', class: 'bplayboy' },
-            { id: 'serious', name: 'Serious', class: 'banner-serious' },
-            { id: 'adventurous', name: 'Adventurous', class: 'banner-adventurous' },
-            { id: 'romantic', name: 'Romantic', class: 'banner-romantic' },
-            { id: 'funny', name: 'Funny', class: 'banner-funny' },
-            { id: 'ambitious', name: 'Ambitious', class: 'banner-ambitious' },
-            { id: 'chill', name: 'Chill', class: 'banner-chill' },
-            { id: 'mysterious', name: 'Mysterious', class: 'banner-mysterious' },
-            { id: 'creative', name: 'Creative', class: 'banner-creative' }
-        ];
+this.BANNERS = [
+    { id: 'single',      name: 'Bondage Lover',    class: 'banner-single',      icon: '⛓️' },
+    { id: 'playboy',     name: 'Chastisement',     class: 'bplayboy',           icon: '⚡' },
+    { id: 'serious',     name: 'Foot Worshipper',  class: 'banner-serious',     icon: '🦶' },
+    { id: 'adventurous', name: 'Dominant',         class: 'banner-adventurous', icon: '🖤' },
+    { id: 'romantic',    name: 'Submissive',       class: 'banner-romantic',    icon: '🎀' },
+    { id: 'funny',       name: 'Roleplay Freak',   class: 'banner-funny',       icon: '🎭' },
+    { id: 'ambitious',   name: 'Pain Enthusiast',  class: 'banner-ambitious',   icon: '🩸' },
+    { id: 'chill',       name: 'Rope Bunny',       class: 'banner-chill',       icon: '🐇' },
+    { id: 'mysterious',  name: 'Masked Fantasy',   class: 'banner-mysterious',  icon: '🎭‍' },
+    { id: 'creative',    name: 'Kink Explorer',    class: 'banner-creative',    icon: '🔥' }
+];
         
         this.init();
     }
@@ -84,113 +84,241 @@ class CreativeManager {
     setupStyles() {
         const styles = `
             .creative-banner-section {
-                padding: 10px;
-                background: #FFF5F9;
-                border-radius: 10px;
-                margin: 15px 0;
+                padding: 20px;
+                background: rgba(26, 26, 26, 0.95);
+                border-radius: 12px;
+                margin: 20px 0;
+                border: 1px solid rgba(46, 46, 46, 0.6);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             }
             .creative-banner-section h3 {
-                color: black;
-                margin-bottom: 15px;
-                font-size: 16px;
+                color: var(--text-primary);
+                margin-bottom: 20px;
+                font-size: 18px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .creative-banner-section h3 i {
+                color: var(--primary-light);
             }
             .creative-banner-grid {
                 display: grid;
-                grid-template-columns: repeat(1, 1fr);
-                gap: 5px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
             }
             .creative-banner-item {
-                background: #FFB6C1;
-                padding: 15px;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 20px;
                 border-radius: 8px;
                 text-align: center;
                 cursor: pointer;
                 border: 2px solid transparent;
-                color: white;
-                font-weight: bold;
+                color: var(--text-primary);
+                font-weight: 600;
                 transition: all 0.3s ease;
                 font-size: 14px;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                position: relative;
+                overflow: hidden;
             }
             .creative-banner-item:hover {
-                background: #4a8cff;
+                background: rgba(179, 0, 75, 0.2);
                 transform: translateY(-2px);
+                border-color: rgba(179, 0, 75, 0.3);
             }
             .creative-banner-item.selected {
-                border-color: #4a8cff;
-                background: #4a8cff;
-                box-shadow: 0 4px 12px rgba(74, 140, 255, 0.4);
+                border-color: var(--primary);
+                background: rgba(179, 0, 75, 0.3);
+                box-shadow: 0 4px 20px rgba(179, 0, 75, 0.4);
             }
             .creative-profile-banner {
                 color: white;
-                padding: 15px;
-                border-radius: 10px;
+                padding: 25px;
+                border-radius: 12px;
                 text-align: center;
-                margin: 15px 0;
+                margin: 20px 0;
                 font-weight: bold;
-                font-size: 18px;
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+                font-size: 20px;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             }
             .creative-additional-photos {
-                margin: 20px 0;
-                padding: 20px;
-                background: #FFF5F9;
-                border-radius: 10px;
+                margin: 25px 0;
+                padding: 25px;
+                background: rgba(26, 26, 26, 0.95);
+                border-radius: 12px;
+                border: 1px solid rgba(46, 46, 46, 0.6);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            }
+            .creative-additional-photos h3 {
+                color: var(--text-primary);
+                margin-bottom: 20px;
+                font-size: 18px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .creative-additional-photos h3 i {
+                color: var(--primary-light);
             }
             .creative-photo-upload {
                 text-align: center;
-                margin: 15px 0;
+                margin: 20px 0;
+                padding: 20px;
+                background: rgba(11, 11, 11, 0.6);
+                border-radius: 12px;
+                border: 1px solid rgba(46, 46, 46, 0.4);
             }
             .creative-additional-photo {
-                width: 120px;
-                height: 120px;
+                width: 140px;
+                height: 140px;
                 object-fit: cover;
-                border-radius: 10px;
-                border: 3px solid #40444b;
-                margin: 10px;
+                border-radius: 12px;
+                border: 3px solid var(--primary);
+                margin: 15px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                transition: all 0.3s ease;
+            }
+            .creative-additional-photo:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(179, 0, 75, 0.4);
             }
             .creative-upload-btn {
-                background: #4a8cff;
+                background: var(--primary);
                 color: white;
-                padding: 10px 15px;
+                padding: 12px 20px;
                 border: none;
-                border-radius: 5px;
+                border-radius: 8px;
                 cursor: pointer;
-                margin: 5px;
-                transition: background 0.3s ease;
+                margin: 8px;
+                transition: all 0.3s ease;
                 font-size: 14px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                box-shadow: 0 2px 8px rgba(179, 0, 75, 0.3);
             }
             .creative-upload-btn:hover {
-                background: #3a7be0;
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(179, 0, 75, 0.4);
             }
             .creative-remove-btn {
-                background: #ed4245;
+                background: rgba(139, 0, 0, 0.8);
                 color: white;
-                padding: 10px 15px;
+                padding: 12px 20px;
                 border: none;
-                border-radius: 5px;
+                border-radius: 8px;
                 cursor: pointer;
-                margin: 5px;
-                transition: background 0.3s ease;
+                margin: 8px;
+                transition: all 0.3s ease;
                 font-size: 14px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                border: 1px solid rgba(139, 0, 0, 0.3);
             }
             .creative-remove-btn:hover {
-                background: #d93639;
+                background: rgba(102, 0, 0, 0.9);
+                transform: translateY(-2px);
             }
             .creative-file-input {
                 display: none;
             }
             
-            /* Banner gradients */
-            .banner-single { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); }
-            .bplayboy { background: linear-gradient(135deg, #a8e6cf 0%, #3d5a80 100%); }
-            .banner-serious { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-            .banner-adventurous { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-            .banner-romantic { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333; }
-            .banner-funny { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-            .banner-ambitious { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #333; }
-            .banner-chill { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-            .banner-mysterious { background: linear-gradient(135deg, #4c669f 0%, #192f6a 100%); }
-            .banner-creative { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); color: #333; }
+            /* BDSM Theme Banner Gradients */
+            .banner-single { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(122, 0, 52, 0.8) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+            }
+            .bplayboy { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.8) 0%, rgba(68, 68, 68, 0.9) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+            }
+            .banner-serious { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.8) 0%, rgba(46, 46, 46, 0.9) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+            }
+            .banner-adventurous { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.8) 0%, rgba(139, 0, 0, 0.9) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+            }
+            .banner-romantic { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.6) 0%, rgba(122, 0, 52, 0.8) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+                color: rgba(255, 255, 255, 0.9);
+            }
+            .banner-funny { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.8) 0%, rgba(76, 29, 149, 0.8) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+            }
+            .banner-ambitious { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.7) 0%, rgba(101, 67, 33, 0.8) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+                color: rgba(255, 255, 255, 0.9);
+            }
+            .banner-chill { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.7) 0%, rgba(43, 43, 43, 0.9) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+            }
+            .banner-mysterious { 
+                background: linear-gradient(135deg, rgba(68, 68, 68, 0.9) 0%, rgba(179, 0, 75, 0.8) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+            }
+            .banner-creative { 
+                background: linear-gradient(135deg, rgba(179, 0, 75, 0.7) 0%, rgba(30, 15, 60, 0.9) 100%);
+                border: 1px solid rgba(179, 0, 75, 0.3);
+                color: rgba(255, 255, 255, 0.9);
+            }
+
+            /* Animation for notifications */
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            /* Responsive design */
+            @media (max-width: 768px) {
+                .creative-banner-grid {
+                    grid-template-columns: 1fr;
+                }
+                .creative-additional-photo {
+                    width: 120px;
+                    height: 120px;
+                }
+                .creative-banner-section,
+                .creative-additional-photos {
+                    padding: 15px;
+                    margin: 15px 0;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .creative-additional-photo {
+                    width: 100px;
+                    height: 100px;
+                }
+                .creative-upload-btn,
+                .creative-remove-btn {
+                    padding: 10px 16px;
+                    font-size: 13px;
+                }
+            }
         `;
         
         const styleEl = document.createElement('style');
@@ -252,7 +380,7 @@ class CreativeManager {
                     <h3><i class="fas fa-flag"></i> Choose Your Profile Banner</h3>
                     <div class="creative-banner-grid" id="creativeBannerGrid">
                         ${this.BANNERS.map(banner => `
-                            <div class="creative-banner-item" data-banner="${banner.id}">
+                            <div class="creative-banner-item ${banner.class}" data-banner="${banner.id}">
                                 ${banner.name}
                             </div>
                         `).join('')}
@@ -448,14 +576,18 @@ class CreativeManager {
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                background: ${type === 'success' ? 'rgba(179, 0, 75, 0.95)' : type === 'error' ? 'rgba(139, 0, 0, 0.95)' : 'rgba(68, 68, 68, 0.95)'};
                 color: white;
-                padding: 12px 20px;
-                border-radius: 4px;
+                padding: 15px 25px;
+                border-radius: 8px;
                 z-index: 10000;
                 animation: slideIn 0.3s ease;
-                font-family: Arial, sans-serif;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                font-family: 'Inter', sans-serif;
+                font-weight: 600;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
             ">
                 ${message}
             </div>

@@ -98,44 +98,44 @@ class ChatThemeManager {
         return this.currentTheme;
     }
 
-    // Get all available themes with updated semi-transparent previews
+    // Get all available themes with BDSM aesthetic previews
     getAvailableThemes() {
         return [
             { 
                 id: 'default', 
-                name: 'Soft Lavender', 
-                preview: 'linear-gradient(135deg, rgba(168, 155, 255, 0.9) 0%, rgba(195, 187, 255, 0.7) 100%)',
-                messagePreview: 'linear-gradient(135deg, rgba(168, 155, 255, 0.9) 0%, rgba(140, 122, 255, 0.8) 100%)'
+                name: 'Crimson Dark', 
+                preview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(139, 0, 0, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(122, 0, 52, 0.8) 100%)'
             },
             { 
-                id: 'light-blue', 
-                name: 'Sky Blue', 
-                preview: 'linear-gradient(135deg, rgba(125, 211, 252, 0.9) 0%, rgba(186, 230, 253, 0.7) 100%)',
-                messagePreview: 'linear-gradient(135deg, rgba(125, 211, 252, 0.9) 0%, rgba(56, 189, 248, 0.8) 100%)'
+                id: 'dark-steel', 
+                name: 'Dark Steel', 
+                preview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(139, 0, 0, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(122, 0, 52, 0.8) 100%)'
             },
             { 
-                id: 'mint', 
-                name: 'Mint Green', 
-                preview: 'linear-gradient(135deg, rgba(110, 231, 183, 0.9) 0%, rgba(167, 243, 208, 0.7) 100%)',
-                messagePreview: 'linear-gradient(135deg, rgba(110, 231, 183, 0.9) 0%, rgba(52, 211, 153, 0.8) 100%)'
+                id: 'leather-dark', 
+                name: 'Leather Dark', 
+                preview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(101, 67, 33, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(122, 0, 52, 0.8) 100%)'
             },
             { 
-                id: 'peach', 
-                name: 'Warm Peach', 
-                preview: 'linear-gradient(135deg, rgba(251, 191, 135, 0.9) 0%, rgba(254, 215, 170, 0.7) 100%)',
-                messagePreview: 'linear-gradient(135deg, rgba(251, 191, 135, 0.9) 0%, rgba(249, 168, 77, 0.8) 100%)'
+                id: 'crimson-night', 
+                name: 'Crimson Night', 
+                preview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(102, 0, 0, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(102, 0, 0, 0.8) 100%)'
             },
             { 
-                id: 'rose', 
-                name: 'Gentle Rose', 
-                preview: 'linear-gradient(135deg, rgba(251, 182, 206, 0.9) 0%, rgba(252, 213, 206, 0.7) 100%)',
-                messagePreview: 'linear-gradient(135deg, rgba(251, 182, 206, 0.9) 0%, rgba(244, 114, 182, 0.8) 100%)'
+                id: 'metal-gray', 
+                name: 'Metal Gray', 
+                preview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(68, 68, 68, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(46, 46, 46, 0.8) 100%)'
             },
             { 
-                id: 'lilac', 
-                name: 'Soft Lilac', 
-                preview: 'linear-gradient(135deg, rgba(196, 181, 253, 0.9) 0%, rgba(221, 214, 254, 0.7) 100%)',
-                messagePreview: 'linear-gradient(135deg, rgba(196, 181, 253, 0.9) 0%, rgba(167, 139, 250, 0.8) 100%)'
+                id: 'deep-violet', 
+                name: 'Deep Violet', 
+                preview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(76, 29, 149, 0.7) 100%)',
+                messagePreview: 'linear-gradient(135deg, rgba(179, 0, 75, 0.9) 0%, rgba(122, 0, 52, 0.8) 100%)'
             }
         ];
     }
@@ -175,7 +175,7 @@ class ThemeSelectorUI {
                 <div class="theme-preview" style="background: ${theme.preview}">
                     <div class="theme-preview-content">
                         <div class="theme-message-preview" style="background: ${theme.messagePreview}"></div>
-                        <div class="theme-message-preview received" style="background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(226, 232, 240, 0.6);"></div>
+                        <div class="theme-message-preview received" style="background: rgba(26, 26, 26, 0.95); border: 1px solid rgba(46, 46, 46, 0.6);"></div>
                     </div>
                 </div>
                 <div class="theme-label">${theme.name}</div>
@@ -196,7 +196,7 @@ class ThemeSelectorUI {
         const chatPreview = document.getElementById('chatPreview');
         if (!chatPreview) return;
 
-        // Create a more realistic chat preview
+        // Create a more realistic chat preview with BDSM theme
         chatPreview.innerHTML = `
             <div class="chat-preview-container">
                 <div class="chat-preview-header">
@@ -290,22 +290,23 @@ class ThemeSelectorUI {
         if (typeof showNotification === 'function') {
             showNotification(message, type);
         } else {
-            // Fallback notification
+            // Fallback notification with BDSM theme
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? 'rgba(40, 167, 69, 0.95)' : 'rgba(220, 53, 69, 0.95)'};
+                background: ${type === 'success' ? 'rgba(179, 0, 75, 0.95)' : 'rgba(139, 0, 0, 0.95)'};
                 color: white;
                 padding: 15px 20px;
                 border-radius: 8px;
                 z-index: 10000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 font-weight: 500;
+                font-family: 'Inter', sans-serif;
             `;
             notification.textContent = message;
             document.body.appendChild(notification);
@@ -319,7 +320,7 @@ class ThemeSelectorUI {
     }
 }
 
-// Add CSS for theme selector
+// Add CSS for theme selector with BDSM styling
 const addThemeSelectorStyles = () => {
     const styles = `
         .theme-item {
@@ -340,12 +341,12 @@ const addThemeSelectorStyles = () => {
             transition: all 0.3s ease;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .theme-preview.selected {
-            border-color: rgba(74, 85, 104, 0.8);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            border-color: rgba(179, 0, 75, 0.8);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
         }
 
         .theme-preview-content {
@@ -365,24 +366,25 @@ const addThemeSelectorStyles = () => {
         }
 
         .theme-message-preview.received {
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(226, 232, 240, 0.6);
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid rgba(46, 46, 46, 0.6);
             margin-left: 20px;
         }
 
         .theme-label {
             text-align: center;
             font-weight: 600;
-            color: rgba(45, 55, 72, 0.9);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 14px;
             margin-top: 4px;
+            font-family: 'Inter', sans-serif;
         }
 
         .chat-preview-container {
             height: 300px;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             background: var(--chat-background);
@@ -446,6 +448,7 @@ const addThemeSelectorStyles = () => {
             border-radius: 12px;
             font-size: 12px;
             line-height: 1.3;
+            font-family: 'Inter', sans-serif;
         }
 
         .preview-message.received {
@@ -498,6 +501,23 @@ const addThemeSelectorStyles = () => {
             border-radius: 50%;
             background: var(--primary-color);
         }
+
+        /* BDSM Theme specific adjustments */
+        [data-theme] .theme-label {
+            color: var(--text-primary);
+        }
+
+        [data-theme] .theme-preview {
+            box-shadow: var(--shadow);
+        }
+
+        [data-theme] .theme-preview.selected {
+            box-shadow: var(--shadow-hover);
+        }
+
+        [data-theme] .chat-preview-container {
+            box-shadow: var(--shadow-lg);
+        }
     `;
 
     const styleSheet = document.createElement('style');
@@ -520,6 +540,47 @@ if (window.location.pathname.includes('chat.html')) {
     themeManager.loadUserTheme();
 }
 
+// Enhanced theme change listener for real-time updates
+window.addEventListener('themeChanged', (event) => {
+    const theme = event.detail.theme;
+    
+    // Update any dynamic elements that need theme awareness
+    updateDynamicElementsForTheme(theme);
+});
+
+function updateDynamicElementsForTheme(theme) {
+    // Update any dynamically created elements with the new theme
+    const dynamicElements = document.querySelectorAll('[data-theme-aware]');
+    dynamicElements.forEach(element => {
+        element.setAttribute('data-theme', theme);
+    });
+    
+    // If there's a chat interface, refresh message styling
+    if (window.chatInterface) {
+        window.chatInterface.refreshMessageStyles();
+    }
+}
+
 // Export for global access
 window.themeManager = themeManager;
 window.themeSelectorUI = themeSelectorUI;
+
+// Add helper function for chat interface integration
+window.integrateThemeWithChat = function(chatInstance) {
+    if (!chatInstance) return;
+    
+    // Store reference to chat interface
+    window.chatInterface = chatInstance;
+    
+    // Add theme change listener to chat instance
+    window.addEventListener('themeChanged', (event) => {
+        if (chatInstance.refreshTheme) {
+            chatInstance.refreshTheme(event.detail.theme);
+        }
+    });
+    
+    // Initialize with current theme
+    if (chatInstance.refreshTheme) {
+        chatInstance.refreshTheme(themeManager.getCurrentTheme());
+    }
+};

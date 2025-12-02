@@ -44,7 +44,7 @@ let viewedPosts = new Set();
 
 // Initialize notification system
 function initNotificationSystem() {
-    console.log('Initializing notification system...');
+    
     
     // Load dismissed notifications and viewed posts
     loadDismissedNotifications();
@@ -54,7 +54,7 @@ function initNotificationSystem() {
         if (user) {
             currentUser = user;
             loadViewedPosts();
-            console.log('User authenticated:', user.uid);
+            
             setupNotificationListener();
             setupNotificationCreators();
             updateNotificationBadge();
@@ -634,6 +634,9 @@ function showRealTimeToast(notification) {
             <div class="toast-message">${notification.message}</div>
         </div>
         <button class="toast-close">&times;</button>
+        <div class="swipe-indicator">
+            <i class="fas fa-chevron-up"></i>
+        </div>
     `;
 
     if (!document.getElementById('notification-toast-styles')) {
@@ -642,30 +645,35 @@ function showRealTimeToast(notification) {
         styles.textContent = `
             .notification-toast {
                 position: fixed;
-                top: 20px;
-                right: 20px;
-                background: white;
-                padding: 15px;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                top: 0;
+                left: 0;
+                right: 0;
+                background: var(--bg-card);
+                padding: 15px 20px;
+                border-bottom: 1px solid var(--border-color);
                 z-index: 10001;
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                max-width: 350px;
-                animation: slideInRight 0.3s ease;
-                border-left: 4px solid;
                 cursor: pointer;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-family: 'Inter', sans-serif;
+                transform: translateY(-100%);
+                animation: slideInTop 0.4s ease forwards;
+                box-shadow: var(--shadow-lg);
+                transition: transform 0.3s ease;
+                border-left: 4px solid;
             }
             .notification-toast.message {
-                border-left-color: #4a8cff;
+                border-left-color: var(--primary);
+                background: linear-gradient(135deg, var(--bg-card), rgba(179, 0, 75, 0.1));
             }
             .notification-toast.like {
-                border-left-color: #ff6b6b;
+                border-left-color: var(--secondary);
+                background: linear-gradient(135deg, var(--bg-card), rgba(139, 0, 0, 0.1));
             }
             .notification-toast.post {
-                border-left-color: #28a745;
+                border-left-color: var(--accent);
+                background: linear-gradient(135deg, var(--bg-card), rgba(68, 68, 68, 0.1));
             }
             .toast-icon {
                 width: 40px;
@@ -674,53 +682,91 @@ function showRealTimeToast(notification) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 18px;
+                font-size: 16px;
+                flex-shrink: 0;
             }
             .notification-toast.message .toast-icon {
-                background-color: rgba(74, 140, 255, 0.1);
-                color: #4a8cff;
+                background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                color: var(--text-primary);
             }
             .notification-toast.like .toast-icon {
-                background-color: rgba(255, 107, 107, 0.1);
-                color: #ff6b6b;
+                background: linear-gradient(135deg, var(--secondary), #5a0000);
+                color: var(--text-primary);
             }
             .notification-toast.post .toast-icon {
-                background-color: rgba(40, 167, 69, 0.1);
-                color: #28a745;
+                background: linear-gradient(135deg, var(--accent), #2a2a2a);
+                color: var(--text-primary);
             }
             .toast-content {
                 flex: 1;
+                min-width: 0;
             }
             .toast-title {
                 font-weight: 600;
                 margin-bottom: 4px;
-                color: #333;
+                color: var(--text-primary);
                 font-size: 14px;
             }
             .toast-message {
-                color: #666;
+                color: var(--text-secondary);
                 font-size: 13px;
+                line-height: 1.3;
             }
             .toast-close {
-                background: none;
-                border: none;
-                font-size: 18px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid var(--border-color);
+                border-radius: 50%;
+                font-size: 16px;
                 cursor: pointer;
-                color: #666;
+                color: var(--text-secondary);
                 padding: 0;
-                width: 24px;
-                height: 24px;
+                width: 28px;
+                height: 28px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                flex-shrink: 0;
+                transition: all 0.2s ease;
             }
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
+            .toast-close:hover {
+                background: var(--primary);
+                color: var(--text-primary);
+                border-color: var(--primary);
             }
-            @keyframes slideOutRight {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
+            .swipe-indicator {
+                position: absolute;
+                bottom: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: var(--text-light);
+                font-size: 12px;
+                opacity: 0.6;
+                animation: bounce 2s infinite;
+            }
+            @keyframes slideInTop {
+                from { transform: translateY(-100%); }
+                to { transform: translateY(0); }
+            }
+            @keyframes slideOutTop {
+                from { transform: translateY(0); }
+                to { transform: translateY(-100%); }
+            }
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% {
+                    transform: translateX(-50%) translateY(0);
+                }
+                40% {
+                    transform: translateX(-50%) translateY(-3px);
+                }
+                60% {
+                    transform: translateX(-50%) translateY(-2px);
+                }
+            }
+            .notification-toast.swiping {
+                transition: transform 0.1s ease;
+            }
+            .notification-toast.dismissing {
+                animation: slideOutTop 0.3s ease forwards;
             }
         `;
         document.head.appendChild(styles);
@@ -728,32 +774,99 @@ function showRealTimeToast(notification) {
 
     document.body.appendChild(toast);
 
-    setTimeout(() => {
-        toast.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
+    // Auto-dismiss after 5 seconds
+    const autoDismiss = setTimeout(() => {
+        dismissToast(toast);
     }, 5000);
 
+    // Touch/Mouse events for swipe dismissal
+    let startY = 0;
+    let currentY = 0;
+    let isSwiping = false;
+
+    function handleTouchStart(e) {
+        startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+        isSwiping = true;
+        toast.classList.add('swiping');
+        clearTimeout(autoDismiss);
+    }
+
+    function handleTouchMove(e) {
+        if (!isSwiping) return;
+        
+        currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+        const diffY = startY - currentY;
+        
+        if (diffY > 0) { // Only allow swiping up
+            const translateY = Math.max(-100, -diffY);
+            toast.style.transform = `translateY(${translateY}px)`;
+        }
+    }
+
+    function handleTouchEnd() {
+        if (!isSwiping) return;
+        
+        isSwiping = false;
+        toast.classList.remove('swiping');
+        
+        const diffY = startY - currentY;
+        const swipeThreshold = 50;
+        
+        if (diffY > swipeThreshold) {
+            dismissToast(toast);
+        } else {
+            // Return to original position
+            toast.style.transform = 'translateY(0)';
+            // Restart auto-dismiss
+            setTimeout(() => dismissToast(toast), 4000);
+        }
+    }
+
+    // Add event listeners for both touch and mouse
+    toast.addEventListener('touchstart', handleTouchStart, { passive: true });
+    toast.addEventListener('touchmove', handleTouchMove, { passive: true });
+    toast.addEventListener('touchend', handleTouchEnd);
+    
+    toast.addEventListener('mousedown', handleTouchStart);
+    toast.addEventListener('mousemove', handleTouchMove);
+    toast.addEventListener('mouseup', handleTouchEnd);
+    toast.addEventListener('mouseleave', handleTouchEnd);
+
+    // Close button
     toast.querySelector('.toast-close').addEventListener('click', (e) => {
         e.stopPropagation();
-        toast.remove();
+        dismissToast(toast);
     });
 
-    toast.addEventListener('click', () => {
-        if (notification.type === 'message' && notification.senderId) {
-            window.location.href = `chat.html?id=${notification.senderId}`;
-        } else if (notification.type === 'post' && notification.senderId) {
-            window.location.href = 'posts.html';
-            // Mark post as viewed when clicking notification
-            viewedPosts.add(notification.relatedId);
-            saveViewedPosts();
-            dismissedNotifications.add(`post_${notification.relatedId}`);
-            saveDismissedNotifications();
-        } else if (notification.senderId) {
-            window.location.href = `profile.html?id=${notification.senderId}`;
-        } else {
-            window.location.href = 'notification.html';
+    // Click to navigate
+    toast.addEventListener('click', (e) => {
+        if (!isSwiping) {
+            if (notification.type === 'message' && notification.senderId) {
+                window.location.href = `chat.html?id=${notification.senderId}`;
+            } else if (notification.type === 'post' && notification.senderId) {
+                window.location.href = 'posts.html';
+                // Mark post as viewed when clicking notification
+                viewedPosts.add(notification.relatedId);
+                saveViewedPosts();
+                dismissedNotifications.add(`post_${notification.relatedId}`);
+                saveDismissedNotifications();
+            } else if (notification.senderId) {
+                window.location.href = `profile.html?id=${notification.senderId}`;
+            } else {
+                window.location.href = 'notification.html';
+            }
+            dismissToast(toast);
         }
     });
+
+    function dismissToast(toastElement) {
+        toastElement.classList.add('dismissing');
+        setTimeout(() => {
+            if (toastElement.parentNode) {
+                toastElement.parentNode.removeChild(toastElement);
+            }
+        }, 300);
+    }
 }
 
 // Get notification icon

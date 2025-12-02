@@ -1,40 +1,40 @@
-/* Blue & White Theme */
+/* BDSM Leather & Steel Theme - Transformed from Blue & White */
 :root {
-    /* Lovely blue color palette */
-    --blue-primary: #4a8cff;
-    --blue-light: #87CEEB;
-    --blue-dark: #3a7be0;
-    --blue-accent: #5e9cff;
-    --blue-pastel: #F0F8FF;
+    /*  – Dark, Leather, Steel */
+    --primary: #b3004b; /* deep crimson */
+    --primary-dark: #7a0034;
+    --primary-light: #e63986;
     
-    /* White and neutral colors */
-    --white: #FFFFFF;
-    --white-smoke: #F8FBFE;
-    --white-soft: #F0F8FF;
-    --gray-light: #E1F5FE;
-    --gray-medium: #6C757D;
-    --gray-dark: #495057;
-    --text-dark: #2C3E50;
-    --text-muted: #6C757D;
+    --secondary: #8b0000; /* dark red for alerts/badges */
+    --accent: #444; /* metal/steel tone */
+    --text-primary: #ffffff;
+    --text-secondary: #d1d5db;
+    --text-light: #9ca3af;
+    --bg-primary: #0b0b0b; /* deep black */
+    --bg-secondary: #141414;
+    --bg-card: #1a1a1a;
+    --border: #2e2e2e;
+    --border-color: #2e2e2e;
+    --bg-light: #1b1b1b;
+    --accent-color: #b3004b;
+    --accent-dark: #7a0034;
     
-    /* Blue accent colors for inputs and buttons */
-    --primary-blue: #4a8cff;
-    --accent-blue: #5e9cff;
-    --dark-blue: #3a7be0;
+    /* Theme variables - BDSM transformed */
+    --primary-color: var(--primary);
+    --secondary-color: var(--secondary);
+    --accent-color: var(--accent);
+    --light-color: var(--bg-card);
+    --dark-color: var(--text-primary);
+    --text-color: var(--text-primary);
+    --text-light: var(--text-secondary);
+    --background-color: var(--bg-primary);
+    --border-color: var(--border);
     
-    /* Theme variables */
-    --primary-color: var(--blue-primary);
-    --secondary-color: var(--blue-light);
-    --accent-color: var(--blue-dark);
-    --light-color: var(--white-soft);
-    --dark-color: var(--gray-dark);
-    --text-color: var(--text-dark);
-    --text-light: var(--text-muted);
-    --background-color: var(--white);
-    --border-color: var(--gray-light);
     --border-radius: 12px;
-    --box-shadow: 0 8px 32px rgba(74, 144, 226, 0.08);
-    --box-shadow-hover: 0 12px 40px rgba(74, 144, 226, 0.12);
+    --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.8), 0 2px 4px -1px rgba(0, 0, 0, 0.7);
+    --box-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.8), 0 4px 6px -2px rgba(0, 0, 0, 0.7);
+    --shadow: var(--box-shadow);
+    --shadow-lg: var(--box-shadow-hover);
     --transition: all 0.3s ease;
 }
 
@@ -42,27 +42,26 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 body {
-    background-color: var(--background-color);
-    color: var(--text-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     line-height: 1.6;
-    background-image: 
-        radial-gradient(circle at 15% 50%, rgba(74, 140, 255, 0.03) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(135, 206, 235, 0.03) 0%, transparent 25%);
-    background-size: cover;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image: none !important;
 }
 
 a {
     text-decoration: none;
-    color: var(--primary-color);
+    color: var(--primary-light);
     transition: var(--transition);
 }
 
 .message-count {
-    background-color: var(--primary-color);
+    background-color: var(--secondary);
     color: white;
     border-radius: 50%;
     width: 18px;
@@ -74,7 +73,7 @@ a {
 }
 
 a:hover {
-    color: var(--blue-dark);
+    color: var(--primary);
 }
 
 img {
@@ -83,12 +82,12 @@ img {
     border-radius: 8px;
 }
 
-/* Message images and videos with transparent backgrounds */
+/* Message images and videos with dark theme */
 .message-image,
 .message-video {
     max-width: 100%;
     max-height: 300px;
-    border-radius: 6px;
+    border-radius: 16px;
     margin-bottom: 6px;
     display: block;
     background-color: transparent !important;
@@ -101,7 +100,7 @@ img {
 
 .message-video video {
     background: transparent !important;
-    border-radius: 6px;
+    border-radius: 16px;
 }
 
 .message-image img,
@@ -117,7 +116,7 @@ img {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-    color: var(--primary-color);
+    color: var(--primary-light);
     margin-bottom: 1rem;
     font-weight: 600;
 }
@@ -136,12 +135,13 @@ h3 {
 
 p {
     margin-bottom: 1rem;
+    color: var(--text-primary);
 }
 
 /* Buttons */
 .btn {
     display: inline-block;
-    padding: 0.75rem 1.5rem;
+    padding: 12px 24px;
     border-radius: var(--border-radius);
     font-weight: 600;
     text-align: center;
@@ -151,36 +151,36 @@ p {
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--primary);
+    color: var(--text-primary);
 }
 
 .btn-primary:hover {
-    background-color: var(--blue-dark);
-    box-shadow: var(--box-shadow-hover);
+    background-color: var(--primary-dark);
+    box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
 }
 
 .btn-accent {
-    background-color: var(--accent-blue);
-    color: var(--white);
+    background-color: var(--accent);
+    color: var(--text-primary);
 }
 
 .btn-accent:hover {
-    background-color: var(--dark-blue);
-    box-shadow: var(--box-shadow-hover);
+    background-color: #333;
+    box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
 }
 
 .btn-outline {
     background-color: transparent;
-    border: 2px solid var(--primary-color);
-    color: var(--primary-color);
+    border: 2px solid var(--primary);
+    color: var(--primary-light);
 }
 
 .btn-outline:hover {
-    background-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--primary);
+    color: var(--text-primary);
     transform: translateY(-2px);
 }
 
@@ -193,24 +193,24 @@ p {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--primary-light);
 }
 
 .form-control {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
+    padding: 12px;
+    border: 1px solid var(--border);
     border-radius: var(--border-radius);
     font-size: 1rem;
     transition: var(--transition);
-    background-color: var(--white);
-    color: var(--text-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .form-control:focus {
     outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(74, 140, 255, 0.25);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(179, 0, 75, 0.2);
 }
 
 textarea.form-control {
@@ -220,20 +220,20 @@ textarea.form-control {
 
 /* Navigation */
 .navbar {
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    box-shadow: var(--box-shadow);
-    padding: 1rem 0;
-    position: sticky;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(6px);
+    box-shadow: var(--shadow);
+    padding: 0.75rem 0;
+    position: fixed;
+    width: 100%;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -242,32 +242,31 @@ textarea.form-control {
 .logo {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary-light);
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.logo i {
-    font-size: 1.8rem;
+.logo::before {
+    content: "🔗";
 }
 
 .nav-menu {
     display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .nav-links {
     display: flex;
     list-style: none;
     align-items: center;
-}
-
-.nav-links li {
-    margin-left: 1.5rem;
+    gap: 1.5rem;
 }
 
 .nav-links a {
-    color: var(--text-color);
+    color: var(--text-secondary);
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -275,11 +274,12 @@ textarea.form-control {
     padding: 0.5rem 1rem;
     border-radius: var(--border-radius);
     transition: var(--transition);
+    font-size: 0.9rem;
 }
 
 .nav-links a:hover {
-    color: var(--primary-color);
-    background-color: var(--blue-pastel);
+    color: var(--primary-light);
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 .nav-links .btn-outline {
@@ -293,7 +293,7 @@ textarea.form-control {
     display: none;
     cursor: pointer;
     font-size: 1.5rem;
-    color: var(--primary-color);
+    color: var(--primary-light);
 }
 
 /* Main Content */
@@ -301,16 +301,18 @@ textarea.form-control {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1rem;
+    padding-top: 80px;
 }
 
 /* ========================= */
-/* UPGRADED DASHBOARD STYLES */
+/* UPGRADED DASHBOARD STYLES - BDSM THEME */
 /* ========================= */
 
 .dashboard-container {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 1rem;
+    padding-top: 80px;
 }
 
 .dashboard-header {
@@ -319,11 +321,11 @@ textarea.form-control {
     align-items: center;
     margin-bottom: 3rem;
     padding: 2.5rem;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(10px);
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
     animation: fadeInUp 0.8s ease;
 }
 
@@ -333,31 +335,31 @@ textarea.form-control {
     gap: 1rem;
     font-size: 2.8rem;
     margin: 0;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .dashboard-header h1 i {
-    color: var(--primary-color);
+    color: var(--primary);
     font-size: 3rem;
 }
 
 .points-balance {
-    background: linear-gradient(135deg, var(--primary-color), var(--blue-light));
-    color: var(--white);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: var(--text-primary);
     padding: 1rem 2rem;
     border-radius: 50px;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 1rem;
-    box-shadow: var(--box-shadow);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(179, 0, 75, 0.3);
     transition: var(--transition);
 }
 
 .points-balance:hover {
     transform: translateY(-2px);
-    box-shadow: var(--box-shadow-hover);
+    box-shadow: var(--shadow-lg);
 }
 
 .points-balance i {
@@ -386,10 +388,10 @@ textarea.form-control {
     justify-content: center;
     padding: 3rem 2rem;
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
@@ -402,7 +404,7 @@ textarea.form-control {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(74, 140, 255, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(179, 0, 75, 0.1), transparent);
     transition: left 0.6s ease;
 }
 
@@ -412,36 +414,36 @@ textarea.form-control {
 
 .dashboard-actions .btn:hover {
     transform: translateY(-8px);
-    box-shadow: var(--box-shadow-hover);
-    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
 }
 
 .dashboard-actions .btn i {
     font-size: 3.5rem;
     margin-bottom: 1.5rem;
-    color: var(--primary-color);
+    color: var(--primary);
     transition: var(--transition);
 }
 
 .dashboard-actions .btn:hover i {
     transform: scale(1.2);
-    color: var(--blue-dark);
+    color: var(--primary-light);
 }
 
 .dashboard-actions .btn span {
     font-size: 1.3rem;
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .dashboard-tips {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(10px);
     padding: 3rem;
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--shadow);
     margin-top: 3rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     animation: fadeInUp 0.8s ease 0.2s both;
 }
 
@@ -451,14 +453,14 @@ textarea.form-control {
     justify-content: center;
     gap: 1rem;
     margin-top: 0;
-    color: var(--text-dark);
+    color: var(--text-primary);
     text-align: center;
     margin-bottom: 2.5rem;
     font-size: 2.2rem;
 }
 
 .dashboard-tips h2 i {
-    color: var(--primary-color);
+    color: var(--primary);
     font-size: 2.5rem;
 }
 
@@ -471,10 +473,10 @@ textarea.form-control {
 }
 
 .dashboard-tips li {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(26, 26, 26, 0.7);
     padding: 1.5rem;
     border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -490,23 +492,23 @@ textarea.form-control {
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(to bottom, var(--primary-color), var(--blue-light));
+    background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
 }
 
 .dashboard-tips li:hover {
     transform: translateX(8px);
-    background: rgba(255, 255, 255, 0.9);
-    border-color: var(--primary-color);
+    background: rgba(26, 26, 26, 0.9);
+    border-color: var(--primary);
 }
 
 .dashboard-tips li i {
-    color: var(--primary-color);
+    color: var(--primary);
     font-size: 1.3rem;
     min-width: 25px;
 }
 
 .dashboard-tips li span {
-    color: var(--text-color);
+    color: var(--text-primary);
     font-size: 1.1rem;
     line-height: 1.5;
 }
@@ -528,6 +530,7 @@ textarea.form-control {
     max-width: 1000px;
     margin: 2rem auto;
     padding: 1rem;
+    padding-top: 80px;
 }
 
 .back-btn {
@@ -535,7 +538,11 @@ textarea.form-control {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--text-dark);
+    color: var(--text-primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
 }
 
 .payment-header {
@@ -544,22 +551,22 @@ textarea.form-control {
     align-items: center;
     margin-bottom: 2rem;
     padding: 1.5rem;
-    background-color: var(--white);
+    background-color: var(--bg-card);
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
 }
 
 .current-points {
-    background-color: var(--blue-pastel);
+    background-color: rgba(179, 0, 75, 0.2);
     padding: 0.75rem 1.5rem;
     border-radius: 50px;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    border: 1px solid var(--primary-color);
-    color: var(--text-dark);
+    border: 1px solid var(--primary);
+    color: var(--text-primary);
 }
 
 .plans-container {
@@ -570,26 +577,26 @@ textarea.form-control {
 }
 
 .plan-card {
-    background-color: var(--white);
+    background-color: var(--bg-card);
     border-radius: var(--border-radius);
     padding: 2rem;
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--shadow);
     border: 2px solid transparent;
     transition: var(--transition);
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
 }
 
 .plan-card.selected {
-    border-color: var(--primary-color);
+    border-color: var(--primary);
     transform: translateY(-5px);
-    box-shadow: var(--box-shadow-hover);
+    box-shadow: var(--shadow-lg);
 }
 
 .plan-card h3 {
     margin-top: 0;
-    color: var(--primary-color);
+    color: var(--primary-light);
     text-align: center;
     font-size: 1.5rem;
 }
@@ -598,7 +605,7 @@ textarea.form-control {
     font-size: 2.5rem;
     font-weight: bold;
     margin: 1.5rem 0;
-    color: var(--primary-color);
+    color: var(--primary);
     text-align: center;
 }
 
@@ -611,11 +618,11 @@ textarea.form-control {
 
 .plan-features li {
     padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--text-color);
+    color: var(--text-primary);
 }
 
 .plan-features li:last-child {
@@ -623,7 +630,7 @@ textarea.form-control {
 }
 
 .plan-features li i {
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .plan-button {
@@ -634,18 +641,18 @@ textarea.form-control {
 }
 
 .payment-instructions {
-    background-color: var(--white);
+    background-color: var(--bg-card);
     padding: 2rem;
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--shadow);
     margin: 3rem 0;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
 }
 
 .payment-instructions h2 {
     text-align: center;
     margin-bottom: 1.5rem;
-    color: var(--primary-color);
+    color: var(--primary-light);
 }
 
 .wallet-option {
@@ -653,7 +660,7 @@ textarea.form-control {
 }
 
 .wallet-option h3 {
-    color: var(--primary-color);
+    color: var(--primary-light);
     margin-bottom: 0.5rem;
     font-size: 1.25rem;
 }
@@ -662,11 +669,11 @@ textarea.form-control {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: var(--white-smoke);
+    background-color: var(--bg-primary);
     padding: 1rem;
     border-radius: var(--border-radius);
     margin-top: 0.5rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
 }
 
 .wallet-address code {
@@ -675,12 +682,12 @@ textarea.form-control {
     text-overflow: ellipsis;
     font-family: monospace;
     font-size: 0.9rem;
-    color: var(--text-color);
+    color: var(--text-primary);
 }
 
 .copy-btn {
-    background-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--primary);
+    color: var(--text-primary);
     border: none;
     padding: 0.5rem 1rem;
     border-radius: var(--border-radius);
@@ -692,29 +699,29 @@ textarea.form-control {
 }
 
 .copy-btn:hover {
-    background-color: var(--blue-dark);
+    background-color: var(--primary-dark);
     transform: translateY(-2px);
 }
 
 .note {
     font-style: italic;
-    color: var(--text-light);
+    color: var(--text-secondary);
     text-align: center;
     margin-top: 1.5rem;
 }
 
 .payment-form {
-    background-color: var(--white);
+    background-color: var(--bg-card);
     padding: 2rem;
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--shadow);
     margin-top: 2rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
 }
 
 /* Admin Panel Styles */
 .admin-body {
-    background-color: var(--background-color);
+    background-color: var(--bg-primary);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -728,20 +735,20 @@ textarea.form-control {
 }
 
 .admin-login-form {
-    background-color: var(--white);
+    background-color: var(--bg-card);
     padding: 3rem;
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--shadow-lg);
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
 }
 
 .admin-login-form h1 {
     text-align: center;
     margin-bottom: 2rem;
-    color: var(--primary-color);
+    color: var(--primary-light);
 }
 
 .admin-login-form .form-group {
@@ -757,25 +764,25 @@ textarea.form-control {
 
 .admin-content {
     width: 100%;
-    background-color: var(--white);
+    background-color: var(--bg-card);
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--shadow);
     overflow: hidden;
     height: 100%;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
 }
 
 .admin-header {
     padding: 1.5rem;
-    background-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--primary);
+    color: var(--text-primary);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .admin-header h1 {
-    color: var(--white);
+    color: var(--text-primary);
     margin-bottom: 0;
 }
 
@@ -784,17 +791,17 @@ textarea.form-control {
 }
 
 .admin-section h2 {
-    color: var(--primary-color);
+    color: var(--primary-light);
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border);
 }
 
 .payment-list {
-    background-color: var(--white-smoke);
+    background-color: var(--bg-primary);
     border-radius: var(--border-radius);
     overflow: hidden;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
 }
 
 .payment-item {
@@ -802,21 +809,21 @@ textarea.form-control {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border);
     transition: var(--transition);
 }
 
 .payment-item:hover {
-    background-color: var(--white);
+    background-color: var(--bg-card);
 }
 
 .payment-info p {
     margin: 0.5rem 0;
-    color: var(--text-color);
+    color: var(--text-primary);
 }
 
 .payment-info p strong {
-    color: var(--primary-color);
+    color: var(--primary-light);
 }
 
 .payment-actions {
@@ -835,7 +842,7 @@ textarea.form-control {
 
 .approve-btn {
     background-color: #28a745;
-    color: var(--white);
+    color: var(--text-primary);
 }
 
 .approve-btn:hover {
@@ -845,7 +852,7 @@ textarea.form-control {
 
 .reject-btn {
     background-color: #dc3545;
-    color: var(--white);
+    color: var(--text-primary);
 }
 
 .reject-btn:hover {
@@ -861,10 +868,10 @@ textarea.form-control {
         top: 100%;
         left: 0;
         right: 0;
-        background-color: var(--white);
-        box-shadow: var(--box-shadow);
+        background-color: var(--bg-card);
+        box-shadow: var(--shadow);
         padding: 1rem;
-        border-top: 1px solid var(--border-color);
+        border-top: 1px solid var(--border);
         z-index: 999;
     }
 
@@ -874,6 +881,7 @@ textarea.form-control {
 
     .nav-links {
         flex-direction: column;
+        gap: 0.5rem;
     }
 
     .nav-links li {
@@ -922,16 +930,16 @@ textarea.form-control {
     padding: 14px;
     border: none;
     border-radius: 12px;
-    background: var(--white);
-    box-shadow: 0 0 0 1px var(--border-color);
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 1px var(--border);
     font-size: 16px;
     width: 100%;
-    color: var(--text-color);
+    color: var(--text-primary);
     transition: var(--transition);
 }
 
 .input:focus {
-    box-shadow: 0 0 0 2px var(--primary-blue);
+    box-shadow: 0 0 0 2px var(--primary);
     outline: none;
 }
 
@@ -954,8 +962,8 @@ textarea.form-control {
     border: none;
     border-radius: 14px;
     font-size: 16px;
-    background: linear-gradient(to right, var(--primary-color), var(--blue-light));
-    color: white;
+    background: linear-gradient(to right, var(--primary), var(--primary-dark));
+    color: var(--text-primary);
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
@@ -976,13 +984,13 @@ textarea {
     padding: 12px 15px;
     margin: 8px 0;
     box-sizing: border-box;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--border);
     border-radius: 8px;
     font-size: 16px;
-    background-color: var(--white);
+    background-color: var(--bg-primary);
     transition: all 0.3s ease;
     outline: none;
-    color: var(--text-color);
+    color: var(--text-primary);
 }
 
 /* Focus effect (when clicked/selected) */
@@ -991,9 +999,9 @@ input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
 textarea:focus {
-    border-color: var(--primary-blue);
-    background-color: var(--white);
-    box-shadow: 0 0 8px rgba(74, 140, 255, 0.3);
+    border-color: var(--primary);
+    background-color: var(--bg-primary);
+    box-shadow: 0 0 8px rgba(179, 0, 75, 0.3);
 }
 
 /* Placeholder styling */
@@ -1004,53 +1012,53 @@ textarea::placeholder {
 }
 
 .plan-button.selected {
-    border: 2px solid var(--primary-color);
-    background-color: var(--blue-pastel);
+    border: 2px solid var(--primary);
+    background-color: rgba(179, 0, 75, 0.2);
     transform: scale(1.02);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--shadow);
 }
 
 .plan-button.selected .plan-price {
-    color: var(--primary-color);
+    color: var(--primary);
     font-weight: bold;
 }
 
 .plan-button {
     transition: all 0.3s ease;
     cursor: pointer;
-    background-color: var(--white);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
 }
 
 .plan-button:hover {
-    background-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--primary);
+    color: var(--text-primary);
     transform: translateY(-2px);
 }
 
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--white-smoke);
+    background: var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
+    background: var(--border);
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-medium);
+    background: var(--text-light);
 }
 
 /* Selection Color */
 ::selection {
-    background-color: var(--blue-pastel);
-    color: var(--text-dark);
+    background-color: rgba(179, 0, 75, 0.3);
+    color: var(--text-primary);
 }
 
 /* Focus Styles */
@@ -1058,7 +1066,7 @@ button:focus,
 input:focus,
 select:focus,
 textarea:focus {
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
 
@@ -1095,25 +1103,25 @@ textarea:focus {
 .p-4 { padding: 2rem; }
 .p-5 { padding: 3rem; }
 
-/* Blue theme enhancements */
+/* BDSM theme enhancements */
 .dashboard-actions .btn {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(26, 26, 26, 0.95);
 }
 
 .dashboard-tips li {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(26, 26, 26, 0.7);
 }
 
 .nav-links a:hover {
-    background-color: var(--blue-pastel);
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 .plan-card {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(26, 26, 26, 0.95);
 }
 
 .payment-item:hover {
-    background-color: var(--blue-pastel);
+    background-color: rgba(26, 26, 26, 0.8);
 }
 
 /* Enhanced hover effects */
@@ -1123,41 +1131,75 @@ textarea:focus {
 
 .plan-card:hover {
     transform: translateY(-5px);
-    box-shadow: var(--box-shadow-hover);
+    box-shadow: var(--shadow-lg);
 }
 
-/* Blue gradient accents */
+/* BDSM gradient accents */
 .points-balance {
-    background: linear-gradient(135deg, var(--primary-color), var(--blue-light));
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
 }
 
 .dashboard-tips li::before {
-    background: linear-gradient(to bottom, var(--primary-color), var(--blue-light));
+    background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
 }
 
 .button {
-    background: linear-gradient(to right, var(--primary-color), var(--blue-light));
+    background: linear-gradient(to right, var(--primary), var(--primary-dark));
 }
 
-/* Additional blue theme improvements */
+/* Additional BDSM theme improvements */
 body {
-    background-color: var(--background-color);
+    background-color: var(--bg-primary);
 }
 
 .navbar {
-    background-color: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .dashboard-header,
 .dashboard-tips,
 .plan-card,
 .payment-instructions {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(10px);
 }
 
-/* Enhanced blue shadows */
+/* Enhanced dark shadows */
 :root {
-    --box-shadow: 0 8px 32px rgba(74, 144, 226, 0.12);
-    --box-shadow-hover: 0 12px 40px rgba(74, 144, 226, 0.18);
+    --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.8), 0 2px 4px -1px rgba(0, 0, 0, 0.7);
+    --box-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.8), 0 4px 6px -2px rgba(0, 0, 0, 0.7);
+}
+
+/* Heart pulse animation for like buttons */
+@keyframes heartPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.like-btn:active {
+    animation: heartPulse 0.3s ease;
+}
+
+/* Additional BDSM theme elements */
+.interest-tag {
+    background-color: rgba(179, 0, 75, 0.2);
+    color: var(--primary-light);
+    border: 1px solid rgba(179, 0, 75, 0.3);
+}
+
+.menu-item.active, .menu-item:hover {
+    background-color: rgba(179, 0, 75, 0.2);
+    color: var(--primary-light);
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(179, 0, 75, 0.2);
 }

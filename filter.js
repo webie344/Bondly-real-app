@@ -169,7 +169,7 @@ class GenderFilter {
                 this.currentFilteredIndex = 0;
                 this.updateSearchIconState(true);
                 this.displayFilteredProfile(0);
-                this.showNotification(`Found ${this.filteredProfiles.length} ${this.selectedGender} profiles (shuffled)`);
+                this.showNotification(`Found ${this.filteredProfiles.length} ${this.selectedGender} profiles `);
             } else {
                 this.showNoProfilesMessage();
             }

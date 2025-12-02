@@ -3,18 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - Bondly</title>
+    <title>Chat - WhipRoom</title>
+        <!-- Add these in your head tag -->
+<link rel="stylesheet" href="scro-fix.css">
+
+
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="chat.css">
     
 
     <style>
     body {
-        font-family: 'Nunito', sans-serif;
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
     }
+    
     .game-icon-btn{
-        font-size:3px;
+        font-size: 3px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
     }
+    
+    .game-icon-btn:hover {
+        background: rgba(179, 0, 75, 0.2);
+        color: var(--primary-light);
+    }
+
 /* Override the existing chat-input styles for focus state */
 .chat-input.input-focused {
     position: relative !important;
@@ -26,9 +42,10 @@
     width: 100% !important;
     flex: none !important;
     padding-right: 50px !important;
-    background: var(--white) !important;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1) !important;
+    background: var(--bg-card) !important;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3) !important;
     z-index: 100 !important;
+    border: 1px solid var(--primary) !important;
 }
 
 .chat-input.input-focused .send-btn {
@@ -37,6 +54,7 @@
     z-index: 101 !important;
     opacity: 1 !important;
     visibility: visible !important;
+    background: var(--primary) !important;
 }
 
 .chat-input.input-focused .attachment-btn,
@@ -45,51 +63,55 @@
     visibility: hidden !important;
     pointer-events: none !important;
 }
+
 .message.sending .message-time {
     font-style: italic;
     color: var(--text-light);
 }
     
-    .voice-message-play-btn {
+.voice-message-play-btn {
     z-index: 10; /* Ensure it's above other elements */
     pointer-events: auto; /* Make sure it's clickable */
 }
+
 .voice-note-indicator {
-        display: none;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 15px;
-        background-color: #f5f5f5;
-        border-radius: 25px;
-        margin: 10px 0;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background-color: var(--bg-card);
+    border-radius: 25px;
+    margin: 10px 0;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
     
-    .voice-note-timer {
-        font-size: 14px;
-        color: #333;
-        font-weight: bold;
-    }
+.voice-note-timer {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: bold;
+}
     
-    .voice-note-controls {
-        display: flex;
-        gap: 10px;
-    }
+.voice-note-controls {
+    display: flex;
+    gap: 10px;
+}
     
-    .voice-note-btn {
-        background: none;
-        border: none;
-        color: #ff4757;
-        font-size: 10px;
-        cursor: pointer;
-        padding: 5px 10px;
-        border-radius: 50%;
-        transition: all 0.3s;
-    }
+.voice-note-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 10px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
     
-    .voice-note-btn:hover {
-        background-color: rgba(255, 71, 87, 0.1);
-    }
+.voice-note-btn:hover {
+    background-color: rgba(179, 0, 75, 0.1);
+}
+
 .voice-message-controls {
     pointer-events: none; /* Let clicks pass through to children */
 }
@@ -98,22 +120,20 @@
     pointer-events: auto; /* But make children clickable */
 }
 
-
-
 /* Call Controls - Right Aligned Positioning */
 .call-controls {
     position: fixed;
     right: 15px;
-    margin-top:50px ;
+    margin-top: 50px;
     transform: translateY(-50%);
     display: flex;
     gap: 10px;
-    z-index:100 ;
+    z-index: 100;
 }
 
 .call-btn {
-    background:transparent ;
-    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -122,14 +142,15 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    color: black;
+    box-shadow: var(--shadow);
+    color: var(--text-primary);
 }
 
 .call-btn:hover {
-    background: white;
+    background: var(--primary);
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
+    color: white;
 }
 
 .call-btn i {
@@ -138,24 +159,23 @@
 
 /* Voice call button specific */
 #voiceCallBtn {
-    background:#FFFFFF ; /* Green */
-    color: black;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
 }
 
 #voiceCallBtn:hover {
-    background: transparent;
+    background: var(--primary);
 }
 
 /* Video call button specific */
 #videoCallBtn {
-    background: transparent; /* Blue */
-    color: black;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
 }
 
 #videoCallBtn:hover {
-    background: var(--white);
+    background: var(--primary);
 }
-
 
 @media (max-width: 480px) {
     .call-controls {
@@ -177,200 +197,292 @@
     }
 }
 
-
+/* Message Reactions */
+/* Reaction Picker - FIXED POSITIONING */
+.message-reactions {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+}
     
-    /* Message Reactions */
-    /* Reaction Picker - FIXED POSITIONING */
-    .message-reactions {
-        display: flex;
-        gap: 5px;
-        margin-top: 5px;
-        flex-wrap: wrap;
+.reaction {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+    
+.reaction-count {
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+    
+/* Reaction Picker - FIXED STYLES */
+.reaction-picker {
+    position: fixed;
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 10px 15px;
+    display: flex;
+    gap: 6px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    animation: slideUp 0.1s ease-out;
+    border: 1px solid var(--border);
+    max-width: calc(100vw - 40px);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+    
+.reaction-emoji {
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 5px;
+    min-width: 30px;
+    text-align: center;
+}
+    
+.reaction-emoji:hover {
+    transform: scale(1.3);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+    
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
     }
-    
-    .reaction {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 10px;
-        padding: 2px 6px;
-        font-size: 12px;
-        display: flex;
-        align-items: center;
-        gap: 2px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
+}
     
-    .reaction-count {
-        font-size: 10px;
-        color: #666;
-    }
-    
-    /* Reaction Picker - FIXED STYLES */
+/* Mobile responsiveness */
+@media (max-width: 768px) {
     .reaction-picker {
-        position: fixed;
-        background: white;
-        border-radius: 24px;
-        padding: 10px 15px;
-        display: flex;
-        gap: 6px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        z-index: 1000;
-        animation: slideUp 0.1s ease-out;
-        border: 1px solid #e0e0e0;
-        max-width: calc(100vw - 40px);
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .reaction-emoji {
-        font-size: 24px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        padding: 5px;
-        min-width: 30px;
-        text-align: center;
-    }
-    
-    .reaction-emoji:hover {
-        transform: scale(1.3);
-        background: #f0f0f0;
-        border-radius: 50%;
-    }
-    
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px) scale(0.9);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        .reaction-picker {
-            padding: 8px 12px;
-            gap: 8px;
-            max-width: 90vw;
-            margin: 0 auto;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-        }
-        
-        .reaction-emoji {
-            font-size: 22px;
-            min-width: 28px;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .reaction-emoji {
-            font-size: 20px;
-            padding: 4px;
-            min-width: 26px;
-        }
-    }
-    
-    /* Reply Preview */
-    .reply-preview {
-        display: flex;
-        align-items: center;
         padding: 8px 12px;
-        background: #f5f5f5;
-        border-left: 3px solid #ff4757;
-        margin-bottom: 10px;
-        border-radius: 4px;
-    }
-    
-    .reply-preview-content {
-        flex: 1;
-        margin-left: 10px;
-        overflow: hidden;
-    }
-    
-    .reply-preview-text {
-        font-size: 14px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: #666;
-    }
-    
-    .reply-preview-name {
-        font-size: 12px;
-        font-weight: bold;
-        color: #ff4757;
-    }
-    
-    .reply-preview-cancel {
-        background: none;
-        border: none;
-        color: #666;
-        cursor: pointer;
-        font-size: 16px;
-        padding: 5px;
-    }
-    
-    /* Message context menu */
-    .message-context-menu {
-        position: absolute;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 100;
-        padding: 8px 0;
-        display: none;
-    }
-    
-    .context-menu-item {
-        padding: 10px 16px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
         gap: 8px;
-        font-size: 14px;
+        max-width: 90vw;
+        margin: 0 auto;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
     }
-    
-    .context-menu-item:hover {
-        background: #f5f5f5;
+        
+    .reaction-emoji {
+        font-size: 22px;
+        min-width: 28px;
     }
+}
     
-    /* Swipe for reply */
+@media (max-width: 480px) {
+    .reaction-emoji {
+        font-size: 20px;
+        padding: 4px;
+        min-width: 26px;
+    }
+}
+    
+/* Reply Preview */
+.reply-preview {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid var(--primary);
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+}
+    
+.reply-preview-content {
+    flex: 1;
+    margin-left: 10px;
+    overflow: hidden;
+}
+    
+.reply-preview-text {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-secondary);
+}
+    
+.reply-preview-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary-light);
+}
+    
+.reply-preview-cancel {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+}
+    
+.reply-preview-cancel:hover {
+    color: var(--primary-light);
+}
+    
+/* Message context menu */
+.message-context-menu {
+    position: absolute;
+    background: var(--bg-card);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+    padding: 8px 0;
+    display: none;
+    border: 1px solid var(--border);
+}
+    
+.context-menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+    
+.context-menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+    
+/* Swipe for reply */
+.reply-indicator {
+    font-size: 12px;
+    color: var(--primary-light);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+    
+.reply-indicator i {
+    font-size: 10px;
+}
+    
+.reply-message-preview {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 2px solid var(--primary);
+    padding: 4px 8px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    font-size: 12px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-secondary);
+}
 
-    .reply-indicator {
-        font-size: 12px;
-        color: #ff4757;
-        margin-bottom: 4px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .reply-indicator i {
-        font-size: 10px;
-    }
-    
-    .reply-message-preview {
-        background: rgba(0, 0, 0, 0.05);
-        border-left: 2px solid #ff4757;
-        padding: 4px 8px;
-        margin-bottom: 4px;
-        border-radius: 4px;
-        font-size: 12px;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+/* Additional chat-specific styles */
+.typing-indicator {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.chat-input input {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.chat-input input::placeholder {
+    color: var(--text-light);
+}
+
+.attachment-btn, .voice-note-btn-main, .send-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.attachment-btn:hover, .voice-note-btn-main:hover, .send-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* Voice note player styles */
+.voice-note-player {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+}
+
+.voice-progress {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.voice-progress-bar {
+    background: var(--primary);
+}
+
+/* Message status indicators */
+.message-status .fa-check {
+    color: var(--text-secondary);
+}
+
+.message-status .fa-check-double {
+    color: var(--primary-light);
+}
+
+/* Online status indicator */
+.online-status .fa-circle {
+    color: var(--primary-light);
+}
+
+/* Back button styling */
+.back-btn {
+    color: var(--text-primary);
+}
+
+.back-btn:hover {
+    color: var(--primary-light);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Game button styling */
+#gameInviteBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#gameInviteBtn:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.1);
+}
     </style>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    
-
     <div class="chat-container">
         <div class="chat-header">
             <button class="back-btn" id="backToMessages"><i class="fas fa-arrow-left"></i></button>
@@ -380,20 +492,18 @@
                     <h3 id="chatPartnerName">Loading..</h3>
                     <p class="online-status" id="chatPartnerStatus"><i class="fas fa-circle"></i> Online</p>
                 </div>
-               <!-- Add these buttons to your chat.html -->
-<!-- Add this right after your chat header div -->
-<!-- Add this right after your chat header div -->
-<div id="callControls" class="call-controls">
-    <button id="voiceCallBtn" class="call-btn">
-        <i class="fas fa-phone"></i> 
-    </button>
-    <button id="videoCallBtn" class="call-btn">
-        <i class="fas fa-video"></i> 
-    </button>
-</div>
-
+                <!-- Call Controls -->
+                <div id="callControls" class="call-controls">
+                    <button id="voiceCallBtn" class="call-btn">
+                        <i class="fas fa-phone"></i> 
+                    </button>
+                    <button id="videoCallBtn" class="call-btn">
+                        <i class="fas fa-video"></i> 
+                    </button>
+                </div>
+            </div>
         </div>
-        </div>
+        
         <div class="chat-messages" id="chatMessages">
             <!-- Messages will be loaded here -->
         </div>
@@ -436,56 +546,24 @@
                 <button class="voice-note-btn-main" id="voiceNoteBtn">
                     <i class="fas fa-microphone"></i>
                 </button>
-<!-- Add this button in your chat.html with your other action buttons -->
-<button id="gameInviteBtn" class="game-icon-btn" title="Play Games" onclick="openGameSelection()">
-    🎮
-</button>
-
-<script>
-// Add this function to your chat.html
-function openGameSelection() {
-    // Get chat partner info from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const chatPartnerId = urlParams.get('id');
-    
-    // Get partner name from the page
-    let chatPartnerName = 'Opponent';
-    const partnerNameElement = document.getElementById('chatPartnerName');
-    if (partnerNameElement) {
-        chatPartnerName = partnerNameElement.textContent || 'Opponent';
-    }
-    
-    if (chatPartnerId && window.gameManager) {
-        window.gameManager.showGameSelectionModal(chatPartnerId, chatPartnerName);
-    } else {
-        alert('Please start a chat with someone first or wait for game system to load');
-    }
-}
-</script>        <input type="text" id="messageInput" placeholder="Type a message...">
+                <!-- Game Invite Button -->
+                <button id="gameInviteBtn" class="game-icon-btn" title="Play Games" onclick="openGameSelection()">
+                     👾 
+                </button>
+                <input type="text" id="messageInput" placeholder="Type a message...">
                 <button class="send-btn" id="sendMessageBtn"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
-    
-    
-    
+    <!-- Add this to all pages, but especially chat.html and messages.html -->
+<script src="smooth.js"></script>
     <script type="module" src="call.js"></script>
-
-     <script type="module" src="pic.js"></script>
-    
-     <script type="module" src="app.js"></script>
+    <script type="module" src="pic.js"></script>
+    <script type="module" src="app.js"></script>
     <script type="module" src="chat.js"></script>
-    <!-- In login.html, signup.html, mingle.html, chat.html, messages.html, etc. -->
-<script type="module" src="emails.js"></script>
-
-    <!-- Add this in your chat.html head -->
-<script type="module" src="game.js"></script>
-
+<script src="fix.js"></script>
+    <script type="module" src="game.js"></script>
     <script type="module" src="additional.js"></script>
-     
-
-
-    
     
     <!-- Add this script for reaction picker positioning -->
     <script>
@@ -517,47 +595,68 @@ function openGameSelection() {
     }
     </script>
 
-
-
-<script>
-// Add this to your chat.html to initialize the game button
-document.addEventListener('DOMContentLoaded', function() {
-    const gameBtn = document.getElementById('gameInviteBtn');
-    if (gameBtn) {
-        gameBtn.addEventListener('click', function() {
-            // Get the chat partner ID from your chat implementation
-            const chatPartnerId = window.chatPartnerId; // You'll need to set this
-            const chatPartnerName = document.getElementById('chatPartnerName')?.textContent || 'Opponent';
-            
-            if (chatPartnerId && window.gameManager) {
-                window.gameManager.showGameSelectionModal(chatPartnerId, chatPartnerName);
-            }
-        });
-    }
-});
-</script>
     <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const chatInput = document.querySelector('.chat-input');
-    const inputField = document.querySelector('.chat-input input[type="text"]');
-    
-    if (!inputField) return;
-    
-    inputField.addEventListener('focus', function() {
-        chatInput.classList.add('input-focused');
-    });
-    
-    inputField.addEventListener('blur', function() {
-        chatInput.classList.remove('input-focused');
-    });
-    
-    // Close when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!chatInput.contains(e.target)) {
-            chatInput.classList.remove('input-focused');
+    // Add this to your chat.html to initialize the game button
+    document.addEventListener('DOMContentLoaded', function() {
+        const gameBtn = document.getElementById('gameInviteBtn');
+        if (gameBtn) {
+            gameBtn.addEventListener('click', function() {
+                // Get the chat partner ID from your chat implementation
+                const chatPartnerId = window.chatPartnerId; // You'll need to set this
+                const chatPartnerName = document.getElementById('chatPartnerName')?.textContent || 'Opponent';
+                
+                if (chatPartnerId && window.gameManager) {
+                    window.gameManager.showGameSelectionModal(chatPartnerId, chatPartnerName);
+                }
+            });
         }
     });
-});
     </script>
-    </body>
+    
+    <script>
+    // Add this function to your chat.html
+    function openGameSelection() {
+        // Get chat partner info from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatPartnerId = urlParams.get('id');
+        
+        // Get partner name from the page
+        let chatPartnerName = 'Opponent';
+        const partnerNameElement = document.getElementById('chatPartnerName');
+        if (partnerNameElement) {
+            chatPartnerName = partnerNameElement.textContent || 'Opponent';
+        }
+        
+        if (chatPartnerId && window.gameManager) {
+            window.gameManager.showGameSelectionModal(chatPartnerId, chatPartnerName);
+        } else {
+            alert('Please start a chat with someone first or wait for game system to load');
+        }
+    }
+    </script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatInput = document.querySelector('.chat-input');
+        const inputField = document.querySelector('.chat-input input[type="text"]');
+        
+        if (!inputField) return;
+        
+        inputField.addEventListener('focus', function() {
+            chatInput.classList.add('input-focused');
+        });
+        
+        inputField.addEventListener('blur', function() {
+            chatInput.classList.remove('input-focused');
+        });
+        
+        // Close when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!chatInput.contains(e.target)) {
+                chatInput.classList.remove('input-focused');
+            }
+        });
+    });
+    </script>
+</body>
 </html>
