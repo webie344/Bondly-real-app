@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups - WhipRoom</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #b3004b;
+            --primary-dark: #7a0034;
+            --primary-light: #e63986;
+            --secondary: #8b0000;
+            --accent: #444;
+            --text-primary: #ffffff;
+            --text-secondary: #d1d5db;
+            --text-light: #9ca3af;
+            --bg-primary: #0b0b0b;
+            --bg-secondary: #141414;
+            --bg-card: #1a1a1a;
+            --border: #2e2e2e;
+            --accent-color: #b3004b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.8);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(6px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0.75rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "👥";
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+        }
+
+        .nav-links:hover {
+            color: var(--primary-light);
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .nav-links i {
+            font-size: 1.25rem;
+        }
+
+        .main-content {
+            margin-top: 70px;
+            padding: 20px;
+        }
+
+        .page-header {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .create-group-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .create-group-btn:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            transform: translateY(-2px);
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .group-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .group-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .group-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        .group-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .group-category {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .group-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .group-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+
+        .group-members {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-light);
+        }
+
+        .group-privacy {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-light);
+        }
+
+        .group-content {
+            padding: 20px;
+        }
+
+        .group-topics {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .topics-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .topic-tag {
+            background: rgba(179, 0, 75, 0.1);
+            color: var(--primary-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(179, 0, 75, 0.3);
+        }
+
+        .group-rules {
+            margin-bottom: 20px;
+        }
+
+        .rules-list {
+            list-style: none;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .rule-item i {
+            color: var(--primary-light);
+            font-size: 0.8rem;
+            margin-top: 3px;
+        }
+
+        .group-actions {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .join-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .join-btn:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        }
+
+        .join-btn.joined {
+            background: var(--secondary);
+        }
+
+        .join-btn.joined:hover {
+            background: #a30000;
+        }
+
+        .search-container {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        .no-groups {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .no-groups i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--primary-light);
+            display: block;
+        }
+
+        .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary-light);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .groups-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .main-content {
+                padding: 15px;
+                margin-top: 60px;
+            }
+
+            .page-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .group-card {
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+        <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">WhipRoom</a>
+          <!-- Add this to your navigation menu -->
+            <li>
+                <a href="notification.html" class="nav-links">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">0</span>
+                </a>
+            </li>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="mingle.html" class="nav-links active">
+                        <i class="fas fa-users"></i>
+                        <span>Connect</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="messages.html" class="nav-links">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="posts.html" class="nav-links">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Resources</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="stream.html" class="nav-links active">
+                        <i class="fas fa-play-circle"></i>
+                        <span class="nav-text" style="font-family: 'Great Vibes', cursive; font-size: 1.1rem;">Stream</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="account.html" class="nav-links">
+                        <i class="fas fa-user-shield"></i>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Join Groups</h1>
+            <button class="create-group-btn" id="createGroupBtn">
+                <i class="fas fa-plus"></i>
+                Create Group
+            </button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-box" id="groupSearch" placeholder="Search groups by name, topic, or category...">
+        </div>
+
+        <div class="groups-grid" id="groupsGrid">
+            <!-- Groups will be loaded here -->
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading groups...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="group.js"></script>
+        <script>
+// Simple navigation menu opener script
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu');
+    const navMenu = document.querySelector('.nav-menu');
+    const navLinks = document.querySelectorAll('.nav-links');
+    
+    if (mobileMenuBtn && navMenu) {
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenuBtn.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking on a link
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!mobileMenuBtn.contains(event.target) && 
+                !navMenu.contains(event.target) && 
+                navMenu.classList.contains('active')) {
+                mobileMenuBtn.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
+        });
+    }
+    
+    // Sidebar toggle (if exists)
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+    }
+    
+    // Dropdown menus
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+    
+    dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const dropdown = this.nextElementSibling;
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(d => {
+                if (d !== dropdown) {
+                    d.classList.remove('active');
+                }
+            });
+            
+            // Toggle current dropdown
+            dropdown.classList.toggle('active');
+        });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.matches('.dropdown-toggle')) {
+            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        }
+    });
+    
+    // Logout functionality
+    const logoutButtons = document.querySelectorAll('.logout-btn');
+    
+    logoutButtons.forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            try {
+                // Redirect to login page
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+    });
+    
+    // Back button functionality
+    const backButtons = document.querySelectorAll('.back-btn');
+    
+    backButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.history.back();
+        });
+    });
+});
+</script>
+</body>
+</html>
